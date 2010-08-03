@@ -191,8 +191,9 @@ function rt_affiliate_contact_list() {
         <thead>
             <tr class="tablemenu">
                 <th width="2%"><input type="checkbox"> </th>
+                <th width="5%">Track ID</th>
                 <th width="8%">Name</th>
-                <th width="20%">Email</th>
+                <th width="15%">Email</th>
                 <th width="5%">Blog URL</th>
                 <th width="5%">Referred By</th>
                 <th width="10%">IP Address</th>
@@ -220,6 +221,7 @@ function rt_affiliate_contact_list() {
 
         <tr class="read">
             <th class="check-column"><input type="checkbox" value="<?php echo $row->id;?>" name="record[]"></th>
+            <td><?php echo $row->id;?></td>
             <td><?php echo $row->name;?></td>
             <td><?php echo $row->email;?></td>
             <td><?php if ( $row->blog_url != '' ) echo '<a target="blank" href="'.$row->blog_url.'">URL</a>'; else echo 'No Link'; ?></td>

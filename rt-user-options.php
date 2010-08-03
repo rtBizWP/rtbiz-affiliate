@@ -6,8 +6,8 @@ function rt_affiliate_stats() {
     if ( !current_user_can( 'manage_options' ) ) $admin_cond = " where a.user_id = $user_ID";
 
 
-    if ( $_POST && $_POST['rt_show'] == 'enquiries_100' ) {
-        $sql = "SELECT a.*, b.project_status FROM ".$wpdb->prefix."rt_aff_contact_details b LEFT JOIN ".$wpdb->prefix."rt_aff_users_referals a on a.id = b.users_referal_id $admin_cond order by a.date DESC limit 0, 100";
+    if ( $_POST && $_POST['rt_show'] == 'enquiries' ) {
+        $sql = "SELECT a.*, b.project_status FROM ".$wpdb->prefix."rt_aff_contact_details b LEFT JOIN ".$wpdb->prefix."rt_aff_users_referals a on a.id = b.users_referal_id $admin_cond order by a.date DESC";// limit 0, 100";
     }
     else {
         $sql = "SELECT a.*, b.project_status FROM ".$wpdb->prefix."rt_aff_users_referals a LEFT JOIN ".$wpdb->prefix."rt_aff_contact_details b on a.id = b.users_referal_id $admin_cond order by a.date DESC limit 0, 100";
@@ -90,8 +90,8 @@ function rt_affiliate_stats() {
         <tr class="read">
             <th><?php echo $k;?></th>
             <td><?php echo date( "F j, Y, g:i a", strtotime( $row->date ) );?></td>
-            <td><?php if ( $row->referred_from != '' ) echo '<a target="blank" href="'.$row->referred_from.'">URL</a>'; else echo 'No Link'; ?></td>
-            <td><?php if ( $row->landing_page != '' ) echo '<a target="blank" href="'.$row->landing_page.'">URL</a>'; else echo 'No Link'; ?></td>
+            <td><?php if ( $row->referred_from != '' ) echo '<a target="blank" href="'.$row->referred_from.'">' .$row->referred_from. '</a>'; else echo 'No Link'; ?></td>
+            <td><?php if ( $row->landing_page != '' ) echo '<a target="blank" href="'.$row->landing_page.'">' .$row->landing_page. '</a>'; else echo 'No Link'; ?></td>
             <td><?php if ( !isset ( $row->project_status ) ) echo '--'; else echo $rt_status[$row->project_status];?></td>
         </tr>
         <?php

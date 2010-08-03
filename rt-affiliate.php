@@ -38,7 +38,7 @@ $rt_status =array('contact_submitted' => 'Client Submitted From',
 $payment_method = array( '--' =>'--', 'paypal' => 'Paypal', 'bank' => 'Bank', 'wired' => 'Wired Transfer');
 $payment_type = array('earning' => 'Earning', 'payment_cancel' => 'Payment Canceled', 'payment' => 'Payment', 'client_refunded' => 'Refunded to Client');
 $rt_time_duration = array('today' => 'Today', 'yesterday' => 'Yesterday', 'this_week' => 'This Week', 'last_week' => 'Last Week', 'this_month' => 'This Month', 'last_month' => 'Last Month', 'this_year' => 'This Year', 'last_year' => 'Last Year' );
-$rt_user_details = array('clicks_100' => 'Last 100 Clicks', 'enquiries_100' => 'Last 100 Enquiries');
+$rt_user_details = array('clicks_100' => 'Last 100 Clicks', 'enquiries' => 'Enquiries');
 
 
 require_once( RT_AFFILIATE_PATH . '/rt-functions.php' );
