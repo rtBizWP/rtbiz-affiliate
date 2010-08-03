@@ -534,6 +534,36 @@ function rt_affiliate_options_email_setting() {
         </tbody>
     </table>
     <div class="submit"><input type="submit" value="save" name="submit"/></div>
+
+    <h3>Sales Team Email Template</h3>
+    <table class="form-table">
+        <tbody>
+            <tr valign="top">
+                <th scope="row"><label for="rt_aff_user_enable">Enable Template</label></th>
+                <td><input type="checkbox" name="sales[rt_aff_enable]" id="rt_aff_user_enable" value="1" <?php if($rt_option['sales']['rt_aff_enable'] == 1) echo 'checked';?> /></td>
+            </tr>
+            <tr valign="top">
+                <th scope="row"><label for="rt_aff_user_from">From Email Address</label></th>
+                <td><input type="text" class="regular-text" name="sales[rt_aff_from]" id="rt_aff_user_from" value="<?php echo $rt_option['sales']['rt_aff_from'];?>" /></td>
+            </tr>
+            <tr valign="top">
+                <th scope="row"><label for="rt_aff_user_fromname">From Name</label></th>
+                <td><input type="text" class="regular-text" name="sales[rt_aff_fromname]" id="rt_aff_user_fromname" value="<?php echo $rt_option['sales']['rt_aff_fromname'];?>" /></td>
+            </tr>
+            <tr valign="top">
+                <th scope="row"><label for="rt_aff_user_subject">Subject</label></th>
+                <td><input type="text" class="regular-text" name="sales[rt_aff_subject]" id="rt_aff_user_subject" value="<?php echo $rt_option['sales']['rt_aff_subject'];?>" /></td>
+            </tr>
+            <tr valign="top">
+                <th scope="row"><label for="rt_aff_user_msg">Message Template</label></th>
+                <td>
+                    <p><strong>Replacement Keys:</strong><br />%affiliate_name% | %blog_url% | %ref_url% | %services_list% | %track_id% </p>
+                    <textarea name="sales[rt_aff_msg]" id="rt_aff_user_msg"  cols="50" rows="8"><?php echo $rt_option['sales']['rt_aff_msg'];?></textarea>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <div class="submit"><input type="submit" value="save" name="submit"/></div>
 </form>
         </div>
         <?php

@@ -321,10 +321,9 @@ function rt_affiliate_referer() {
             $services_list .= '"Webhosting"';
 
         //send mail to rtcamp sales
-        wp_mail(RT_AFFILIATE_SALES_EMAIL, '[B2W: New Enquiry Submitted!]', 'New enquiry submitted.');
+        rt_affiliate_send_mail('to_sales', RT_AFFILIATE_SALES_EMAIL, $_POST['clientname'], $_POST['blog_url'], $_SERVER['HTTP_REFERER'], $services_list, $track_id, $_POST['email']);
         
         //send mail to client
-        //rt_affiliate_send_mail($type, $to, $customer_name, $blog_url, $ref_url, $services_list) {
         rt_affiliate_send_mail('to_client', $_POST['email'], $_POST['clientname'], $_POST['blog_url'], $_SERVER['HTTP_REFERER'], $services_list, $track_id);
 
         //if refral is set, send email to him
@@ -336,7 +335,7 @@ function rt_affiliate_referer() {
     }
 }
 
-function rt_affiliate_send_mail($type, $to, $customer_name, $blog_url, $ref_url, $services_list, $track_id, $affiliate_name) {
+function rt_affiliate_send_mail($type, $to, $customer_name, $blog_url, $ref_url, $services_list, $track_id, $customer_email = '' ) {
     global $wpdb;
     $rt_options = get_option('rt_affiliate_options');
     
@@ -346,8 +345,11 @@ function rt_affiliate_send_mail($type, $to, $customer_name, $blog_url, $ref_url,
         $affiliate_name = $affiliate_user->user_login;
         $rt_options = $rt_options['user'];
     }
-    else{
+    else if($type == 'to_client'){
         $rt_options = $rt_options['customer'];
+    }
+    else if($type == 'to_sales'){
+        $rt_options = $rt_options['sales'];
     }
 
     //if send mail option is not enabled from admin then return
@@ -357,28 +359,31 @@ function rt_affiliate_send_mail($type, $to, $customer_name, $blog_url, $ref_url,
     //$message = '<html><head><title></title></head><body>';
     $message = $rt_options['rt_aff_msg'];
     $message = str_replace('%customer_name%', $customer_name, $message);
+    $message = str_replace('%affiliate_name%', $affiliate_name, $message);
     $message = str_replace('%blog_url%', $blog_url, $message);
     $message = str_replace('%ref_url%', $ref_url, $message);
     $message = str_replace('%services_list%', $services_list, $message);
     $message = str_replace('%track_id%', $track_id, $message);
-    $message = str_replace('%affiliate_name%', $affiliate_name, $message);
-
+    
     //$message .= '</body></html>';
 
     //$message = nl2br($message);
 
     $subject = $rt_options['rt_aff_subject'];
     $subject = str_replace('%customer_name%', $customer_name, $subject);
+    $subject = str_replace('%affiliate_name%', $affiliate_name, $subject);
     $subject = str_replace('%blog_url%', $blog_url, $subject);
     $subject = str_replace('%ref_url%', $ref_url, $subject);
     $subject = str_replace('%services_list%', $services_list, $subject);
     $subject = str_replace('%track_id%', $track_id, $subject);
-    $subject = str_replace('%affiliate_name%', $affiliate_name, $subject);
-
+    
 
     $headers  = 'MIME-Version: 1.0' . "\r\n";
     $headers .= 'Content-type: text/plain; charset=iso-8859-1' . "\r\n";
     $headers .= 'From: '.$rt_options['rt_aff_fromname'].' <'.$rt_options['rt_aff_from'].'>' . "\r\n";
+    if($type == 'to_sales'){
+        $headers .= 'Reply-To: '.$customer_email. "\r\n";
+    }
 
     wp_mail($to, $subject, $message, $headers);
 }
