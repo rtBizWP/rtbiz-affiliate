@@ -250,6 +250,9 @@ function rt_affiliate_payment_info() {
     else if ( $_GET['view_type'] == 'show_payment' ) {
         $cond = " WHERE (type = 'payment' or type = 'client_refunded') ";
     }
+    else {
+        $cond = " WHERE 1 ";
+    }
     $admin_cond = '';
     if ( !current_user_can('manage_options' ) ) {
         $admin_cond = " AND user_id = $user_ID";
