@@ -190,7 +190,7 @@ function rt_affiliate_contact_form() {
                     <li>
                         <input type="checkbox" class="checkbox" value="yes" id="wp_theme" name="wp_theme">
                         <label for="wp_theme">WordPress Theme</label>
-                        <ul>
+                        <ul id="show_hide">
                             <li>
                                 <input type="radio" class="radio" value="blog_layout" id="blog_layout" name="theme">
                                 <label for="blog_layout"> Matching my Blogger layout</label>

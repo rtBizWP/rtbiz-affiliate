@@ -30,4 +30,8 @@ jQuery(document).ready(function() {
                 //label.html("&nbsp;").addClass("checked");
             }
         });
+
+        jQuery("#wp_theme").click(function(){
+           jQuery("#show_hide").slideToggle('slow');
+        });
   });
