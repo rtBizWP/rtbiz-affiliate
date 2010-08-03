@@ -157,13 +157,14 @@ function rt_affiliate_contact_form() {
     ?>
 <form id="rt_aff_contact" action="<?php echo get_permalink();?>" method="post">
     <h2> Contact </h2>
-    <div id="rt_aff_msg">
+     <div id="rt_aff_msg">
         <?php
-        if(isset($_SESSION['rt_msg'])){
+        if(isset($_POST) && isset($_SESSION['rt_msg'])){
             echo $_SESSION['rt_msg'];
         }
         ?>
     </div>
+   
     <fieldset>
 
         <ul id="rt_aff_list">
