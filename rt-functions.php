@@ -10,7 +10,7 @@ function rt_affiliate_activate() {
     $table_rt_aff_users_referals = $wpdb->prefix . 'rt_aff_users_referals';
     $table_rt_aff_payment_info = $wpdb->prefix . 'rt_aff_payment_info';
     $table_rt_aff_transactions = $wpdb->prefix . 'rt_aff_transaction';
-    
+
     //detects if this is a new installation or simply an update.
     $new_installation = $wpdb->get_var("show tables like '$table_rt_aff_contact_details'") ;
 
@@ -34,7 +34,7 @@ function rt_affiliate_activate() {
                 `date_contacted` DATETIME NULL ,
                 `date_update` DATETIME NULL
 		);";
-        
+
 
         $sql .= "CREATE TABLE " . $table_rt_aff_users_referals . " (
                     id int NOT NULL AUTO_INCREMENT PRIMARY KEY ,
@@ -66,7 +66,7 @@ function rt_affiliate_activate() {
                     `date` DATETIME NULL
 		);";
 
-        require_once( ABSPATH . 'wp-admin/includes/upgrade.php');  
+        require_once( ABSPATH . 'wp-admin/includes/upgrade.php');
         dbDelta($sql);
     }
 }
@@ -115,11 +115,11 @@ function rt_affiliate_menu() {
 }
 
 //------------------------------------------------------------
-//  INCLUDE CSS 
+//  INCLUDE CSS
 //------------------------------------------------------------
 //add_action( 'wp_print_styles', 'rt_affiliate_options_load_css' );
 function rt_affiliate_options_load_css() {
-    if(!is_admin()) 
+    if(!is_admin())
         wp_enqueue_style('rt_style', RT_AFFILIATE_URL.'/css/rt_style.css');
 }
 
@@ -145,7 +145,7 @@ function rt_affiliate_options_load_js() {
         wp_enqueue_script('rt-jquery-validate',RT_AFFILIATE_URL.'/js/jquery.validate.js');
         wp_enqueue_script('rt-affiliate-js',RT_AFFILIATE_URL.'/js/rt-affiliate.js');
     }
-}   
+}
 
 //************************************************************************************
 
@@ -165,7 +165,7 @@ function rt_affiliate_contact_form() {
         ?>
     </div>
     <fieldset>
-        
+
         <ul id="rt_aff_list">
             <li>
                 <label for="clientname">Your Name</label>
@@ -209,7 +209,7 @@ function rt_affiliate_contact_form() {
                 </ul>
             </li>
             <li>
-                <label for="comment">Comment  </label>
+                <label id="for_commnet" for="comment">Comment  </label>
 <!--                <small>(any questions)</small> -->
                 <textarea class="textarea" id="comment" name="comment"></textarea>
             </li>
@@ -224,7 +224,7 @@ function rt_affiliate_contact_form() {
             }
             ?>
             <li>
-                <label for="referred_by">Referred By</label>
+                <label id="for_referred_by" for="referred_by">Referred By</label>
                 <input type="text" class="regular-text" value="<?php echo $referar_username;?>" id="referred_by" name="referred_by">
             </li>
             <input type="hidden" value="<?php echo $_SESSION['rt_aff_referal_id'];?>" name="rt_aff_referal_id"/>
@@ -272,7 +272,7 @@ function rt_affiliate_referer() {
             $needle = '&ref';
         }
         $redirect_link = substr($landing_page, 0, strpos($landing_page, $needle));
-        
+
         //check refrrer's usermname is valid
         $sql = "SELECT ID FROM ".$wpdb->prefix."users WHERE user_login = '".trim($_GET['ref'])."'";
         $row = $wpdb->get_row($sql);
@@ -290,7 +290,7 @@ function rt_affiliate_referer() {
                 (`user_id`, `referred_from`, `ip_address`, `landing_page`, `date`)  VALUES
                 ( $row->ID, '" . $_SERVER['HTTP_REFERER'] . "', '" .$_SERVER['REMOTE_ADDR']. "', '" .$landing_page. "', now() )";
             $wpdb->query($sql);
-            
+
             //save referer's user_id in session also
             $_SESSION['rt_aff_referal_id'] = $wpdb->insert_id;
 
@@ -323,7 +323,7 @@ function rt_affiliate_referer() {
 
         //send mail to rtcamp sales
         rt_affiliate_send_mail('to_sales', '', $_POST['clientname'], $_POST['blog_url'], $_SERVER['HTTP_REFERER'], $services_list, $track_id, $_POST['email'], $_POST['comment'] );
-        
+
         //send mail to client
         rt_affiliate_send_mail('to_client', $_POST['email'], $_POST['clientname'], $_POST['blog_url'], $_SERVER['HTTP_REFERER'], $services_list, $track_id);
 
@@ -339,7 +339,7 @@ function rt_affiliate_referer() {
 function rt_affiliate_send_mail($type, $to, $customer_name, $blog_url, $ref_url, $services_list, $track_id, $customer_email = '', $customer_comment = '' ) {
     global $wpdb;
     $rt_options = get_option('rt_affiliate_options');
-    
+
     if($type == 'to_affiliate_user'){
         $affiliate_user = get_userdata($to);
         $to = $affiliate_user->user_email;
@@ -352,7 +352,7 @@ function rt_affiliate_send_mail($type, $to, $customer_name, $blog_url, $ref_url,
     else if($type == 'to_sales'){
         $rt_options = $rt_options['sales'];
         $to = $rt_options['rt_aff_to'];
-        
+
     }
 
     //if send mail option is not enabled from admin then return
@@ -372,7 +372,7 @@ function rt_affiliate_send_mail($type, $to, $customer_name, $blog_url, $ref_url,
         $message = str_replace('%customer_email%', $customer_email, $message);
         $message = str_replace('%customer_comment%', $customer_comment, $message);
     }
-    
+
     //$message .= '</body></html>';
 
     //$message = nl2br($message);
