@@ -395,7 +395,9 @@ function rt_affiliate_send_mail($type, $to, $customer_name, $blog_url, $ref_url,
     $headers .= 'From: '.$rt_options['rt_aff_fromname'].' <'.$rt_options['rt_aff_from'].'>' . "\r\n";
     if($type == 'to_sales'){
         $headers .= 'Reply-To: '.$customer_email. "\r\n";
-        $headers .= 'Cc: '.$rt_options['rt_aff_cc'] . "\r\n";
+        if ( $rt_options['rt_aff_cc'] != '' )
+            $headers .= 'Cc: '.$rt_options['rt_aff_cc'] . "\r\n";
+        if ( $rt_options['rt_aff_bcc'] != '' )
         $headers .= 'Bcc: '.$rt_options['rt_aff_bcc'] . "\r\n";
     }
     wp_mail($to, $subject, $message, $headers);
