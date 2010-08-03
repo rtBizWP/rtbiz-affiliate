@@ -317,15 +317,16 @@ function rt_affiliate_contact_edit() {
 
     $sql = "SELECT * FROM ".$wpdb->prefix."rt_aff_contact_details WHERE id = ".$_GET['cid'];
     $row = $wpdb->get_row($sql);
-    $services_list = '';
+    $services_list = '<ol>';
     if($row->service_b2w_migration == 'yes')
-        $services_list .= 'Blogger to WordPress Migration<br/>';
+        $services_list .= '<li>Blogger to WordPress Migration</li>';
     if($row->service_wp_theme == 'blog_layout')
-        $services_list .= 'Theme matching my blog layout<br/>';
+        $services_list .= '<li>Theme matching my blog layout</li>';
     if($row->service_wp_theme == 'new_theme')
-        $services_list .= 'New WordPress theme<br/>';
+        $services_list .= '<li>New WordPress theme</li>';
     if($row->service_hosting == 'yes')
-        $services_list .= 'Webhosting';
+        $services_list .= '<li>Webhosting</li>';
+    $services_list .= '<ol>';
     ?>
 
 <form name="affiliate_form" id="affiliate_form"  method="post" action="<?php echo "?page=".RT_AFFILIATE_HANDLER."&action=".$_GET['action']."&cid=".$_GET['cid']; ?>" >
