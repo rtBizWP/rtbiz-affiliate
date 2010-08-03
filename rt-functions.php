@@ -232,7 +232,7 @@ function rt_affiliate_contact_form() {
             <input type="hidden" value="<?php echo urlencode(serialize($_SESSION['browser_history']));?>" name="browser_history" />
             <?php wp_nonce_field('rtaff123');?>
             <li>
-                <input type="submit" name="rt_affiliate_contact" value="Submit"/>
+                <input type="submit" name="rt_affiliate_contact" value="Submit" id="rt_affiliate_submit"/>
             </li>
     </ul>
     </fieldset>
