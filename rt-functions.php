@@ -156,6 +156,7 @@ function rt_affiliate_options_load_js() {
 function rt_affiliate_contact_form() {
     ?>
 <form id="rt_aff_contact" action="<?php echo get_permalink();?>" method="post">
+    <legend>Contact </legend>
     <div id="rt_aff_msg">
         <?php
         if(isset($_SESSION['rt_msg'])){
@@ -164,7 +165,7 @@ function rt_affiliate_contact_form() {
         ?>
     </div>
     <fieldset>
-        <legend>Contact </legend>
+        
         <ul id="rt_aff_list">
             <li>
                 <label for="clientname">Your Name</label>
