@@ -159,7 +159,7 @@ function rt_affiliate_contact_form() {
     <h2> Contact </h2>
      <div id="rt_aff_msg">
         <?php
-        if(isset($_POST) && isset($_SESSION['rt_msg'])){
+        if(!empty($_POST) && isset($_SESSION['rt_msg'])){
             echo $_SESSION['rt_msg'];
         }
         ?>
