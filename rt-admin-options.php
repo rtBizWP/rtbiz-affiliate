@@ -603,7 +603,9 @@ function rt_affiliate_options_manage_payment() {
 }
 function rt_affiliate_options_manage_payment_list() {
     global $wpdb, $payment_type;
-    $sql = "SELECT * FROM ".$wpdb->prefix."rt_aff_transaction order by date desc ";
+    $cond = '';
+    if ($_GET['user'] !=0 ) $cond = 'WHERE user_id = '.$_GET['user'];
+    $sql = "SELECT * FROM ".$wpdb->prefix."rt_aff_transaction $cond order by date desc ";
     $rows = $wpdb->get_results($sql);
     ?>
         <div class="tablenav">
@@ -617,7 +619,7 @@ function rt_affiliate_options_manage_payment_list() {
                         $sql_user = "SELECT ID, user_login from ".$wpdb->prefix."users";
                         $rows_user = $wpdb->get_results($sql_user);
                         foreach($rows_user as $row_user){
-                            ?><option value="<?php echo $row_user->ID;?>" <?php if($_GET['status'] == $row_user->ID) echo 'selected';?>><?php echo $row_user->user_login;?></option><?php
+                            ?><option value="<?php echo $row_user->ID;?>" <?php if($_GET['user'] == $row_user->ID) echo 'selected';?>><?php echo $row_user->user_login;?></option><?php
                         }
                     ?>
                     </select>
