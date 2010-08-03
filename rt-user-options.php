@@ -243,7 +243,19 @@ function rt_affiliate_payment_info() {
         }
     }
 
-    $sql_pay = "SELECT * FROM ".$wpdb->prefix."rt_aff_payment_info where user_id = $user_ID ".$cond;
+    $cond = '';
+    if ( $_GET['view_type'] == 'show_earning' ) {
+        $cond = " WHERE (type = 'earning' or type = 'payment_cancel') ";
+    }
+    else if ( $_GET['view_type'] == 'show_payment' ) {
+        $cond = " WHERE (type = 'payment' or type = 'client_refunded') ";
+    }
+    $admin_cond = '';
+    if ( !current_user_can('manage_options' ) ) {
+        $admin_cond = " AND user_id = $user_ID";
+    }
+
+    $sql_pay = "SELECT * FROM ".$wpdb->prefix."rt_aff_payment_info  $cond ".$admin_cond;
     $rows_pay = $wpdb->get_row( $sql_pay );
     ?>
     <div class="wrap">
@@ -300,18 +312,7 @@ function rt_affiliate_payment_info() {
             </tr>
         </thead>
         <?php
-        $cond = '';
-        if ( $_GET['view_type'] == 'show_earning' ) {
-            $cond = " and (type = 'earning' or type = 'payment_cancel') ";
-        }
-        else if ( $_GET['view_type'] == 'show_payment' ) {
-            $cond = " and (type = 'payment' or type = 'client_refunded') ";
-        }
-        $admin_cond = '';
-        if ( !current_user_can('manage_options' ) ) {
-            $admin_cond = " WHERE user_id = $user_ID";
-        }
-        $sql = "SELECT * FROM ".$wpdb->prefix."rt_aff_transaction $admin_cond ".$cond;
+        $sql = "SELECT * FROM ".$wpdb->prefix."rt_aff_transaction  $cond".$admin_cond;
         $rows = $wpdb->get_results( $sql );
         foreach ( $rows as $k => $row ) {
         ?>
