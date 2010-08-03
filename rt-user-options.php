@@ -154,7 +154,7 @@ function rt_affiliate_summary() {
 
     $sql_clicks = "SELECT count(id) as cnt FROM ".$wpdb->prefix."rt_aff_users_referals WHERE $admin_cond".$cond1;
     $rows_clicks = $wpdb->get_row( $sql_clicks );
-    $sql_enq = "SELECT count(id) as cnt FROM ".$wpdb->prefix."rt_aff_contact_details WHERE $admin_ref_cond".$cond2;
+    echo $sql_enq = "SELECT count(id) as cnt FROM ".$wpdb->prefix."rt_aff_contact_details WHERE $admin_ref_cond".$cond2;
     $rows_enq = $wpdb->get_row( $sql_enq );
     $sql_cmpl = "SELECT count(id) as cnt FROM ".$wpdb->prefix."rt_aff_contact_details WHERE $admin_ref_cond project_status = 'completed' and ".$cond2;
     $rows_cmpl = $wpdb->get_row( $sql_cmpl );
