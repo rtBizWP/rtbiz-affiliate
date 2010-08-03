@@ -307,6 +307,7 @@ function rt_affiliate_referer() {
             (`users_referal_id`, `referred_by`, `name`, `email`, `blog_url`, `service_b2w_migration`, `service_wp_theme`, `service_hosting`, `cust_comment`, `ip_address`, `browsing_history`, `project_status`, `date_contacted`, `date_update`) VALUES
             ( '" . $_POST['rt_aff_referal_id'] . "', '" . $_POST['referred_by_id'] . "', '" . $_POST['clientname'] . "', '" . $_POST['email'] . "', '" . $_POST['blog_url'] . "', '" . $_POST['b2w'] . "', '" . $_POST['theme'] . "', '" . $_POST['webhosting'] . "', '" . $_POST['comment'] . "', '" . $_POST['ip_address'] . "', '" . $_POST['browser_history'] . "', 'contact_submitted', now(), now() )";
         $wpdb->query($sql);
+        $track_id = $wpdb->insert_id;
 
         //list services
         $services_list = '';
@@ -324,18 +325,18 @@ function rt_affiliate_referer() {
         
         //send mail to client
         //rt_affiliate_send_mail($type, $to, $customer_name, $blog_url, $ref_url, $services_list) {
-        rt_affiliate_send_mail('to_client', $_POST['email'], $_POST['clientname'], $_POST['blog_url'], $_SERVER['HTTP_REFERER'], $services_list);
+        rt_affiliate_send_mail('to_client', $_POST['email'], $_POST['clientname'], $_POST['blog_url'], $_SERVER['HTTP_REFERER'], $services_list, $track_id);
 
         //if refral is set, send email to him
         if($_POST['referred_by_id']!=''){
-            rt_affiliate_send_mail('to_affiliate_user', $_POST['referred_by_id'], $_POST['clientname'], $_POST['blog_url'], $_SERVER['HTTP_REFERER'], $services_list);
+            rt_affiliate_send_mail('to_affiliate_user', $_POST['referred_by_id'], $_POST['clientname'], $_POST['blog_url'], $_SERVER['HTTP_REFERER'], $services_list, $track_id);
         }
 
         $_SESSION['rt_msg'] = 'Form submitted successfully!';
     }
 }
 
-function rt_affiliate_send_mail($type, $to, $customer_name, $blog_url, $ref_url, $services_list) {
+function rt_affiliate_send_mail($type, $to, $customer_name, $blog_url, $ref_url, $services_list, $track_id) {
     global $wpdb;
     $rt_options = get_option('rt_affiliate_options');
     
@@ -357,17 +358,24 @@ function rt_affiliate_send_mail($type, $to, $customer_name, $blog_url, $ref_url,
     $message = str_replace('%blog_url%', $blog_url, $message);
     $message = str_replace('%ref_url%', $ref_url, $message);
     $message = str_replace('%services_list%', $services_list, $message);
-    
-    $siteurl = get_option('siteurl');
-    $message = str_replace('%siteurl%', $siteurl, $message);
+    $message = str_replace('%track_id%', $track_id, $message);
+
     //$message .= '</body></html>';
 
     //$message = nl2br($message);
+
+    $subject = $rt_options['rt_aff_subject'];
+    $subject = str_replace('%customer_name%', $customer_name, $subject);
+    $subject = str_replace('%blog_url%', $blog_url, $subject);
+    $subject = str_replace('%ref_url%', $ref_url, $subject);
+    $subject = str_replace('%services_list%', $services_list, $subject);
+    $subject = str_replace('%track_id%', $track_id, $subject);
+
 
     $headers  = 'MIME-Version: 1.0' . "\r\n";
     $headers .= 'Content-type: text/plain; charset=iso-8859-1' . "\r\n";
     $headers .= 'From: '.$rt_options['rt_aff_fromname'].' <'.$rt_options['rt_aff_from'].'>' . "\r\n";
 
-    wp_mail($to, $rt_options['rt_aff_subject'], $message, $headers);
+    wp_mail($to, $subject, $message, $headers);
 }
 ?>

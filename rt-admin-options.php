@@ -527,7 +527,7 @@ function rt_affiliate_options_email_setting() {
             <tr valign="top">
                 <th scope="row"><label for="rt_aff_user_msg">Message Template</label></th>
                 <td>
-                    <p><strong>Replacement Keys:</strong><br />%customer_name% | %blog_url% | %ref_url% | %services_list% </p>
+                    <p><strong>Replacement Keys:</strong><br />%customer_name% | %blog_url% | %ref_url% | %services_list% | %track_id% </p>
                     <textarea name="user[rt_aff_msg]" id="rt_aff_user_msg"  cols="50" rows="8"><?php echo $rt_option['user']['rt_aff_msg'];?></textarea>
                 </td>
             </tr>
