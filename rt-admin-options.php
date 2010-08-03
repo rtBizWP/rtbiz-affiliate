@@ -135,7 +135,7 @@ function rt_affiliate_contact_list() {
                 break;
         }
     }
-    $sql = "SELECT * FROM ".$wpdb->prefix."rt_aff_contact_details where ".$staus_sql.$sort_sql;
+    echo $sql = "SELECT * FROM ".$wpdb->prefix."rt_aff_contact_details where ".$staus_sql.$sort_sql;
     $rows = $wpdb->get_results( $sql );
     ?>
         <h3>Customize View</h3>
