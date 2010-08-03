@@ -274,7 +274,7 @@ function rt_affiliate_contact_edit() {
 
                 $amt = 0;
                 if($row_contact->service_b2w_migration == 'yes') $amt += RT_AFFILIATE_COMMISSION_B2W;
-                if($row_contact->service_wp_theme == 'yes') $amt += RT_AFFILIATE_COMMISSION_THEME;
+                if($row_contact->service_wp_theme != 'no') $amt += RT_AFFILIATE_COMMISSION_THEME;
 
                 $sql = "INSERT INTO " . $wpdb->prefix . "rt_aff_transaction
                      ( `txn_id`, `user_id`, `type`, `amount`, `date`)  VALUES
