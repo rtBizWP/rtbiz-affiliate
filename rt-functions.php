@@ -321,7 +321,7 @@ function rt_affiliate_referer() {
             $services_list .= '"Webhosting"';
 
         //send mail to rtcamp sales
-        rt_affiliate_send_mail('to_sales', RT_AFFILIATE_SALES_EMAIL, $_POST['clientname'], $_POST['blog_url'], $_SERVER['HTTP_REFERER'], $services_list, $track_id, $_POST['email'], $_POST['comment'] );
+        rt_affiliate_send_mail('to_sales', '', $_POST['clientname'], $_POST['blog_url'], $_SERVER['HTTP_REFERER'], $services_list, $track_id, $_POST['email'], $_POST['comment'] );
         
         //send mail to client
         rt_affiliate_send_mail('to_client', $_POST['email'], $_POST['clientname'], $_POST['blog_url'], $_SERVER['HTTP_REFERER'], $services_list, $track_id);
@@ -350,6 +350,8 @@ function rt_affiliate_send_mail($type, $to, $customer_name, $blog_url, $ref_url,
     }
     else if($type == 'to_sales'){
         $rt_options = $rt_options['sales'];
+        $to = $rt_options['rt_aff_to'];
+        
     }
 
     //if send mail option is not enabled from admin then return

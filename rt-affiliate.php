@@ -17,7 +17,7 @@ define( 'RT_AFFILIATE_PATH', str_replace( '\\', '/', trailingslashit(dirname(__F
 define( 'RT_AFFILIATE_URL', plugins_url('', __FILE__) );
 define( 'RT_AFFILIATE_HANDLER', 'rt-affiliate-admin' );
 define( 'RT_AFFILIATE_HANDLER_USER', 'rt-affiliate-user' );
-define( 'RT_AFFILIATE_SALES_EMAIL', 'sales@rtcamp.com' );
+//define( 'RT_AFFILIATE_SALES_EMAIL', 'sales@rtcamp.com' );
 define( 'RT_AFFILIATE_COMMISSION_B2W', 25 );
 define( 'RT_AFFILIATE_COMMISSION_THEME', 25 );
 define( 'RT_AFFILIATE_BANNER_PATH', RT_AFFILIATE_PATH.'/banners/' );
