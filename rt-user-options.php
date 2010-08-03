@@ -285,6 +285,20 @@ function rt_affiliate_payment_info() {
         <div class="submit"><input type="submit" value="save" name="submit"/></div>
         </form>
 
+        <?php
+        if ( !current_user_can('manage_options' ) ) {
+        $sql_balance_plus = "SELECT SUM(amount) as plus FROM ".$wpdb->prefix."rt_aff_payment_info  WHERE (type = 'earning' or type = 'payment_cancel') ".$admin_cond;
+        $rows_balance_plus = $wpdb->get_row( $sql_balance_plus );
+
+        $sql_balance_minus = "SELECT SUM(amount) as minus FROM ".$wpdb->prefix."rt_aff_payment_info  WHERE (type = 'payment' or type = 'client_refunded') ".$admin_cond;
+        $rows_balance_minus = $wpdb->get_row( $sql_balance_minus );
+
+        $balance = $rows_balance_plus->plus - $rows_balance_minus->minus;
+
+        echo '<h3>Total Balance:$' .$balance. '</h3>';
+        }
+         ?>
+
     <h3>Earning History</h3>
     <form method="get" action="">
         <input type="hidden" name="page" value="payment_info"/>
