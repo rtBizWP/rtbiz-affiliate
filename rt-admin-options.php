@@ -635,8 +635,8 @@ function rt_affiliate_options_manage_payment_list() {
                 <th>Contact ID/ Transaction /Chq ID</th>
                 <th>Payment Method</th>
                 <th>Type</th>
-                <th>Withdraw</th>
                 <th>Deposit</th>
+                <th>Withdraw</th>
                 <th>Note</th>
                 <th>Date</th>
                 <th>Edit</th>
@@ -651,8 +651,8 @@ function rt_affiliate_options_manage_payment_list() {
                 <td><?php echo $row->txn_id?></td>
                 <td><?php echo $row->payment_method?></td>
                 <td><?php echo $payment_type[$row->type];?></td>
-                <td><?php if($row->type == 'payment' || $row->type == 'client_refunded') echo $row->amount;?></td>
-                <td><?php if($row->type == 'earning' || $row->type == 'payment_cancel') echo $row->amount;?></td>
+                <td><?php if($row->type == 'earning' || $row->type == 'payment_cancel') echo '+'.$row->amount;?></td>
+                <td><?php if($row->type == 'payment' || $row->type == 'client_refunded') echo '-'.$row->amount;?></td>
                 <td><?php echo $row->note;?></td>
                 <td><?php echo date("F j, Y, g:i a", strtotime($row->date));?></td>
                 <td><a href="?page=manage_payment&action=edit&pid=<?php echo $row->id;?>">Edit</a> </td>
