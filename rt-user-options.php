@@ -293,7 +293,7 @@ function rt_affiliate_payment_info() {
         $sql_balance_minus = "SELECT SUM(amount) as minus FROM ".$wpdb->prefix."rt_aff_payment_info  WHERE (type = 'payment' or type = 'client_refunded') ".$admin_cond;
         $rows_balance_minus = $wpdb->get_row( $sql_balance_minus );
 
-        $balance = $rows_balance_plus->plus - $rows_balance_minus->minus;
+        echo "$balance = $rows_balance_plus->plus - $rows_balance_minus->minus";
 
         echo '<h3>Total Balance:' .$balance. ' USD</h3>';
         }
