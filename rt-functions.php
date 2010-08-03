@@ -321,7 +321,7 @@ function rt_affiliate_referer() {
             $services_list .= '"Webhosting"';
 
         //send mail to rtcamp sales
-        rt_affiliate_send_mail('to_sales', RT_AFFILIATE_SALES_EMAIL, $_POST['clientname'], $_POST['blog_url'], $_SERVER['HTTP_REFERER'], $services_list, $track_id, $_POST['email']);
+        rt_affiliate_send_mail('to_sales', RT_AFFILIATE_SALES_EMAIL, $_POST['clientname'], $_POST['blog_url'], $_SERVER['HTTP_REFERER'], $services_list, $track_id, $_POST['email'], $_POST['comment'] );
         
         //send mail to client
         rt_affiliate_send_mail('to_client', $_POST['email'], $_POST['clientname'], $_POST['blog_url'], $_SERVER['HTTP_REFERER'], $services_list, $track_id);
@@ -335,7 +335,7 @@ function rt_affiliate_referer() {
     }
 }
 
-function rt_affiliate_send_mail($type, $to, $customer_name, $blog_url, $ref_url, $services_list, $track_id, $customer_email = '' ) {
+function rt_affiliate_send_mail($type, $to, $customer_name, $blog_url, $ref_url, $services_list, $track_id, $customer_email = '', $customer_comment = '' ) {
     global $wpdb;
     $rt_options = get_option('rt_affiliate_options');
     
@@ -364,6 +364,11 @@ function rt_affiliate_send_mail($type, $to, $customer_name, $blog_url, $ref_url,
     $message = str_replace('%ref_url%', $ref_url, $message);
     $message = str_replace('%services_list%', $services_list, $message);
     $message = str_replace('%track_id%', $track_id, $message);
+
+    if($type == 'to_sales'){
+        $message = str_replace('%customer_email%', $customer_email, $message);
+        $message = str_replace('%customer_comment%', $customer_comment, $message);
+    }
     
     //$message .= '</body></html>';
 
@@ -376,15 +381,20 @@ function rt_affiliate_send_mail($type, $to, $customer_name, $blog_url, $ref_url,
     $subject = str_replace('%ref_url%', $ref_url, $subject);
     $subject = str_replace('%services_list%', $services_list, $subject);
     $subject = str_replace('%track_id%', $track_id, $subject);
-    
+
+    if($type == 'to_sales'){
+        $subject = str_replace('%customer_email%', $customer_email, $subject);
+        $subject = str_replace('%customer_comment%', $customer_comment, $subject);
+    }
 
     $headers  = 'MIME-Version: 1.0' . "\r\n";
     $headers .= 'Content-type: text/plain; charset=iso-8859-1' . "\r\n";
     $headers .= 'From: '.$rt_options['rt_aff_fromname'].' <'.$rt_options['rt_aff_from'].'>' . "\r\n";
     if($type == 'to_sales'){
         $headers .= 'Reply-To: '.$customer_email. "\r\n";
+        $headers .= 'Cc: '.$rt_options['rt_aff_cc'] . "\r\n";
+        $headers .= 'Bcc: '.$rt_options['rt_aff_bcc'] . "\r\n";
     }
-
     wp_mail($to, $subject, $message, $headers);
 }
 ?>

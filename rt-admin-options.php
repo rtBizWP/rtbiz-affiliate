@@ -545,6 +545,18 @@ function rt_affiliate_options_email_setting() {
                 <td><input type="checkbox" name="sales[rt_aff_enable]" id="rt_aff_user_enable" value="1" <?php if($rt_option['sales']['rt_aff_enable'] == 1) echo 'checked';?> /></td>
             </tr>
             <tr valign="top">
+                <th scope="row"><label for="rt_aff_user_to">To Email Address</label></th>
+                <td><input type="text" class="regular-text" name="sales[rt_aff_to]" id="rt_aff_user_to" value="<?php echo $rt_option['sales']['rt_aff_to'];?>" /></td>
+            </tr>
+            <tr valign="top">
+                <th scope="row"><label for="rt_aff_user_bcc">BCC Email Address</label></th>
+                <td><input type="text" class="regular-text" name="sales[rt_aff_bcc]" id="rt_aff_user_bcc" value="<?php echo $rt_option['sales']['rt_aff_bcc'];?>" /></td>
+            </tr>
+            <tr valign="top">
+                <th scope="row"><label for="rt_aff_user_cc">CC Email Address</label></th>
+                <td><input type="text" class="regular-text" name="sales[rt_aff_cc]" id="rt_aff_user_cc" value="<?php echo $rt_option['sales']['rt_aff_cc'];?>" /></td>
+            </tr>
+            <tr valign="top">
                 <th scope="row"><label for="rt_aff_user_from">From Email Address</label></th>
                 <td><input type="text" class="regular-text" name="sales[rt_aff_from]" id="rt_aff_user_from" value="<?php echo $rt_option['sales']['rt_aff_from'];?>" /></td>
             </tr>
@@ -559,7 +571,7 @@ function rt_affiliate_options_email_setting() {
             <tr valign="top">
                 <th scope="row"><label for="rt_aff_user_msg">Message Template</label></th>
                 <td>
-                    <p><strong>Replacement Keys:</strong><br />%affiliate_name% | %blog_url% | %ref_url% | %services_list% | %track_id% </p>
+                    <p><strong>Replacement Keys:</strong><br />%affiliate_name% | %blog_url% | %ref_url% | %services_list% | %track_id% | %customer_email% | %customer_comment% </p>
                     <textarea name="sales[rt_aff_msg]" id="rt_aff_user_msg"  cols="50" rows="8"><?php echo $rt_option['sales']['rt_aff_msg'];?></textarea>
                 </td>
             </tr>
