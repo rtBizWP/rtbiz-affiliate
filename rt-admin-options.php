@@ -135,7 +135,7 @@ function rt_affiliate_contact_list() {
                 break;
         }
     }
-    echo $sql = "SELECT * FROM ".$wpdb->prefix."rt_aff_contact_details where ".$staus_sql.$sort_sql;
+    $sql = "SELECT * FROM ".$wpdb->prefix."rt_aff_contact_details where ".$staus_sql.$sort_sql;
     $rows = $wpdb->get_results( $sql );
     ?>
         <h3>Customize View</h3>
@@ -670,7 +670,7 @@ function rt_affiliate_options_manage_payment_list() {
 function rt_affiliate_options_manage_payment_edit() {
     global $wpdb, $payment_method, $payment_type;
     if($_POST['action'] == 'add'){
-        echo $sql = "INSERT INTO " . $wpdb->prefix . "rt_aff_transaction ( `txn_id`, `user_id`, `type`, `amount`, `payment_method`, `note`, `date`) VALUES
+        $sql = "INSERT INTO " . $wpdb->prefix . "rt_aff_transaction ( `txn_id`, `user_id`, `type`, `amount`, `payment_method`, `note`, `date`) VALUES
                 ( '" . $_POST['txn_id'] . "', '" . $_POST['user'] . "', '" . $_POST['type'] . "', '" . $_POST['amount'] . "', '" . $_POST['payment_method'] . "', '" . $_POST['note'] . "', '" . $_POST['date'] . "')";
         $wpdb->query($sql);
         $msg = 'Saved successfully!';
