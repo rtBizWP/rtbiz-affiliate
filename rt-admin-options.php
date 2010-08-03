@@ -353,6 +353,10 @@ function rt_affiliate_contact_edit() {
     </tr>
     <tr><td colspan="2"><div class="submit"><input type="submit" value="save" name="submit"/></div></td></tr>
     <tr>
+        <th class="label" valign="top"><label>Track ID:</label></th>
+        <td class="field"><?php echo $row->id;?></td>
+    </tr>
+    <tr>
         <th class="label" valign="top"><label>Name:</label></th>
         <td class="field"><?php echo $row->name;?></td>
     </tr>
