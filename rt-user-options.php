@@ -295,7 +295,7 @@ function rt_affiliate_payment_info() {
 
         $balance = $rows_balance_plus->plus - $rows_balance_minus->minus;
 
-        echo '<h3>Total Balance:$' .$balance. '</h3>';
+        echo '<h3>Total Balance:' .$balance. ' USD</h3>';
         }
          ?>
 
@@ -322,8 +322,8 @@ function rt_affiliate_payment_info() {
                 <th>Track ID/ Transaction /Chq ID</th>
                 <th>Payment Method</th>
                 <th>Type</th>
-                <th>Withdraw</th>
                 <th>Deposit</th>
+                <th>Withdraw</th>
                 <th>Note</th>
                 <th>Date</th>
             </tr>
@@ -338,8 +338,8 @@ function rt_affiliate_payment_info() {
                 <td><?php echo $row->txn_id?></td>
                 <td><?php echo $row->payment_method?></td>
                 <td><?php echo $row->type;?></td>
-                <td><?php if ( $row->type == 'payment' || $row->type == 'client_refunded' ) echo $row->amount;?></td>
-                <td><?php if ( $row->type == 'earning' || $row->type == 'payment_cancel' ) echo $row->amount;?></td>
+                <td><?php if ( $row->type == 'earning' || $row->type == 'payment_cancel' ) echo '+'.$row->amount;?></td>
+                <td><?php if ( $row->type == 'payment' || $row->type == 'client_refunded' ) echo '-'.$row->amount;?></td>
                 <td><?php echo $row->note;?></td>
                 <td><?php echo date( "F j, Y, g:i a", strtotime( $row->date ) );?></td>
             </tr>
