@@ -663,7 +663,7 @@ function rt_affiliate_options_manage_payment_list() {
 function rt_affiliate_options_manage_payment_edit() {
     global $wpdb, $payment_method, $payment_type;
     if($_POST['action'] == 'add'){
-        $sql = "INSERT INTO " . $wpdb->prefix . "rt_aff_transaction ( `txn_id`, `user_id`, `type`, `amount`, `payment_method`, `note`, `date`) VALUES
+        echo $sql = "INSERT INTO " . $wpdb->prefix . "rt_aff_transaction ( `txn_id`, `user_id`, `type`, `amount`, `payment_method`, `note`, `date`) VALUES
                 ( '" . $_POST['txn_id'] . "', '" . $_POST['user'] . "', '" . $_POST['type'] . "', '" . $_POST['amount'] . "', '" . $_POST['payment_method'] . "', '" . $_POST['note'] . "', '" . $_POST['date'] . "')";
         $wpdb->query($sql);
         $msg = 'Saved successfully!';
