@@ -156,7 +156,7 @@ function rt_affiliate_options_load_js() {
 function rt_affiliate_contact_form() {
     ?>
 <form id="rt_aff_contact" action="<?php echo get_permalink();?>" method="post">
-    <legend>Contact </legend>
+    <h2> Contact </h2>
     <div id="rt_aff_msg">
         <?php
         if(isset($_SESSION['rt_msg'])){
