@@ -250,7 +250,7 @@ function rt_affiliate_contact_edit() {
         if($_POST['project_status'] != 'completed'){
             $cond = " and project_status!= 'completed'";
         }
-        if($_POST['project_status'] != 'completed_refund'){
+        if($_POST['project_status'] == 'completed_refund'){
             $cond = " and project_status = 'completed'";
         }
         $sql = "UPDATE " . $wpdb->prefix . "rt_aff_contact_details SET
