@@ -336,12 +336,14 @@ function rt_affiliate_referer() {
     }
 }
 
-function rt_affiliate_send_mail($type, $to, $customer_name, $blog_url, $ref_url, $services_list, $track_id) {
+function rt_affiliate_send_mail($type, $to, $customer_name, $blog_url, $ref_url, $services_list, $track_id, $affiliate_name) {
     global $wpdb;
     $rt_options = get_option('rt_affiliate_options');
     
     if($type == 'to_affiliate_user'){
-        $to = get_userdata($to)->user_email;
+        $affiliate_user = get_userdata($to);
+        $to = $affiliate_user->user_email;
+        $affiliate_name = $affiliate_user->user_login;
         $rt_options = $rt_options['user'];
     }
     else{
@@ -359,6 +361,7 @@ function rt_affiliate_send_mail($type, $to, $customer_name, $blog_url, $ref_url,
     $message = str_replace('%ref_url%', $ref_url, $message);
     $message = str_replace('%services_list%', $services_list, $message);
     $message = str_replace('%track_id%', $track_id, $message);
+    $message = str_replace('%affiliate_name%', $affiliate_name, $message);
 
     //$message .= '</body></html>';
 
@@ -370,6 +373,7 @@ function rt_affiliate_send_mail($type, $to, $customer_name, $blog_url, $ref_url,
     $subject = str_replace('%ref_url%', $ref_url, $subject);
     $subject = str_replace('%services_list%', $services_list, $subject);
     $subject = str_replace('%track_id%', $track_id, $subject);
+    $subject = str_replace('%affiliate_name%', $affiliate_name, $subject);
 
 
     $headers  = 'MIME-Version: 1.0' . "\r\n";
