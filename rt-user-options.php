@@ -289,7 +289,7 @@ function rt_affiliate_payment_info() {
         <thead>
             <tr class="tablemenu">
                 <th width="5%">#</th>
-                <th>Contact ID/ Transaction /Chq ID</th>
+                <th>Track ID/ Transaction /Chq ID</th>
                 <th>Payment Method</th>
                 <th>Type</th>
                 <th>Withdraw</th>
