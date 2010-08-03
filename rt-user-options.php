@@ -7,10 +7,10 @@ function rt_affiliate_stats() {
 
 
     if ( $_POST && $_POST['rt_show'] == 'enquiries' ) {
-        $sql = "SELECT a.*, b.project_status FROM ".$wpdb->prefix."rt_aff_contact_details b LEFT JOIN ".$wpdb->prefix."rt_aff_users_referals a on a.id = b.users_referal_id $admin_cond order by a.date DESC";// limit 0, 100";
+        $sql = "SELECT a.*, b.project_status, b.id as track_id FROM ".$wpdb->prefix."rt_aff_contact_details b LEFT JOIN ".$wpdb->prefix."rt_aff_users_referals a on a.id = b.users_referal_id $admin_cond order by a.date DESC";// limit 0, 100";
     }
     else {
-        $sql = "SELECT a.*, b.project_status FROM ".$wpdb->prefix."rt_aff_users_referals a LEFT JOIN ".$wpdb->prefix."rt_aff_contact_details b on a.id = b.users_referal_id $admin_cond order by a.date DESC limit 0, 100";
+        $sql = "SELECT a.*, b.project_status, b.id as track_id FROM ".$wpdb->prefix."rt_aff_users_referals a LEFT JOIN ".$wpdb->prefix."rt_aff_contact_details b on a.id = b.users_referal_id $admin_cond order by a.date DESC limit 0, 100";
     }
     $rows = $wpdb->get_results( $sql );
     ?>
@@ -76,7 +76,7 @@ function rt_affiliate_stats() {
         <table class="widefat post fixed" id="messagelist" width="90%">
         <thead>
             <tr class="tablemenu">
-                <th width="5%">#</th>
+                <th width="5%">Track ID</th>
                 <th width="20%">Date & Time</th>
                 <th width="25%">Referred From</th>
                 <th width="25%">Landing Page</th>
@@ -88,7 +88,7 @@ function rt_affiliate_stats() {
             foreach ( $rows as $k => $row ) {
         ?>
         <tr class="read">
-            <th><?php echo $k;?></th>
+            <td><?php if ( $row->track_id != '' ) echo $row->track_id; else echo '---'; ?></td>
             <td><?php echo date( "F j, Y, g:i a", strtotime( $row->date ) );?></td>
             <td><?php if ( $row->referred_from != '' ) echo '<a target="blank" href="'.$row->referred_from.'">' .$row->referred_from. '</a>'; else echo 'No Link'; ?></td>
             <td><?php if ( $row->landing_page != '' ) echo '<a target="blank" href="'.$row->landing_page.'">' .$row->landing_page. '</a>'; else echo 'No Link'; ?></td>
