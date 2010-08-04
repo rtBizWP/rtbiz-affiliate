@@ -246,13 +246,13 @@ function rt_affiliate_contact_list() {
             <td><?php echo $row->id;?></td>
             <td><?php echo $row->name;?></td>
             <td><?php echo $row->email;?></td>
-            <td><?php if ( $row->blog_url != '' ) echo '<a target="blank" href="'.$row->blog_url.'">URL</a>'; else echo 'No Link'; ?></td>
+            <td><?php if ( $row->blog_url != '' ) echo '<a target="_blank" href="'.$row->blog_url.'">URL</a>'; else echo 'No Link'; ?></td>
             <td><?php if ( $row->referred_by == 0 ) echo 'No Referer'; else echo '<a href="user-edit.php?user_id='.$row->referred_by.'">'.get_userdata($row->referred_by)->user_login.'</a>' ;?></td>
             <td><?php echo $row->ip_address;?></td>
             <td><?php echo $rt_status[$row->project_status];?></td>
             <td><?php echo date( "F j, Y, g:i a", strtotime( $row->date_update ) );?></td>
-            <td><?php if($row->ac_link != '') echo '<a target="blank" href="'.$row->ac_link.'">Link</a>'; else echo 'No Link'; ?></td>
-            <td><?php if($row->invoice_link != '') echo '<a target="blank" href="'.$row->invoice_link.'">Link</a>'; else echo 'No Link'; ?></td>
+            <td><?php if($row->ac_link != '') echo '<a target="_blank" href="'.$row->ac_link.'">Link</a>'; else echo 'No Link'; ?></td>
+            <td><?php if($row->invoice_link != '') echo '<a target="_blank" href="'.$row->invoice_link.'">Link</a>'; else echo 'No Link'; ?></td>
             <td><a href="?page=<?php echo RT_AFFILIATE_HANDLER;?>&action=edit_contacts&cid=<?php echo $row->id;?>">Edit/ View</a></td>
             <td><a href="?page=<?php echo RT_AFFILIATE_HANDLER;?>&action=delete_contacts&cid=<?php echo $row->id;?>">Delete</a></td>
         </tr>

@@ -99,8 +99,8 @@ function rt_affiliate_stats() {
         <tr class="read">
             <td><?php if ( $row->track_id != '' ) echo $row->track_id; else echo '---'; ?></td>
             <td><?php echo date( "F j, Y, g:i a", strtotime( $row->date ) );?></td>
-            <td><?php if ( $row->referred_from != '' ) echo '<a target="blank" href="'.$row->referred_from.'">' .$row->referred_from. '</a>'; else echo 'No Link'; ?></td>
-            <td><?php if ( $row->landing_page != '' ) echo '<a target="blank" href="'.$row->landing_page.'">' .$row->landing_page. '</a>'; else echo 'No Link'; ?></td>
+            <td><?php if ( $row->referred_from != '' ) echo '<a target="_blank" href="'.$row->referred_from.'">' .$row->referred_from. '</a>'; else echo 'No Link'; ?></td>
+            <td><?php if ( $row->landing_page != '' ) echo '<a target="_blank" href="'.$row->landing_page.'">' .$row->landing_page. '</a>'; else echo 'No Link'; ?></td>
             <td><?php if ( !isset ( $row->project_status ) ) echo '--'; else echo $rt_status[$row->project_status];?></td>
         </tr>
         <?php
@@ -228,7 +228,7 @@ function rt_affiliate_links_banners() {
                 <th><?php echo $k;?></th>
                 <td><img src="<?php echo $banner[1];?>" alt="Blogger to WordPress Migration"/></td>
                 <td><?php echo $banner[0];?></td>
-                <td><textarea name="banner_code" cols="50" rows="5"><a href="<?php echo bloginfo( 'url' ).'/?ref='.  $username; ?>" target="blank" title="Bogger To WordPress Migration Service"><img src="<?php echo $banner[1];?>" alt="Bogger To WordPress Migration Service" width="<?php echo $size[0]; ?>" height="<?php echo $size[1]; ?>"/></a></textarea></td>
+                <td><textarea name="banner_code" cols="50" rows="5"><a href="<?php echo bloginfo( 'url' ).'/?ref='.  $username; ?>" target="_blank" title="Bogger To WordPress Migration Service"><img src="<?php echo $banner[1];?>" alt="Bogger To WordPress Migration Service" width="<?php echo $size[0]; ?>" height="<?php echo $size[1]; ?>"/></a></textarea></td>
             </tr>
         <?php
         }
