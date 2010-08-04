@@ -298,19 +298,19 @@ function rt_affiliate_referer() {
         }
     }
 
-    //check refrrer's usermname is valid
-        $sql_ref_user = "SELECT ID FROM ".$wpdb->prefix."users WHERE user_login = '".trim($_POST['referred_by'])."'";
-        $row_ref_user = $wpdb->get_row($sql_ref_user);
-
-        $uid = 0;
-        if ( $row_ref_user != NULL ) $uid = $row_ref_user->ID;
-
 
     //  HANDLE CONTACT FORM DETAILS
     if($_POST && wp_verify_nonce( $_POST['_wpnonce'], 'rtaff123')){
         if(!isset($_POST['b2w'])) $_POST['b2w'] = 'no';
         if(!isset($_POST['theme'])) $_POST['theme'] = 'no';
         if(!isset($_POST['webhosting'])) $_POST['webhosting'] = 'no';
+
+        //check refrrer's usermname is valid
+        $sql_ref_user = "SELECT ID FROM ".$wpdb->prefix."users WHERE user_login = '".trim($_POST['referred_by'])."'";
+        $row_ref_user = $wpdb->get_row($sql_ref_user);
+
+        $uid = 0;
+        if ( $row_ref_user != NULL ) $uid = $row_ref_user->ID;
 
         $sql = "INSERT INTO " . $wpdb->prefix . "rt_aff_contact_details
             (`users_referal_id`, `referred_by`, `name`, `email`, `blog_url`, `service_b2w_migration`, `service_wp_theme`, `service_hosting`, `cust_comment`, `ip_address`, `browsing_history`, `project_status`, `date_contacted`, `date_update`) VALUES
