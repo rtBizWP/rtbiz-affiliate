@@ -792,5 +792,4 @@ function rt_affiliate_manage_banners() {
     <?php
 
 }
-
 ?>

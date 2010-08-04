@@ -97,5 +97,4 @@ add_action('init', 'rt_affiliate_referer');
  * ADD FILTER TO REDIRECT SUBSCRIBER TO STATS PAGE
  */
 add_filter('login_redirect','rt_affiliate_login_redirect', 1, 3);
-
 ?>

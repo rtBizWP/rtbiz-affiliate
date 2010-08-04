@@ -466,5 +466,4 @@ function rt_affiliate_login_redirect($redirect_to, $request_redirect_to, $user) 
         return  $redirect_to;
     }
 }
-
 ?>
