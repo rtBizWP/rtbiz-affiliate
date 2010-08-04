@@ -665,19 +665,23 @@ function rt_affiliate_options_manage_payment_list() {
         }
             ?>
         </table>
- 
-        <?php
+    <?php
 }
-
+/**
+ * To add or edit payment
+ * @global  $wpdb
+ * @global <type> $payment_method
+ * @global  $payment_type
+ */
 function rt_affiliate_options_manage_payment_edit() {
     global $wpdb, $payment_method, $payment_type;
-    if($_POST['action'] == 'add'){
+    if ( $_POST['action'] == 'add' ) {
         $sql = "INSERT INTO " . $wpdb->prefix . "rt_aff_transaction ( `txn_id`, `user_id`, `type`, `amount`, `payment_method`, `note`, `date`) VALUES
                 ( '" . $_POST['txn_id'] . "', '" . $_POST['user'] . "', '" . $_POST['type'] . "', '" . $_POST['amount'] . "', '" . $_POST['payment_method'] . "', '" . $_POST['note'] . "', '" . $_POST['date'] . "')";
-        $wpdb->query($sql);
+        $wpdb->query( $sql );
         $msg = 'Saved successfully!';
     }
-    else if($_POST['action'] == 'edit'){
+    else if ( $_POST['action'] == 'edit' ) {
         $sql = "UPDATE " . $wpdb->prefix . "rt_aff_transaction SET
                 `txn_id` = '" . $_POST['txn_id'] . "',
                 `type` = '" . $_POST['type'] . "',
@@ -686,19 +690,19 @@ function rt_affiliate_options_manage_payment_edit() {
                 `note` = '" . $_POST['note'] . "',
                 `date` = '" . $_POST['date'] . "'
                 WHERE id = ".$_GET['pid'];
-        $wpdb->query($sql);
+        $wpdb->query( $sql );
         $msg = 'Updated successfully!';
     }
-    if($_GET['action'] == 'edit'){
+    if ( $_GET['action'] == 'edit' ) {
         $sql = "SELECT * from ".$wpdb->prefix."rt_aff_transaction where id = ".$_GET['pid'];
-        $row_tranx = $wpdb->get_row($sql);
+        $row_tranx = $wpdb->get_row( $sql );
     }
-    if( isset ($msg)) echo '<div class="updated"><p><strong>'.$msg.'</strong></p></div>'
+    if ( isset ( $msg ) ) echo '<div class="updated"><p><strong>'.$msg.'</strong></p></div>'
     ?>
         <form action="" method="post">
         <table class="form-table">
             <?php
-            if($_GET['action'] == 'edit'){
+            if ( $_GET['action'] == 'edit' ) {
                 ?>
                 <input type="hidden" name="action" value="edit"/>
                 <input type="hidden" name="user" value="<?php echo $_GET['pid']?>"/>
@@ -708,7 +712,7 @@ function rt_affiliate_options_manage_payment_edit() {
                 </tr>
             <?php
             }
-            else{
+            else {
             ?>
                 <input type="hidden" name="action" value="add"/>
             <tr valign="top">
@@ -717,8 +721,8 @@ function rt_affiliate_options_manage_payment_edit() {
                     <select name="user" id="user">
                         <?php
                         $sql = "SELECT ID, user_login from ".$wpdb->prefix."users";
-                        $rows = $wpdb->get_results($sql);
-                        foreach($rows as $row){
+                        $rows = $wpdb->get_results( $sql );
+                        foreach ( $rows as $row ) {
                             ?><option value="<?php echo $row->ID;?>"><?php echo $row->user_login;?></option><?php
                         }
                     ?>
@@ -738,8 +742,8 @@ function rt_affiliate_options_manage_payment_edit() {
                 <th scope="row"><label for="type">Payment Method</label></th>
                 <td>
                     <select name="type" id="type">
-                        <?php foreach($payment_type as $k=>$v){ ?>
-                        <option value="<?php echo $k;?>" <?php if( $row_tranx->type == $k) echo 'selected'; ?>><?php echo $v;?></option>
+                        <?php foreach ( $payment_type as $k=>$v ) { ?>
+                        <option value="<?php echo $k;?>" <?php if ( $row_tranx->type == $k ) echo 'selected'; ?>><?php echo $v;?></option>
                         <?php } ?>
                     </select>
                 </td>
@@ -748,8 +752,8 @@ function rt_affiliate_options_manage_payment_edit() {
                 <th scope="row"><label for="payment_method">Payment Method</label></th>
                 <td>
                     <select name="payment_method" id="payment_method">
-                        <?php foreach($payment_method as $k=>$v){ ?>
-                        <option value="<?php echo $k;?>" <?php if( $row_tranx->payment_method == $k) echo 'selected'; ?>><?php echo $v;?></option>
+                        <?php foreach ( $payment_method as $k=>$v ) { ?>
+                        <option value="<?php echo $k;?>" <?php if ( $row_tranx->payment_method == $k ) echo 'selected'; ?>><?php echo $v;?></option>
                         <?php } ?>
                     </select>
                 </td>
@@ -760,7 +764,7 @@ function rt_affiliate_options_manage_payment_edit() {
             </tr>
             <tr valign="top">
                 <th scope="row"><label for="date">Date</label></th>
-                <td><input type="text" value="<?php if($row_tranx->date != '') echo date('Y-m-d', strtotime($row_tranx->date)); ?>" id="date" name="date" class="regular-text"></td>
+                <td><input type="text" value="<?php if ( $row_tranx->date != '' ) echo date( 'Y-m-d', strtotime( $row_tranx->date ) ); ?>" id="date" name="date" class="regular-text"></td>
             </tr>
         </table>
         <div class="submit"><input type="submit" name="submit" value="save"></div>

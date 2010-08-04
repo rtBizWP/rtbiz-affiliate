@@ -8,8 +8,12 @@
  *     Author URI:   http://rtcamp.com
 */
 
-// define Plugin constants
-// Plugin Database Version: Change this value every time you make changes to your Plugin.
+/*
+ *  define Plugin constants
+ */
+/*
+ *  Plugin Database Version: Change this value every time you make changes to your Plugin.
+ */
 define( 'RT_AFFILIATE_VERSION', "1.0");
 
 define( 'RT_AFFILIATE_FILE', basename(__FILE__) );
@@ -23,9 +27,11 @@ define( 'RT_AFFILIATE_COMMISSION_THEME', 25 );
 define( 'RT_AFFILIATE_BANNER_PATH', RT_AFFILIATE_PATH.'/banners/' );
 define( 'RT_AFFILIATE_BANNER_URL', RT_AFFILIATE_URL.'/banners/' );
 
-//define global variables
+/*
+ * define global variables
+ */
 global $rt_status, $payment_method, $payment_type, $rt_time_duration, $rt_user_details;
-$rt_status =array('contact_submitted' => 'Client Submitted From',
+$rt_status =array( 'contact_submitted' => 'Client Submitted From',
             'awaiting_reply' => 'Awaiting Reply from Client',
             'custom_domain_setup' => 'Custom Domain Setup',
             'wp_theme' => 'WordPress Theme',
@@ -45,30 +51,45 @@ require_once( RT_AFFILIATE_PATH . '/rt-functions.php' );
 require_once( RT_AFFILIATE_PATH . '/rt-admin-options.php' );
 require_once( RT_AFFILIATE_PATH . '/rt-user-options.php' );
 
-// WordPress Hook that executes the installation
+/*
+ *  WordPress Hook that executes the installation
+ */
 register_activation_hook(__FILE__,'rt_affiliate_activate');
 
-// WordPress Hook that executes at deactivation
+/*
+ *  WordPress Hook that executes at deactivation
+ */
 register_deactivation_hook(__FILE__,'rt_affiliate_deactivate');
 
-// WordPress Hook that handles uninstallation of the Plugin.
+/*
+ *  WordPress Hook that handles uninstallation of the Plugin.
+ */
 register_uninstall_hook( __FILE__, 'rt_affiliate_uninstall' );
 
-//  CREATE ADMIN MENU
+/*
+ *   CREATE ADMIN MENU
+ */
 add_action('admin_menu', 'rt_affiliate_menu', 12);
 
-//  INCLUDE CSS ON FRONT SIDE
+/*
+ *   INCLUDE CSS ON FRONT SIDE
+ */
 add_action( 'wp_print_styles', 'rt_affiliate_options_load_css' );
 
-//  INCLUDE JS ON FRONT SIDE
+/*
+ *   INCLUDE JS ON FRONT SIDE
+ */
 add_action( 'wp_print_scripts', 'rt_affiliate_options_load_js' );
 
-//  CONTACT FORM AND ITS SHORT CODE
+/*
+ *   CONTACT FORM AND ITS SHORT CODE
+ */
 add_shortcode('rt_affiliate_contact_form', 'rt_affiliate_contact_form');
 
-//  START SESSION AND TRACK BROWSER HISTORY IN SESSION
-//  ALSO SAVE REFERAL DATA TO COOKIES
-//  HANDLE CONTACT FORM'S POST DATA
+/*
+ *  START SESSION AND TRACK BROWSER HISTORY IN SESSION
+ *  ALSO SAVE REFERAL DATA TO COOKIES
+ *  HANDLE CONTACT FORM'S POST DATA
+ */
 add_action('init', 'rt_affiliate_referer');
-
 ?>
