@@ -370,6 +370,20 @@ function rt_affiliate_referer() {
     }
 }
 
+/**
+ * send mail to provide email in argument list
+ * @global <type> $wpdb
+ * @param <type> $type
+ * @param <type> $to
+ * @param <type> $customer_name
+ * @param <type> $blog_url
+ * @param <type> $ref_url
+ * @param <type> $services_list
+ * @param <type> $track_id
+ * @param <type> $customer_email
+ * @param <type> $customer_comment
+ * @return <type>
+ */
 function rt_affiliate_send_mail($type, $to, $customer_name, $blog_url, $ref_url, $services_list, $track_id, $customer_email = '', $customer_comment = '' ) {
     global $wpdb;
     $rt_options = get_option( 'rt_affiliate_options' );
@@ -438,7 +452,7 @@ function rt_affiliate_send_mail($type, $to, $customer_name, $blog_url, $ref_url,
 }
 
 /**
- *
+ * redirect users of role subscriber, to affiliate stats page
  * @param <type> $redirect_to
  * @param <type> $request_redirect_to
  * @param <type> $user
