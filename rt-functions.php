@@ -280,7 +280,8 @@ function rt_affiliate_referer() {
         /*
          * check refrrer's usermname is valid
          */
-        $sql = "SELECT ID FROM ".$wpdb->prefix."users WHERE user_login = '".trim($_GET['ref'])."'";
+
+        $sql = "SELECT ID FROM ".$wpdb->base_prefix."users WHERE user_login = '".trim($_GET['ref'])."'";
         $row = $wpdb->get_row( $sql );
 
         /*
@@ -304,10 +305,10 @@ function rt_affiliate_referer() {
             $wpdb->query( $sql );
 
             /*
-             * save referer's user_id in session also
+             * save referal's id in session also
              */
             $_SESSION['rt_aff_referal_id'] = $wpdb->insert_id;
-
+            
             header( "Location: ".$redirect_link );
         }
     }
@@ -324,7 +325,7 @@ function rt_affiliate_referer() {
         /*
          * check refrrer's usermname is valid
          */
-        $sql_ref_user = "SELECT ID FROM ".$wpdb->prefix."users WHERE user_login = '".trim( $_POST['referred_by'] )."'";
+        $sql_ref_user = "SELECT ID FROM ".$wpdb->base_prefix."users WHERE user_login = '".trim( $_POST['referred_by'] )."'";
         $row_ref_user = $wpdb->get_row( $sql_ref_user );
 
         $uid = 0;
