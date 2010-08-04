@@ -772,6 +772,9 @@ function rt_affiliate_options_manage_payment_edit() {
     <?php
 }
 
+/**
+ * Manage banner option
+ */
 function rt_affiliate_manage_banners() {
     if ( $_POST ) {
         update_option('rt_affiliate_banners', $_POST['banners']);
