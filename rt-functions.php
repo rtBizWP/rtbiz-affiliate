@@ -194,7 +194,7 @@ function rt_affiliate_contact_form() {
                         <label for="wp_theme">WordPress Theme</label>
                         <ul id="show_hide">
                             <li>
-                                <input type="radio" class="radio" value="blog_layout" id="blog_layout" name="theme">
+                                <input type="radio" class="radio" value="blog_layout" id="blog_layout" checked name="theme">
                                 <label for="blog_layout"> Matching my Blogger layout</label>
                             </li>
                             <li>
