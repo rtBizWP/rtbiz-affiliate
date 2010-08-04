@@ -107,6 +107,7 @@ function rt_affiliate_menu() {
     add_submenu_page( RT_AFFILIATE_HANDLER, 'Submission', 'Submission', 'manage_options', RT_AFFILIATE_HANDLER, 'rt_affiliate_admin_options_html' );
     add_submenu_page( RT_AFFILIATE_HANDLER, 'Email Setting', 'Email Setting', 'manage_options', 'email_setting', 'rt_affiliate_options_email_setting' );
     $payment_page = add_submenu_page( RT_AFFILIATE_HANDLER, 'Manage Payment', 'Manage Payment', 'manage_options', 'manage_payment', 'rt_affiliate_options_manage_payment' );
+    add_submenu_page( RT_AFFILIATE_HANDLER, 'Manage Banners', 'Manage Banners', 'manage_options', 'manage_banners', 'rt_affiliate_manage_banners' );
     add_action( 'admin_print_styles-' . $payment_page, 'rt_affiliate_options_load_payment_css' );
 
     add_menu_page( 'Affiliate', 'Affiliate', 'read', RT_AFFILIATE_HANDLER_USER , '', '' );
@@ -435,4 +436,21 @@ function rt_affiliate_send_mail($type, $to, $customer_name, $blog_url, $ref_url,
     }
     wp_mail( $to, $subject, $message, $headers );
 }
+
+/**
+ *
+ * @param <type> $redirect_to
+ * @param <type> $request_redirect_to
+ * @param <type> $user
+ * @return <type>
+ */
+function rt_affiliate_login_redirect($redirect_to, $request_redirect_to, $user) {
+    if($user->caps['subscriber'] ) {
+        return bloginfo( 'url' ).'/wp-admin/admin.php?page=rt-affiliate-user';
+    }
+    else {
+        return  $redirect_to;
+    }
+}
+
 ?>

@@ -198,23 +198,32 @@ function rt_affiliate_links_banners() {
             </tr>
         </thead>
         <?php
-        if ( $handle = opendir( RT_AFFILIATE_BANNER_PATH ) ) {
-            while ( false !== ( $file = readdir( $handle ) ) ) {
-                if ( $file !='.' && $file !='..' ) {
-                    $file = RT_AFFILIATE_BANNER_URL.$file;
-                    $size = getimagesize( $file );
-                    ?>
+        $banners_info =  get_option('rt_affiliate_banners') ;
+        $banners_info =  explode("\n", $banners_info);
+//        print_r($banners_info);
+        foreach ( $banners_info as $k => $v ) {
+            $banner =  explode( ' ', $v );
+            $size = explode( 'x', $banner[0] );
+        ?>
             <tr class="read">
                 <th><?php echo $k;?></th>
-                <td><img src="<?php echo $file;?>" alt="Blogger to WordPress Migration"/></td>
-                <td><?php echo $size[0].'x'.$size[1];?></td>
-                <td><textarea name="banner_code" cols="50" rows="5"><a href="<?php echo bloginfo( 'url' ).'/?ref='.  $username; ?>" target="blank" title="Blogger to WordPress Migration"><img src="<?php echo $file;?>" alt="Blogger to WordPress Migration"/></a></textarea></td>
+                <td><img src="<?php echo $banner[1];?>" alt="Blogger to WordPress Migration"/></td>
+                <td><?php echo $banner[0];?></td>
+                <td><textarea name="banner_code" cols="50" rows="5"><a href="<?php echo bloginfo( 'url' ).'/?ref='.  $username; ?>" target="blank" title="Bogger To WordPress Migration Service"><img src="<?php echo $banner[1];?>" alt="Bogger To WordPress Migration Service" width="<?php echo $size[0]; ?>" height="<?php echo $size[1]; ?>"/></a></textarea></td>
             </tr>
-            <?php
-                }
-            }
-            closedir( $handle );
+        <?php
         }
+
+//        if ( $handle = opendir( RT_AFFILIATE_BANNER_PATH ) ) {
+//            while ( false !== ( $file = readdir( $handle ) ) ) {
+//                if ( $file !='.' && $file !='..' ) {
+//                    $file = RT_AFFILIATE_BANNER_URL.$file;
+//                    $size = getimagesize( $file );
+//                    
+//                }
+//            }
+//            closedir( $handle );
+//        }
         ?>
     </table>
  </div>

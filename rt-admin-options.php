@@ -771,4 +771,23 @@ function rt_affiliate_options_manage_payment_edit() {
         </form>
     <?php
 }
+
+function rt_affiliate_manage_banners() {
+    if ( $_POST ) {
+        update_option('rt_affiliate_banners', $_POST['banners']);
+    }
+   ?>
+        <form action="" method="post">
+        <table class="form-table">
+            <tr valign="top">
+                <th width="10%" scope="row"><label for="banners:">Add Banners: </label></th>
+                <td width="90%"><textarea id="banners" name="banners" cols="80" rows="15"><?php echo get_option('rt_affiliate_banners') ?></textarea></td>
+            </tr>
+        </table>
+        <div class="submit"><input type="submit" name="submit" value="save"></div>
+        </form>
+    <?php
+
+}
+
 ?>
