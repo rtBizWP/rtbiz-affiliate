@@ -229,7 +229,6 @@ function rt_affiliate_contact_form() {
                 <input type="text" class="regular-text" value="<?php echo $referar_username;?>" id="referred_by" name="referred_by">
             </li>
             <input type="hidden" value="<?php echo $_SESSION['rt_aff_referal_id'];?>" name="rt_aff_referal_id"/>
-            <input type="hidden" value="<?php echo $referar;?>" name="referred_by_id"/>
             <input type="hidden" value="<?php echo $_SERVER['REMOTE_ADDR'];?>" name="ip_address"/>
             <input type="hidden" value="<?php echo urlencode(serialize($_SESSION['browser_history']));?>" name="browser_history" />
             <?php wp_nonce_field('rtaff123');?>
@@ -299,6 +298,14 @@ function rt_affiliate_referer() {
         }
     }
 
+    //check refrrer's usermname is valid
+        $sql_ref_user = "SELECT ID FROM ".$wpdb->prefix."users WHERE user_login = '".trim($_POST['referred_by'])."'";
+        $row_ref_user = $wpdb->get_row($sql_ref_user);
+
+        $uid = 0;
+        if ( $row_ref_user != NULL ) $uid = $row_ref_user->ID;
+
+
     //  HANDLE CONTACT FORM DETAILS
     if($_POST && wp_verify_nonce( $_POST['_wpnonce'], 'rtaff123')){
         if(!isset($_POST['b2w'])) $_POST['b2w'] = 'no';
@@ -307,7 +314,7 @@ function rt_affiliate_referer() {
 
         $sql = "INSERT INTO " . $wpdb->prefix . "rt_aff_contact_details
             (`users_referal_id`, `referred_by`, `name`, `email`, `blog_url`, `service_b2w_migration`, `service_wp_theme`, `service_hosting`, `cust_comment`, `ip_address`, `browsing_history`, `project_status`, `date_contacted`, `date_update`) VALUES
-            ( '" . $_POST['rt_aff_referal_id'] . "', '" . $_POST['referred_by_id'] . "', '" . $_POST['clientname'] . "', '" . $_POST['email'] . "', '" . $_POST['blog_url'] . "', '" . $_POST['b2w'] . "', '" . $_POST['theme'] . "', '" . $_POST['webhosting'] . "', '" . $_POST['comment'] . "', '" . $_POST['ip_address'] . "', '" . $_POST['browser_history'] . "', 'contact_submitted', now(), now() )";
+            ( '" . $_POST['rt_aff_referal_id'] . "', '" . $uid . "', '" . $_POST['clientname'] . "', '" . $_POST['email'] . "', '" . $_POST['blog_url'] . "', '" . $_POST['b2w'] . "', '" . $_POST['theme'] . "', '" . $_POST['webhosting'] . "', '" . $_POST['comment'] . "', '" . $_POST['ip_address'] . "', '" . $_POST['browser_history'] . "', 'contact_submitted', now(), now() )";
         $wpdb->query($sql);
         $track_id = $wpdb->insert_id;
 

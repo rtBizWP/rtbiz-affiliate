@@ -1,4 +1,7 @@
 <?php
+/**
+ * Contact for admin panel
+ */
 function rt_affiliate_admin_options_html() {
     ?>
     <div class="wrap">
@@ -18,22 +21,22 @@ function rt_affiliate_admin_options_html() {
                 rt_affiliate_contact_delete();
                 break;
 
-            //---------------------------------
-            case 'setting':
-                rt_affiliate_setting();
-                break;
-
             default:
                 rt_affiliate_contact_list();
                 break;
         }
         echo '</div>';
 }
-
+/**
+ * To list details of contact form submitted
+ */
 function rt_affiliate_contact_list() {
     global $wpdb, $rt_status;
 
-    if ($_POST) {
+    /*
+     * to handle bulk action
+     */
+    if ( $_POST ) {
         $ids = implode( ',', $_POST['record'] );
         $cond = '';
         if ( $_POST['project_status'] != 'completed' ) {
@@ -48,15 +51,20 @@ function rt_affiliate_contact_list() {
             WHERE id in ($ids)".$cond;
         $wpdb->query( $sql );
 
-        //---------------------
-        
+        /**
+         * if bulk action is 'completed'
+         */
         if ( $_POST['project_status'] == 'completed' ) {
             foreach ( $_POST['record'] as $id ) {
-                //check if there is already record for this txn_id in transaction table
+                /*
+                 * check if there is already record for this txn_id in transaction table
+                 */
                 $sql = "SELECT id FROM ".$wpdb->prefix."rt_aff_transaction WHERE txn_id = $id";
                 $row = $wpdb->get_row( $sql );
 
-                //if record not exist then make entry in transaction table
+                /*
+                 * if record not exist then make entry in transaction table
+                 */
                 if ( $row->id == NULL ) {
                     $sql_contact = "SELECT referred_by, service_b2w_migration, service_wp_theme FROM ".$wpdb->prefix."rt_aff_contact_details WHERE id = $id";
                     $row_contact = $wpdb->get_row( $sql_contact );
@@ -70,16 +78,26 @@ function rt_affiliate_contact_list() {
                         ( $id, '" . $row_contact->referred_by . "', 'earning', '$amt', now() )";
                     $wpdb->query( $sql );
                 }
-                //else do nothing
+                /*
+                 * else do nothing
+                 */
             }
        }
+       
+       /**
+         * if bulk action is 'completed_refunded'
+         */
        if ($_POST['project_status'] == 'completed_refunded' ) {
             foreach ( $_POST['record'] as $id ) {
-                //check if there is already record for this txn_id in transaction table
+                /*
+                 * check if there is already record for this txn_id in transaction table
+                 */
                 $sql = "SELECT id, amount FROM ".$wpdb->prefix."rt_aff_transaction WHERE txn_id = $id";
-                $row = $wpdb->get_row($sql);
+                $row = $wpdb->get_row( $sql );
 
-                //if record exist then make entry in transaction table for refund
+                /*
+                 * if record exist then make entry in transaction table for refund
+                 */
                 if ( $row->id != NULL ) {
                     $sql_contact = "SELECT referred_by FROM ".$wpdb->prefix."rt_aff_contact_details WHERE id = $id";
                     $row_contact = $wpdb->get_row($sql_contact);
@@ -98,10 +116,12 @@ function rt_affiliate_contact_list() {
 //            $sql = "DELETE FROM ". $wpdb->prefix . "rt_aff_transaction WHERE type = 'earning' and txn_id in ( $ids)";
 //            $wpdb->query($sql);
 //        }
-        //------------------------------------------
         ?><div class="updated"><p><strong>Changes applied successfully!</strong></p></div><?php
     }
 
+    /**
+     * for custumized viev
+     */
     $staus_sql = " project_status!='deleted'";
     $sort_sql = '';
     
@@ -145,7 +165,7 @@ function rt_affiliate_contact_list() {
                 <form action="" method="get">
                     <input type="hidden" name="page" value="<?php echo $_GET['page'];?>"/>
                     <select name="status">
-                        <option value="">Select Status</option>
+                        <option value="">Any Status</option>
                         <?php
                         foreach ( $rt_status as $k => $v ) {
                             ?><option value="<?php echo $k;?>" <?php if ( $_GET['status'] == $k ) echo 'selected';?>><?php echo $v;?></option><?php
@@ -207,7 +227,9 @@ function rt_affiliate_contact_list() {
         </thead>
             <?php
             foreach ( $rows as $k => $row ) {
-                //list services
+                /*
+                 * list of services
+                 */
                 $services_list = '';
                 if ( $row->service_b2w_migration == 'yes' )
                     $services_list .= '"Blogger to WordPress Migration",';
@@ -242,15 +264,20 @@ function rt_affiliate_contact_list() {
     </form>
  <?php
 }
-
+/**
+ * to edit/view contact details
+ */
 function rt_affiliate_contact_edit() {
     global $wpdb, $rt_status;
 
-    if($_POST) {
-        if($_POST['project_status'] != 'completed'){
+    /*
+     * to handle edited project status information
+     */
+    if ( $_POST ) {
+        if ( $_POST['project_status'] != 'completed' ) {
             $cond = " and project_status!= 'completed'";
         }
-        if($_POST['project_status'] == 'completed_refund'){
+        if ( $_POST['project_status'] == 'completed_refund' ) {
             $cond = " and project_status = 'completed'";
         }
         $sql = "UPDATE " . $wpdb->prefix . "rt_aff_contact_details SET
@@ -259,50 +286,62 @@ function rt_affiliate_contact_edit() {
             `invoice_link` = '" . $_POST['invoice_link'] . "',
             `date_update` = now()
             WHERE id = ".$_GET['cid'].$cond;
-        $wpdb->query($sql);
+        $wpdb->query( $sql );
 
-        //to make entry in transaction table
-        if($_POST['project_status'] == 'completed'){
-            //check if there is already record for this txn_id in transaction table
+        /*
+         * to make entry in transaction table
+         */
+        if ( $_POST['project_status'] == 'completed' ) {
+            /*
+             * check if there is already record for this txn_id in transaction table
+             */
             $sql = "SELECT id FROM ".$wpdb->prefix."rt_aff_transaction WHERE txn_id = ".$_GET['cid'];
-            $row = $wpdb->get_row($sql);
+            $row = $wpdb->get_row( $sql );
 
-            //if record not exist then make entry in transaction table
-            if($row->id == NULL){
+            /*
+             * if record not exist then make entry in transaction table
+             */
+            if ( $row->id == NULL ) {
                 $sql_contact = "SELECT referred_by, service_b2w_migration, service_wp_theme FROM ".$wpdb->prefix."rt_aff_contact_details WHERE id = ".$_GET['cid'];
-                $row_contact = $wpdb->get_row($sql_contact);
+                $row_contact = $wpdb->get_row( $sql_contact );
 
                 $amt = 0;
-                if($row_contact->service_b2w_migration == 'yes') $amt += RT_AFFILIATE_COMMISSION_B2W;
-                if($row_contact->service_wp_theme != 'no') $amt += RT_AFFILIATE_COMMISSION_THEME;
+                if ( $row_contact->service_b2w_migration == 'yes' ) $amt += RT_AFFILIATE_COMMISSION_B2W;
+                if ( $row_contact->service_wp_theme != 'no' ) $amt += RT_AFFILIATE_COMMISSION_THEME;
 
                 $sql = "INSERT INTO " . $wpdb->prefix . "rt_aff_transaction
                      ( `txn_id`, `user_id`, `type`, `amount`, `date`)  VALUES
                     ( ".$_GET['cid'].", '" . $_POST['referred_by'] . "', 'earning', '$amt' , now() )";
-                $wpdb->query($sql);
+                $wpdb->query( $sql );
             }
-            //else do nothing
-            else{
+            /*
+             * else do nothing
+             */
+            else {
                 $sql = "UPDATE " . $wpdb->prefix . "rt_aff_transaction SET
                         date = now() where txn_id = ".$_GET['cid'];
-                $wpdb->query($sql);
+                $wpdb->query( $sql );
             }
         }
         
-       if($_POST['project_status'] == 'completed_refunded'){
-            //check if there is already record for this txn_id in transaction table
+       if ( $_POST['project_status'] == 'completed_refunded' ) {
+            /*
+             * check if there is already record for this txn_id in transaction table
+             */
             $sql = "SELECT id, amount FROM ".$wpdb->prefix."rt_aff_transaction WHERE txn_id = ".$_GET['cid'];
-            $row = $wpdb->get_row($sql);
+            $row = $wpdb->get_row( $sql );
 
-            //if record exist then make entry in transaction table for refund
-            if($row->id != NULL){
+            /*
+             * if record exist then make entry in transaction table for refund
+             */
+            if ( $row->id != NULL ) {
                 $sql_contact = "SELECT referred_by FROM ".$wpdb->prefix."rt_aff_contact_details WHERE id = ".$_GET['cid'];
-                $row_contact = $wpdb->get_row($sql_contact);
+                $row_contact = $wpdb->get_row( $sql_contact );
 
                 $sql = "INSERT INTO " . $wpdb->prefix . "rt_aff_transaction
                      ( `txn_id`, `user_id`, `type`, `amount`, `date`)  VALUES
                     ( ".$_GET['cid'].", '" . $row_contact->referred_by . "', 'client_refunded', '$row->amount', now() )";
-                $wpdb->query($sql);
+                $wpdb->query( $sql );
             }
        }
         //else if status other than complete
@@ -316,15 +355,15 @@ function rt_affiliate_contact_edit() {
     }
 
     $sql = "SELECT * FROM ".$wpdb->prefix."rt_aff_contact_details WHERE id = ".$_GET['cid'];
-    $row = $wpdb->get_row($sql);
+    $row = $wpdb->get_row( $sql );
     $services_list = '<ol>';
-    if($row->service_b2w_migration == 'yes')
+    if ( $row->service_b2w_migration == 'yes' )
         $services_list .= '<li>Blogger to WordPress Migration</li>';
-    if($row->service_wp_theme == 'blog_layout')
+    if ( $row->service_wp_theme == 'blog_layout' )
         $services_list .= '<li>Theme matching my blog layout</li>';
-    if($row->service_wp_theme == 'new_theme')
+    if ( $row->service_wp_theme == 'new_theme' )
         $services_list .= '<li>New WordPress theme</li>';
-    if($row->service_hosting == 'yes')
+    if ( $row->service_hosting == 'yes' )
         $services_list .= '<li>Webhosting</li>';
     $services_list .= '<ol>';
     ?>
@@ -336,7 +375,7 @@ function rt_affiliate_contact_edit() {
         <td width="80%" class="field">
             <select name="project_status">
                 <?php
-                foreach($rt_status as $k => $v){
+                foreach ( $rt_status as $k => $v ) {
                     ?><option value="<?php echo $k;?>" <?php if( ($_POST && $_POST['project_status'] == $k) || $row->project_status == $k) echo 'selected';?> ><?php echo $v;?></option><?php
                 }
                 ?>
@@ -384,211 +423,169 @@ function rt_affiliate_contact_edit() {
     </tr>
     <tr>
         <th class="label" valign="top"><label>Referred By:</label></th>
-        <td class="field"><?php if($row->referred_by == 0) echo 'No Referer'; else echo '<a href="user-edit.php?user_id='.$row->referred_by.'">'.get_userdata($row->referred_by)->user_login.'</a>' ;?></td>
+        <td class="field"><?php if ( $row->referred_by == 0 ) echo 'No Referer'; else echo '<a href="user-edit.php?user_id='.$row->referred_by.'">'.get_userdata($row->referred_by)->user_login.'</a>' ;?></td>
     </tr>
     <tr>
         <th class="label" valign="top"><label>Date Contacted:</label></th>
-        <td class="field"><?php echo date("F j, Y, g:i a", strtotime($row->date_contacted));?></td>
+        <td class="field"><?php echo date( "F j, Y, g:i a", strtotime( $row->date_contacted ) );?></td>
         </tr>
     <tr>
         <th class="label" valign="top"><label>Date Updated:</label></th>
-        <td class="field"><?php echo date("F j, Y, g:i a", strtotime($row->date_update));?></td>
+        <td class="field"><?php echo date( "F j, Y, g:i a", strtotime( $row->date_update ) );?></td>
     </tr>
     <tr>
         <th class="label" valign="top"><label>Browser's History:</label></th>
         <td class="field"><?php 
-        foreach (unserialize(urldecode($row->browsing_history)) as $k=>$v){
+        foreach ( unserialize( urldecode( $row->browsing_history ) ) as $k=>$v ) {
             echo $v.'<br/>';
         }
         ?></td>
-
     </tr>
-
 </table>
     <input type="hidden" name="referred_by" value="<?php echo $row->referred_by;?>"/>
 <div class="submit"><input type="submit" value="save" name="submit"/></div>
 </form>
 <?php
 }
-
+/**
+ * Delete contact details record
+ */
 function rt_affiliate_contact_delete() {
     global $wpdb;
     $sql = "UPDATE " . $wpdb->prefix . "rt_aff_contact_details SET
             `project_status` = 'deleted',
             `date_update` = now()
             WHERE id = ".$_GET['cid'];
-        $wpdb->query($sql);
+        $wpdb->query( $sql );
     ?>
     <script type="text/javascript">
-    location.href = '?page=<?php echo RT_AFFILIATE_HANDLER;?>&action=list_contacts&msg=Record deleted successfully !';
+        location.href = '?page=<?php echo RT_AFFILIATE_HANDLER;?>&action=list_contacts&msg=Record deleted successfully !';
     </script>
     <?php
 }
 
-//------------------------------------------------------------
-//  For Email Setting
-//------------------------------------------------------------
-
-function rt_affiliate_setting(){
-    if($_POST) {
-        $affiliate = array( 'paypal_api_user_name' =>$_POST['paypal_api_user_name'], 'paypal_api_password' =>$_POST['paypal_api_password'], 'paypal_api_signature' =>$_POST['paypal_api_signature'], 'tnc' => $_POST['tnc'], 'refund_period' => $_POST['refund_period'] );
-
-        update_option('rt_affiliate', $affiliate);
-        ?><div class="updated"><p><strong>Setting saved successfully!</strong></p></div><?php
-    }
-    $affiliate = get_option('rt_affiliate');
-    //print_r($affiliate);
-?>
-
-<form name="affiliate_form_setting" id="affiliate_form_setting"  method="post" action="" >
-<table class="form-table" border="0">
-    <tr>
-        <td class="label" width="20%"><label id="lpaypal_api_user_name" for="paypal_api_user_name">Paypal API User Name</label></td>
-        <td class="field" width="80%"><input id="paypal_api_user_name" name="paypal_api_user_name" type="text" value="<?php echo $affiliate['paypal_api_user_name'];?>"  /></td>
-    </tr>
-    <tr>
-        <td class="label"><label id="lpaypal_api_password" for="paypal_api_password">Paypal API Password</label></td>
-        <td class="field"><input id="paypal_api_password" name="paypal_api_password" type="text" value="<?php echo $affiliate['paypal_api_password'];?>"  /></td>
-    </tr>
-    <tr>
-        <td class="label"><label id="lpaypal_api_signature" for="paypal_api_signature">Paypal API Signature</label></td>
-        <td class="field"><input id="paypal_api_signature" name="paypal_api_signature" type="text" value="<?php echo $affiliate['paypal_api_signature'];?>"  /></td>
-    </tr>
-
-    <tr>
-        <td class="label"><label id="lrefund_period" for="refund_period">Refund Period </label></td>
-        <td class="field"><input id="refund_period" name="refund_period" type="text" value="<?php echo $affiliate['refund_period'];?>"  /></td>
-    </tr>
-    <tr>
-        <td class="label"><label id="ltnc" for="tnc">Terms and condition Text</label></td>
-        <td class="field"><textarea id="tnc" name="tnc" cols="60" rows="10" ><?php echo $affiliate['tnc'];?></textarea></td>
-    </tr>
-</table>
-<div class="submit"><input type="submit" value="save" name="submit"/></div>
-</form>
-<?php
-}
-
+/**
+ * Email setting page for admin
+ * @global <type> $wpdb
+ */
 function rt_affiliate_options_email_setting() {
     global $wpdb;
-    if(isset($_POST['submit'])) {
-//        print_r($_POST);
+    if ( isset( $_POST['submit'] ) ) {
         update_option('rt_affiliate_options', $_POST);
     }
-    $rt_option = get_option('rt_affiliate_options');
-//    print_r($rt_option);
+    $rt_option = get_option( 'rt_affiliate_options' );
     ?>
         <div class="wrap">
         <div class="icon32" id="icon-options-general"></div>
         <h2>Email Setting</h2>
+        <h3>Customer Email Template</h3>
+        <form name="email_setting" id="email_setting" class="omlist" method="post" action="<?php echo "?page=email_setting"; ?>">
+            <table class="form-table">
+                <tbody>
+                    <tr valign="top">
+                        <th scope="row"><label for="rt_aff_cust_enable">Enable Template</label></th>
+                        <td><input type="checkbox" name="customer[rt_aff_enable]" id="rt_aff_cust_enable" value="1" <?php if($rt_option['customer']['rt_aff_enable'] == 1) echo 'checked';?> /></td>
+                    </tr>
+                    <tr valign="top">
+                        <th scope="row"><label for="rt_aff_cust_from">From Email Address</label></th>
+                        <td><input type="text" class="regular-text" name="customer[rt_aff_from]" id="rt_aff_cust_from" value="<?php echo $rt_option['customer']['rt_aff_from'];?>" /></td>
+                    </tr>
+                    <tr valign="top">
+                        <th scope="row"><label for="rt_aff_cust_fromname">From Name</label></th>
+                        <td><input type="text" class="regular-text" name="customer[rt_aff_fromname]" id="rt_aff_cust_fromname" value="<?php echo $rt_option['customer']['rt_aff_fromname'];?>" /></td>
+                    </tr>
+                    <tr valign="top">
+                        <th scope="row"><label for="rt_aff_cust_subject">Subject</label></th>
+                        <td><input type="text" class="regular-text" name="customer[rt_aff_subject]" id="rt_aff_cust_subject" value="<?php echo $rt_option['customer']['rt_aff_subject'];?>" /></td>
+                    </tr>
+                    <tr valign="top">
+                        <th scope="row"><label for="rt_aff_cust_msg">Message Template</label></th>
+                        <td>
+                            <p><strong>Replacement Keys:</strong><br />%customer_name% | %blog_url% | %ref_url% | %services_list% | %track_id% </p>
+                            <textarea name="customer[rt_aff_msg]" id="rt_aff_cust_msg" cols="50" rows="8" ><?php echo $rt_option['customer']['rt_aff_msg'];?></textarea>					</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="submit"><input type="submit" value="save" name="submit"/></div>
 
-        
-<form name="email_setting" id="email_setting" class="omlist" method="post" action="<?php echo "?page=email_setting"; ?>">
-    <h3>Customer Email Template</h3>
-    <table class="form-table">
-        <tbody>
-            <tr valign="top">
-                <th scope="row"><label for="rt_aff_cust_enable">Enable Template</label></th>
-                <td><input type="checkbox" name="customer[rt_aff_enable]" id="rt_aff_cust_enable" value="1" <?php if($rt_option['customer']['rt_aff_enable'] == 1) echo 'checked';?> /></td>
-            </tr>
-            <tr valign="top">
-                <th scope="row"><label for="rt_aff_cust_from">From Email Address</label></th>
-                <td><input type="text" class="regular-text" name="customer[rt_aff_from]" id="rt_aff_cust_from" value="<?php echo $rt_option['customer']['rt_aff_from'];?>" /></td>
-            </tr>
-            <tr valign="top">
-                <th scope="row"><label for="rt_aff_cust_fromname">From Name</label></th>
-                <td><input type="text" class="regular-text" name="customer[rt_aff_fromname]" id="rt_aff_cust_fromname" value="<?php echo $rt_option['customer']['rt_aff_fromname'];?>" /></td>
-            </tr>
-            <tr valign="top">
-                <th scope="row"><label for="rt_aff_cust_subject">Subject</label></th>
-                <td><input type="text" class="regular-text" name="customer[rt_aff_subject]" id="rt_aff_cust_subject" value="<?php echo $rt_option['customer']['rt_aff_subject'];?>" /></td>
-            </tr>
-            <tr valign="top">
-                <th scope="row"><label for="rt_aff_cust_msg">Message Template</label></th>
-                <td>
-                    <p><strong>Replacement Keys:</strong><br />%customer_name% | %blog_url% | %ref_url% | %services_list% | %track_id% </p>
-                    <textarea name="customer[rt_aff_msg]" id="rt_aff_cust_msg" cols="50" rows="8" ><?php echo $rt_option['customer']['rt_aff_msg'];?></textarea>					</td>
-            </tr>
-        </tbody>
-    </table>
-    <div class="submit"><input type="submit" value="save" name="submit"/></div>
-    <h3>Affiliate User Email Template</h3>
-    <table class="form-table">
-        <tbody>
-            <tr valign="top">
-                <th scope="row"><label for="rt_aff_user_enable">Enable Template</label></th>
-                <td><input type="checkbox" name="user[rt_aff_enable]" id="rt_aff_user_enable" value="1" <?php if($rt_option['user']['rt_aff_enable'] == 1) echo 'checked';?> /></td>
-            </tr>
-            <tr valign="top">
-                <th scope="row"><label for="rt_aff_user_from">From Email Address</label></th>
-                <td><input type="text" class="regular-text" name="user[rt_aff_from]" id="rt_aff_user_from" value="<?php echo $rt_option['user']['rt_aff_from'];?>" /></td>
-            </tr>
-            <tr valign="top">
-                <th scope="row"><label for="rt_aff_user_fromname">From Name</label></th>
-                <td><input type="text" class="regular-text" name="user[rt_aff_fromname]" id="rt_aff_user_fromname" value="<?php echo $rt_option['user']['rt_aff_fromname'];?>" /></td>
-            </tr>
-            <tr valign="top">
-                <th scope="row"><label for="rt_aff_user_subject">Subject</label></th>
-                <td><input type="text" class="regular-text" name="user[rt_aff_subject]" id="rt_aff_user_subject" value="<?php echo $rt_option['user']['rt_aff_subject'];?>" /></td>
-            </tr>
-            <tr valign="top">
-                <th scope="row"><label for="rt_aff_user_msg">Message Template</label></th>
-                <td>
-                    <p><strong>Replacement Keys:</strong><br />%affiliate_name% | %blog_url% | %ref_url% | %services_list% | %track_id% </p>
-                    <textarea name="user[rt_aff_msg]" id="rt_aff_user_msg"  cols="50" rows="8"><?php echo $rt_option['user']['rt_aff_msg'];?></textarea>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <div class="submit"><input type="submit" value="save" name="submit"/></div>
+            <h3>Affiliate User Email Template</h3>
+            <table class="form-table">
+                <tbody>
+                    <tr valign="top">
+                        <th scope="row"><label for="rt_aff_user_enable">Enable Template</label></th>
+                        <td><input type="checkbox" name="user[rt_aff_enable]" id="rt_aff_user_enable" value="1" <?php if($rt_option['user']['rt_aff_enable'] == 1) echo 'checked';?> /></td>
+                    </tr>
+                    <tr valign="top">
+                        <th scope="row"><label for="rt_aff_user_from">From Email Address</label></th>
+                        <td><input type="text" class="regular-text" name="user[rt_aff_from]" id="rt_aff_user_from" value="<?php echo $rt_option['user']['rt_aff_from'];?>" /></td>
+                    </tr>
+                    <tr valign="top">
+                        <th scope="row"><label for="rt_aff_user_fromname">From Name</label></th>
+                        <td><input type="text" class="regular-text" name="user[rt_aff_fromname]" id="rt_aff_user_fromname" value="<?php echo $rt_option['user']['rt_aff_fromname'];?>" /></td>
+                    </tr>
+                    <tr valign="top">
+                        <th scope="row"><label for="rt_aff_user_subject">Subject</label></th>
+                        <td><input type="text" class="regular-text" name="user[rt_aff_subject]" id="rt_aff_user_subject" value="<?php echo $rt_option['user']['rt_aff_subject'];?>" /></td>
+                    </tr>
+                    <tr valign="top">
+                        <th scope="row"><label for="rt_aff_user_msg">Message Template</label></th>
+                        <td>
+                            <p><strong>Replacement Keys:</strong><br />%affiliate_name% | %blog_url% | %ref_url% | %services_list% | %track_id% </p>
+                            <textarea name="user[rt_aff_msg]" id="rt_aff_user_msg"  cols="50" rows="8"><?php echo $rt_option['user']['rt_aff_msg'];?></textarea>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="submit"><input type="submit" value="save" name="submit"/></div>
 
-    <h3>Sales Team Email Template</h3>
-    <table class="form-table">
-        <tbody>
-            <tr valign="top">
-                <th scope="row"><label for="rt_aff_user_enable">Enable Template</label></th>
-                <td><input type="checkbox" name="sales[rt_aff_enable]" id="rt_aff_user_enable" value="1" <?php if($rt_option['sales']['rt_aff_enable'] == 1) echo 'checked';?> /></td>
-            </tr>
-            <tr valign="top">
-                <th scope="row"><label for="rt_aff_user_to">To Email Address</label></th>
-                <td><input type="text" class="regular-text" name="sales[rt_aff_to]" id="rt_aff_user_to" value="<?php echo $rt_option['sales']['rt_aff_to'];?>" /></td>
-            </tr>
-            <tr valign="top">
-                <th scope="row"><label for="rt_aff_user_bcc">BCC Email Address</label></th>
-                <td><input type="text" class="regular-text" name="sales[rt_aff_bcc]" id="rt_aff_user_bcc" value="<?php echo $rt_option['sales']['rt_aff_bcc'];?>" /></td>
-            </tr>
-            <tr valign="top">
-                <th scope="row"><label for="rt_aff_user_cc">CC Email Address</label></th>
-                <td><input type="text" class="regular-text" name="sales[rt_aff_cc]" id="rt_aff_user_cc" value="<?php echo $rt_option['sales']['rt_aff_cc'];?>" /></td>
-            </tr>
-            <tr valign="top">
-                <th scope="row"><label for="rt_aff_user_from">From Email Address</label></th>
-                <td><input type="text" class="regular-text" name="sales[rt_aff_from]" id="rt_aff_user_from" value="<?php echo $rt_option['sales']['rt_aff_from'];?>" /></td>
-            </tr>
-            <tr valign="top">
-                <th scope="row"><label for="rt_aff_user_fromname">From Name</label></th>
-                <td><input type="text" class="regular-text" name="sales[rt_aff_fromname]" id="rt_aff_user_fromname" value="<?php echo $rt_option['sales']['rt_aff_fromname'];?>" /></td>
-            </tr>
-            <tr valign="top">
-                <th scope="row"><label for="rt_aff_user_subject">Subject</label></th>
-                <td><input type="text" class="regular-text" name="sales[rt_aff_subject]" id="rt_aff_user_subject" value="<?php echo $rt_option['sales']['rt_aff_subject'];?>" /></td>
-            </tr>
-            <tr valign="top">
-                <th scope="row"><label for="rt_aff_user_msg">Message Template</label></th>
-                <td>
-                    <p><strong>Replacement Keys:</strong><br />%affiliate_name% | %blog_url% | %ref_url% | %services_list% | %track_id% | %customer_email% | %customer_comment% </p>
-                    <textarea name="sales[rt_aff_msg]" id="rt_aff_user_msg"  cols="50" rows="8"><?php echo $rt_option['sales']['rt_aff_msg'];?></textarea>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <div class="submit"><input type="submit" value="save" name="submit"/></div>
-</form>
-        </div>
-        <?php
-
+            <h3>Sales Team Email Template</h3>
+            <table class="form-table">
+                <tbody>
+                    <tr valign="top">
+                        <th scope="row"><label for="rt_aff_user_enable">Enable Template</label></th>
+                        <td><input type="checkbox" name="sales[rt_aff_enable]" id="rt_aff_user_enable" value="1" <?php if($rt_option['sales']['rt_aff_enable'] == 1) echo 'checked';?> /></td>
+                    </tr>
+                    <tr valign="top">
+                        <th scope="row"><label for="rt_aff_user_to">To Email Address</label></th>
+                        <td><input type="text" class="regular-text" name="sales[rt_aff_to]" id="rt_aff_user_to" value="<?php echo $rt_option['sales']['rt_aff_to'];?>" /></td>
+                    </tr>
+                    <tr valign="top">
+                        <th scope="row"><label for="rt_aff_user_bcc">BCC Email Address</label></th>
+                        <td><input type="text" class="regular-text" name="sales[rt_aff_bcc]" id="rt_aff_user_bcc" value="<?php echo $rt_option['sales']['rt_aff_bcc'];?>" /></td>
+                    </tr>
+                    <tr valign="top">
+                        <th scope="row"><label for="rt_aff_user_cc">CC Email Address</label></th>
+                        <td><input type="text" class="regular-text" name="sales[rt_aff_cc]" id="rt_aff_user_cc" value="<?php echo $rt_option['sales']['rt_aff_cc'];?>" /></td>
+                    </tr>
+                    <tr valign="top">
+                        <th scope="row"><label for="rt_aff_user_from">From Email Address</label></th>
+                        <td><input type="text" class="regular-text" name="sales[rt_aff_from]" id="rt_aff_user_from" value="<?php echo $rt_option['sales']['rt_aff_from'];?>" /></td>
+                    </tr>
+                    <tr valign="top">
+                        <th scope="row"><label for="rt_aff_user_fromname">From Name</label></th>
+                        <td><input type="text" class="regular-text" name="sales[rt_aff_fromname]" id="rt_aff_user_fromname" value="<?php echo $rt_option['sales']['rt_aff_fromname'];?>" /></td>
+                    </tr>
+                    <tr valign="top">
+                        <th scope="row"><label for="rt_aff_user_subject">Subject</label></th>
+                        <td><input type="text" class="regular-text" name="sales[rt_aff_subject]" id="rt_aff_user_subject" value="<?php echo $rt_option['sales']['rt_aff_subject'];?>" /></td>
+                    </tr>
+                    <tr valign="top">
+                        <th scope="row"><label for="rt_aff_user_msg">Message Template</label></th>
+                        <td>
+                            <p><strong>Replacement Keys:</strong><br />%affiliate_name% | %blog_url% | %ref_url% | %services_list% | %track_id% | %customer_email% | %customer_comment% </p>
+                            <textarea name="sales[rt_aff_msg]" id="rt_aff_user_msg"  cols="50" rows="8"><?php echo $rt_option['sales']['rt_aff_msg'];?></textarea>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="submit"><input type="submit" value="save" name="submit"/></div>
+        </form>
+    </div>
+    <?php
 }
-
+/**
+ * Admin option to manage payment
+ */
 function rt_affiliate_options_manage_payment() {
     ?>
     <div class="wrap">
@@ -597,16 +594,21 @@ function rt_affiliate_options_manage_payment() {
         <br/>
         <p><a href="?page=manage_payment&action=list">LIST</a> | <a href="?page=manage_payment&action=add">ADD</a> </p>
     <?php
-    if($_GET['action'] == 'add' || $_GET['action'] == 'edit') rt_affiliate_options_manage_payment_edit();
+    if ( $_GET['action'] == 'add' || $_GET['action'] == 'edit' ) rt_affiliate_options_manage_payment_edit();
     else rt_affiliate_options_manage_payment_list();
     ?></div><?php
 }
+/**
+ * List payment log
+ * @global  $wpdb
+ * @global <type> $payment_type
+ */
 function rt_affiliate_options_manage_payment_list() {
     global $wpdb, $payment_type;
     $cond = '';
     if ($_GET['user'] !=0 ) $cond = 'WHERE user_id = '.$_GET['user'];
     $sql = "SELECT * FROM ".$wpdb->prefix."rt_aff_transaction $cond order by date desc ";
-    $rows = $wpdb->get_results($sql);
+    $rows = $wpdb->get_results( $sql );
     ?>
         <div class="tablenav">
             <div class="alignleft actions">
@@ -617,8 +619,8 @@ function rt_affiliate_options_manage_payment_list() {
                         <option value="0">All</option>
                         <?php
                         $sql_user = "SELECT ID, user_login from ".$wpdb->prefix."users";
-                        $rows_user = $wpdb->get_results($sql_user);
-                        foreach($rows_user as $row_user){
+                        $rows_user = $wpdb->get_results( $sql_user );
+                        foreach ( $rows_user as $row_user ) {
                             ?><option value="<?php echo $row_user->ID;?>" <?php if($_GET['user'] == $row_user->ID) echo 'selected';?>><?php echo $row_user->user_login;?></option><?php
                         }
                     ?>
@@ -645,18 +647,18 @@ function rt_affiliate_options_manage_payment_list() {
             </tr>
         </thead>
         <?php
-        foreach ($rows as $k => $row){
+        foreach ( $rows as $k => $row ) {
         ?>
              <tr class="read">
                 <th><?php echo $k;?></th>
-                <td><?php echo get_userdata($row->user_id)->user_login;?></td>
+                <td><?php echo get_userdata( $row->user_id )->user_login;?></td>
                 <td><?php echo $row->txn_id?></td>
                 <td><?php echo $row->payment_method?></td>
                 <td><?php echo $payment_type[$row->type];?></td>
-                <td><?php if($row->type == 'earning' || $row->type == 'payment_cancel') echo '+'.$row->amount;?></td>
-                <td><?php if($row->type == 'payment' || $row->type == 'client_refunded') echo '-'.$row->amount;?></td>
+                <td><?php if ( $row->type == 'earning' || $row->type == 'payment_cancel' ) echo '+'.$row->amount;?></td>
+                <td><?php if ( $row->type == 'payment' || $row->type == 'client_refunded' ) echo '-'.$row->amount;?></td>
                 <td><?php echo $row->note;?></td>
-                <td><?php echo date("F j, Y, g:i a", strtotime($row->date));?></td>
+                <td><?php echo date( "F j, Y, g:i a", strtotime( $row->date ) );?></td>
                 <td><a href="?page=manage_payment&action=edit&pid=<?php echo $row->id;?>">Edit</a> </td>
             </tr>
             <?php
