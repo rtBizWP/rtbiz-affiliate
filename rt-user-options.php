@@ -203,7 +203,7 @@ function rt_affiliate_links_banners() {
         </ol>
         <br/>
         <h3>Links and codes</h3>
-        <p><strong>Text link for Email/IM: </strong><?php echo bloginfo( 'url' ).'/?ref='.  $username;?></p>
+        <p><strong>Text link for Email/IM: <?php echo '<a href="'.get_bloginfo( 'url' ).'/?ref='.  $username.'">'. get_bloginfo( 'url' ).'/?ref='.  $username .'</a>';?></strong></p>
         <p><strong>OR</strong> </p>
         <p>You can use any of banner code below</p>
         
