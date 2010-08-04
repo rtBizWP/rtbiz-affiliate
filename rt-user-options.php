@@ -1,4 +1,12 @@
 <?php
+/**
+ * Shows stats and history to affiliae user
+ * @global <type> $wpdb
+ * @global <type> $user_ID
+ * @global <type> $rt_time_duration
+ * @global <type> $rt_user_details
+ * @global <type> $rt_status
+ */
 function rt_affiliate_stats() {
     global $wpdb, $user_ID, $rt_time_duration, $rt_user_details, $rt_status;
 
@@ -105,6 +113,13 @@ function rt_affiliate_stats() {
 
 //ajax
 add_action( 'wp_ajax_rt_affiliate_summary', 'rt_affiliate_summary' );
+
+/**
+ * show summary of affiliate users referal
+ * @global  $wpdb
+ * @global  $user_ID
+ * @global  $rt_time_duration
+ */
 function rt_affiliate_summary() {
     global $wpdb,$user_ID, $rt_time_duration;
     $cond1 = "";
@@ -168,6 +183,10 @@ function rt_affiliate_summary() {
     die();
 }
 
+/**
+ * show avalable banners
+ * @global  $user_ID
+ */
 function rt_affiliate_links_banners() {
     global $user_ID;
     $username = get_userdata( $user_ID )->user_login;
@@ -200,7 +219,7 @@ function rt_affiliate_links_banners() {
         <?php
         $banners_info =  get_option('rt_affiliate_banners') ;
         $banners_info =  explode("\n", $banners_info);
-//        print_r($banners_info);
+        
         foreach ( $banners_info as $k => $v ) {
             $banner =  explode( ' ', $v );
             $size = explode( 'x', $banner[0] );
@@ -213,23 +232,17 @@ function rt_affiliate_links_banners() {
             </tr>
         <?php
         }
-
-//        if ( $handle = opendir( RT_AFFILIATE_BANNER_PATH ) ) {
-//            while ( false !== ( $file = readdir( $handle ) ) ) {
-//                if ( $file !='.' && $file !='..' ) {
-//                    $file = RT_AFFILIATE_BANNER_URL.$file;
-//                    $size = getimagesize( $file );
-//                    
-//                }
-//            }
-//            closedir( $handle );
-//        }
         ?>
     </table>
  </div>
         <?php
 }
 
+/**
+ * shows payment log
+ * @global  $wpdb
+ * @global  $user_ID 
+ */
 function rt_affiliate_payment_info() {
     global $wpdb, $user_ID;
 
