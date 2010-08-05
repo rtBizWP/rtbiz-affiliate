@@ -30,7 +30,7 @@ define( 'RT_AFFILIATE_BANNER_URL', RT_AFFILIATE_URL.'/banners/' );
 /*
  * define global variables
  */
-global $rt_status, $payment_method, $payment_type, $rt_time_duration, $rt_user_details;
+global $rt_status, $payment_method, $payment_type, $rt_time_duration, $rt_user_details, $rt_aff_error;
 $rt_status =array( 'contact_submitted' => 'Client Submitted From',
             'awaiting_reply' => 'Awaiting Reply from Client',
             'custom_domain_setup' => 'Custom Domain Setup',

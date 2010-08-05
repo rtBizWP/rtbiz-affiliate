@@ -764,7 +764,7 @@ function rt_affiliate_options_manage_payment_edit() {
             </tr>
             <tr valign="top">
                 <th scope="row"><label for="date">Date</label></th>
-                <td><input type="text" value="<?php if ( $row_tranx->date != '' ) echo date( 'Y-m-d', strtotime( $row_tranx->date ) ); ?>" id="date" name="date" class="regular-text"></td>
+                <td><input type="text" value="<?php if ( $row_tranx->date != '' ) echo date( 'Y-m-d', strtotime( $row_tranx->date ) ); else echo date( 'Y-m-d'); ?>" id="date" name="date" class="regular-text"></td>
             </tr>
         </table>
         <div class="submit"><input type="submit" name="submit" value="save"></div>

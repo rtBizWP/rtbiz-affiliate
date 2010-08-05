@@ -1,7 +1,11 @@
 jQuery(document).ready(function() {
+//    jQuery.validator.addMethod("lettersonly", function(value, element) {
+//        return !jQuery.validator.methods.required(value, element) || /^[a-z]+$/i.test(value);
+//    }, "Please enter valid name")
+
     var validator = jQuery("#rt_aff_contact").validate({
             rules: {
-                name:{
+                clientname:{
                     required: true
                 },
                 email:{
@@ -13,7 +17,7 @@ jQuery(document).ready(function() {
                     url: true
                 }
             },
-
+            
             // the errorPlacement has to take the table layout into account
             errorPlacement: function(error, element) {
                 if ( element.is(":radio") )
