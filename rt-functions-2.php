@@ -323,7 +323,7 @@ function rt_affiliate_referer() {
         /*
          * check refrrer's usermname is valid
          */
-        $sql_ref_user = "SELECT ID FROM ".$wpdb->base_prefix."users WHERE user_login = '".trim( $_POST['referred_by'] )."'";
+        $sql_ref_user = "SELECT ID, user_email FROM ".$wpdb->base_prefix."users WHERE user_login = '".trim( $_POST['referred_by'] )."'";
         $row_ref_user = $wpdb->get_row( $sql_ref_user );
 
         $uid = 0;
@@ -361,8 +361,8 @@ function rt_affiliate_referer() {
         /*
          * if refral is set, send email to him
          */
-        if ( $_POST['referred_by_id']!='' ) {
-            rt_affiliate_send_mail( 'to_affiliate_user', $_POST['referred_by_id'], $_POST['clientname'], $_POST['blog_url'], $_SERVER['HTTP_REFERER'], $services_list, $track_id );
+        if ( $uid > 0 ) {
+            rt_affiliate_send_mail( 'to_affiliate_user', $row_ref_user->user_email, $_POST['clientname'], $_POST['blog_url'], $_SERVER['HTTP_REFERER'], $services_list, $track_id );
         }
 
         $_SESSION['rt_msg'] = 'Form submitted successfully!';
