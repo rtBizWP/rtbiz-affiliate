@@ -26,7 +26,8 @@ jQuery(document).ready(function() {
             // set this class to error-labels to indicate valid fields
             success: function(label) {
                 // set &nbsp; as text for IE
-                label.html("&nbsp;").removeClass("error");
+                //label.html("").removeClass("error");
+                label.remove();
                 //label.html("&nbsp;").addClass("checked");
             }
         });
