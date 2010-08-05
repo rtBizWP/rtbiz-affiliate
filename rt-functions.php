@@ -166,23 +166,21 @@ function rt_affiliate_contact_form() {
         }
         ?>
     </div>
-   
+
     <fieldset>
         <ul id="rt_aff_list">
             <li>
                 <label for="clientname">Your Name</label>
                 <input type="text" class="regular-text" value="" id="clientname" name="clientname">
-                <span class="error"></span>
             </li>
             <li>
                 <label for="email">Your Email</label>
                 <input type="text" class="regular-text" value="" id="email" name="email">
-                <span class="error"></span>
             </li>
             <li>
                 <label for="blog_url">Blog URL</label>
                 <input type="text" class="regular-text" value="" id="blog_url" name="blog_url">
-                <span class="error"></span>
+
             </li>
             <li><label>Services</label>
                 <ul>
@@ -308,7 +306,7 @@ function rt_affiliate_referer() {
              * save referal's id in session also
              */
             $_SESSION['rt_aff_referal_id'] = $wpdb->insert_id;
-            
+
             header( "Location: ".$redirect_link );
         }
     }
@@ -325,7 +323,7 @@ function rt_affiliate_referer() {
         /*
          * check refrrer's usermname is valid
          */
-        $sql_ref_user = "SELECT ID FROM ".$wpdb->base_prefix."users WHERE user_login = '".trim( $_POST['referred_by'] )."'";
+        $sql_ref_user = "SELECT ID, user_email FROM ".$wpdb->base_prefix."users WHERE user_login = '".trim( $_POST['referred_by'] )."'";
         $row_ref_user = $wpdb->get_row( $sql_ref_user );
 
         $uid = 0;
@@ -363,8 +361,8 @@ function rt_affiliate_referer() {
         /*
          * if refral is set, send email to him
          */
-        if ( $_POST['referred_by_id']!='' ) {
-            rt_affiliate_send_mail( 'to_affiliate_user', $_POST['referred_by_id'], $_POST['clientname'], $_POST['blog_url'], $_SERVER['HTTP_REFERER'], $services_list, $track_id );
+        if ( $uid > 0 ) {
+            rt_affiliate_send_mail( 'to_affiliate_user', $row_ref_user->user_email, $_POST['clientname'], $_POST['blog_url'], $_SERVER['HTTP_REFERER'], $services_list, $track_id );
         }
 
         $_SESSION['rt_msg'] = 'Form submitted successfully!';
