@@ -351,7 +351,7 @@ function rt_affiliate_referer() {
             $uid = 0;
             if ( $row_ref_user != NULL ) $uid = $row_ref_user->ID;
 
-            echo $sql = "INSERT INTO " . $wpdb->prefix . "rt_aff_contact_details
+            $sql = "INSERT INTO " . $wpdb->prefix . "rt_aff_contact_details
                 (`users_referal_id`, `referred_by`, `name`, `email`, `blog_url`, `service_b2w_migration`, `service_wp_theme`, `service_hosting`, `cust_comment`, `ip_address`, `browsing_history`, `project_status`, `date_contacted`, `date_update`) VALUES
                 ( '" . $_POST['rt_aff_referal_id'] . "', '" . $uid . "', '" . $_POST['rt_aff_clientname'] . "', '" . $_POST['rt_aff_email'] . "', '" . $_POST['rt_aff_blog_url'] . "', '" . $_POST['rt_aff_b2w'] . "', '" . $_POST['rt_aff_theme'] . "', '" . $_POST['rt_aff_webhosting'] . "', '" . $_POST['rt_aff_comment'] . "', '" . $_POST['rt_aff_ip_address'] . "', '" . $_POST['rt_aff_browser_history'] . "', 'contact_submitted', now(), now() )";
             $wpdb->query( $sql );

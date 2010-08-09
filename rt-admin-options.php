@@ -406,7 +406,7 @@ function rt_affiliate_contact_edit() {
     </tr>
     <tr>
         <th class="label" valign="top"><label>Blog URL:</label></th>
-        <td class="field"><?php echo $row->blog_url;?></td>
+        <td class="field"><a href="<?php echo $row->blog_url;?>" target="_blank"><?php echo $row->blog_url;?></a> </td>
     </tr>
     
     <tr>
@@ -415,7 +415,7 @@ function rt_affiliate_contact_edit() {
     </tr>
     <tr>
         <th class="label" valign="top"><label>Customer's Comment:</label></th>
-        <td class="field"><?php echo $row->comment;?></td>
+        <td class="field"><?php echo $row->cust_comment;?></td>
     </tr>
     <tr>
         <th class="label" valign="top"><label>IP Address:</label></th>
