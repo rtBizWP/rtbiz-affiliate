@@ -5,14 +5,14 @@ jQuery(document).ready(function() {
 
     var validator = jQuery("#rt_aff_contact").validate({
             rules: {
-                clientname:{
+                rt_aff_clientname:{
                     required: true
                 },
-                email:{
+                rt_aff_email:{
                     required: true,
                     email:true
                 },
-                blog_url: {
+                rt_aff_blog_url: {
                     required: true,
                     url: true
                 }

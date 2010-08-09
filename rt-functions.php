@@ -172,42 +172,42 @@ function rt_affiliate_contact_form() {
         <ul id="rt_aff_list">
             <li>
                 <label for="clientname">Your Name</label>
-                <input type="text" class="regular-text" value="<?php echo $_POST['clientname'] ?>" id="clientname" name="clientname">
+                <input type="text" class="regular-text" value="<?php echo $_POST['rt_aff_clientname'] ?>" id="clientname" name="rt_aff_clientname">
                 <?php if ( isset ($rt_aff_error['name_error'] ) ) echo $rt_aff_error['name_error']; ?>
             </li>
             <li>
                 <label for="email">Your Email</label>
-                <input type="text" class="regular-text" value="<?php echo $_POST['email'] ?>" id="email" name="email">
+                <input type="text" class="regular-text" value="<?php echo $_POST['rt_aff_email'] ?>" id="email" name="rt_aff_email">
                 <?php if ( isset ($rt_aff_error['email_error'] ) ) echo $rt_aff_error['email_error']; ?>
             </li>
             <li>
                 <label for="blog_url">Blog URL</label>
-                <input type="text" class="regular-text" value="<?php echo $_POST['blog_url'] ?>" id="blog_url" name="blog_url">
+                <input type="text" class="regular-text" value="<?php echo $_POST['rt_aff_blog_url'] ?>" id="blog_url" name="rt_aff_blog_url">
                 <?php if ( isset ($rt_aff_error['blog_url_error'] ) ) echo $rt_aff_error['blog_url_error']; ?>
 
             </li>
             <li><label>Services</label>
                 <ul>
                     <li>
-                        <input type="checkbox" class="checkbox" value="yes" <?php if ( isset ( $_POST['b2w'] ) ) echo 'checked'; ?> id="b2w" name="b2w">
+                        <input type="checkbox" class="checkbox" value="yes" <?php if ( isset ( $_POST['rt_aff_b2w'] ) ) echo 'checked'; ?> id="b2w" name="rt_aff_b2w">
                         <label for="b2w">Blogger to WordPress Migration</label>
                     </li>
                     <li>
-                        <input type="checkbox" class="checkbox" value="yes" <?php if ( isset ( $_POST['wp_theme'] ) ) echo 'checked'; ?> id="wp_theme" name="wp_theme">
+                        <input type="checkbox" class="checkbox" value="yes" <?php if ( isset ( $_POST['rt_aff_wp_theme'] ) ) echo 'checked'; ?> id="wp_theme" name="rt_aff_wp_theme">
                         <label for="wp_theme">WordPress Theme</label>
                         <ul id="show_hide">
                             <li>
-                                <input type="radio" class="radio" value="blog_layout" <?php if ( $_POST['theme'] == 'blog_layout' ) echo 'checked'; ?> id="blog_layout" name="theme">
+                                <input type="radio" class="radio" value="blog_layout" <?php if ( $_POST['rt_aff_theme'] == 'blog_layout' ) echo 'checked'; ?> id="blog_layout" name="rt_aff_theme">
                                 <label for="blog_layout"> Matching my Blogger layout</label>
                             </li>
                             <li>
-                                <input type="radio" class="radio" value="new_theme" <?php if ( $_POST['theme'] == 'new_theme' ) echo 'checked'; ?> id="new_theme" name="theme">
+                                <input type="radio" class="radio" value="new_theme" <?php if ( $_POST['rt_aff_theme'] == 'new_theme' ) echo 'checked'; ?> id="new_theme" name="rt_aff_theme">
                                 <label for="new_theme">New WordPress theme</label>
                             </li>
                         </ul>
                     </li>
                     <li>
-                        <input type="checkbox" class="checkbox" value="yes" <?php if ( isset ( $_POST['webhosting'] ) ) echo 'checked'; ?> id="webhosting" name="webhosting">
+                        <input type="checkbox" class="checkbox" value="yes" <?php if ( isset ( $_POST['rt_aff_webhosting'] ) ) echo 'checked'; ?> id="webhosting" name="rt_aff_webhosting">
                         <label for="webhosting">Webhosting</label>
                     </li>
                 </ul>
@@ -215,7 +215,7 @@ function rt_affiliate_contact_form() {
             <li>
                 <label id="for_commnet" for="comment">Comment  </label>
 <!--                <small>(any questions)</small> -->
-                <textarea class="textarea" id="comment" name="comment"><?php echo $_POST['comment'] ; ?></textarea>
+                <textarea class="textarea" id="comment" name="rt_aff_comment"><?php echo $_POST['rt_aff_comment'] ; ?></textarea>
             </li>
             <?php
             if ( !isset( $_SESSION['rt_aff_user_id'] ) ) {
@@ -229,11 +229,11 @@ function rt_affiliate_contact_form() {
             ?>
             <li>
                 <label id="for_referred_by" for="referred_by">Referred By</label>
-                <input type="text" class="regular-text" value="<?php if ( isset ( $_POST['referred_by'] ) ) echo $_POST['referred_by']; else echo $referar_username;?>" id="referred_by" name="referred_by">
+                <input type="text" class="regular-text" value="<?php if ( isset ( $_POST['rt_aff_referred_by'] ) ) echo $_POST['rt_aff_referred_by']; else echo $referar_username;?>" id="referred_by" name="rt_aff_referred_by">
             </li>
             <input type="hidden" value="<?php echo $_SESSION['rt_aff_referal_id'];?>" name="rt_aff_referal_id"/>
-            <input type="hidden" value="<?php echo $_SERVER['REMOTE_ADDR'];?>" name="ip_address"/>
-            <input type="hidden" value="<?php echo urlencode( serialize( $_SESSION['browser_history'] ) );?>" name="browser_history" />
+            <input type="hidden" value="<?php echo $_SERVER['REMOTE_ADDR'];?>" name="rt_aff_ip_address"/>
+            <input type="hidden" value="<?php echo urlencode( serialize( $_SESSION['browser_history'] ) );?>" name="rt_aff_browser_history" />
             <?php wp_nonce_field( 'rtaff123' );?>
             <li>
                 <input type="submit" name="rt_affiliate_contact" value="Submit" id="rt_affiliate_submit"/>
@@ -322,38 +322,38 @@ function rt_affiliate_referer() {
     if ( $_POST && wp_verify_nonce( $_POST['_wpnonce'], 'rtaff123' ) ) {
 
         $error = 0;
-        //if ( !isset( $_POST['email'] ) || !eregi("^[a-zA-Z ]", $_POST['clientname'])) {
-        if ( !isset( $_POST['email'] )  || trim($_POST['email']) == '') {
+        //if ( !isset( $_POST['rt_aff_email'] ) || !eregi("^[a-zA-Z ]", $_POST['rt_aff_clientname'])) {
+        if ( !isset( $_POST['rt_aff_clientname'] )  || trim($_POST['rt_aff_clientname']) == '') {
             $rt_aff_error['name_error'] = '<label for="clientname" generated="true" class="error">Please enter a valid name.</label>';
             $error = 1;
         }
-        //if ( !isset( $_POST['email'] ) || !eregi("^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,3})$", $_POST['email'])) {
-        if ( !isset( $_POST['email'] ) || !filter_var( $_POST['email'], FILTER_VALIDATE_EMAIL ) ) {
+        //if ( !isset( $_POST['rt_aff_email'] ) || !eregi("^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,3})$", $_POST['rt_aff_email'])) {
+        if ( !isset( $_POST['rt_aff_email'] ) || !filter_var( $_POST['rt_aff_email'], FILTER_VALIDATE_EMAIL ) ) {
             $rt_aff_error['email_error'] = '<label for="email" generated="true" class="error">Please enter a valid email address.</label>';
             $error = 1;
         }
-//        if ( !isset( $_POST['blog_url'] ) || !eregi("^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,3})$", $_POST['blog_url'])) {
-        if ( !isset( $_POST['blog_url'] ) || !filter_var( $_POST['blog_url'], FILTER_VALIDATE_URL ) ) {
+//        if ( !isset( $_POST['rt_aff_blog_url'] ) || !eregi("^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,3})$", $_POST['rt_aff_blog_url'])) {
+        if ( !isset( $_POST['rt_aff_blog_url'] ) || !filter_var( $_POST['rt_aff_blog_url'], FILTER_VALIDATE_URL ) ) {
             $rt_aff_error['blog_url_error'] = '<label for="blog_url" generated="true" class="error">Please enter a valid URL.</label>';
             $error = 1;
         }
         if ( ! $error ) {
-            if ( !isset( $_POST['b2w'] ) ) $_POST['b2w'] = 'no';
-            if ( !isset( $_POST['theme'] ) ) $_POST['theme'] = 'no';
-            if ( !isset( $_POST['webhosting'] ) ) $_POST['webhosting'] = 'no';
+            if ( !isset( $_POST['rt_aff_b2w'] ) ) $_POST['rt_aff_b2w'] = 'no';
+            if ( !isset( $_POST['rt_aff_theme'] ) ) $_POST['rt_aff_theme'] = 'no';
+            if ( !isset( $_POST['rt_aff_webhosting'] ) ) $_POST['rt_aff_webhosting'] = 'no';
 
             /*
              * check refrrer's usermname is valid
              */
-            $sql_ref_user = "SELECT ID FROM ".$wpdb->base_prefix."users WHERE user_login = '".trim( $_POST['referred_by'] )."'";
+            $sql_ref_user = "SELECT ID FROM ".$wpdb->base_prefix."users WHERE user_login = '".trim( $_POST['rt_aff_referred_by'] )."'";
             $row_ref_user = $wpdb->get_row( $sql_ref_user );
 
             $uid = 0;
             if ( $row_ref_user != NULL ) $uid = $row_ref_user->ID;
 
-            $sql = "INSERT INTO " . $wpdb->prefix . "rt_aff_contact_details
+            echo $sql = "INSERT INTO " . $wpdb->prefix . "rt_aff_contact_details
                 (`users_referal_id`, `referred_by`, `name`, `email`, `blog_url`, `service_b2w_migration`, `service_wp_theme`, `service_hosting`, `cust_comment`, `ip_address`, `browsing_history`, `project_status`, `date_contacted`, `date_update`) VALUES
-                ( '" . $_POST['rt_aff_referal_id'] . "', '" . $uid . "', '" . $_POST['clientname'] . "', '" . $_POST['email'] . "', '" . $_POST['blog_url'] . "', '" . $_POST['b2w'] . "', '" . $_POST['theme'] . "', '" . $_POST['webhosting'] . "', '" . $_POST['comment'] . "', '" . $_POST['ip_address'] . "', '" . $_POST['browser_history'] . "', 'contact_submitted', now(), now() )";
+                ( '" . $_POST['rt_aff_referal_id'] . "', '" . $uid . "', '" . $_POST['rt_aff_clientname'] . "', '" . $_POST['rt_aff_email'] . "', '" . $_POST['rt_aff_blog_url'] . "', '" . $_POST['rt_aff_b2w'] . "', '" . $_POST['rt_aff_theme'] . "', '" . $_POST['rt_aff_webhosting'] . "', '" . $_POST['rt_aff_comment'] . "', '" . $_POST['rt_aff_ip_address'] . "', '" . $_POST['rt_aff_browser_history'] . "', 'contact_submitted', now(), now() )";
             $wpdb->query( $sql );
             $track_id = $wpdb->insert_id;
 
@@ -361,30 +361,30 @@ function rt_affiliate_referer() {
              * list services
              */
             $services_list = '';
-            if ( $_POST['b2w'] == 'yes' )
+            if ( $_POST['rt_aff_b2w'] == 'yes' )
                 $services_list .= '"Blogger to WordPress Migration",';
-            if ( $_POST['theme'] == 'blog_layout' )
+            if ( $_POST['rt_aff_theme'] == 'blog_layout' )
                 $services_list .= '"Theme matching my blog layout",';
-            if ( $_POST['theme'] == 'new_theme' )
+            if ( $_POST['rt_aff_theme'] == 'new_theme' )
                 $services_list .= '"New WordPress theme",';
-            if ( $_POST['webhosting'] == 'yes' )
+            if ( $_POST['rt_aff_webhosting'] == 'yes' )
                 $services_list .= '"Webhosting"';
 
             /*
              * send mail to rtcamp sales
              */
-            rt_affiliate_send_mail( 'to_sales', '', $_POST['clientname'], $_POST['blog_url'], $_SERVER['HTTP_REFERER'], $services_list, $track_id, $_POST['email'], $_POST['comment'] );
+            rt_affiliate_send_mail( 'to_sales', '', $_POST['rt_aff_clientname'], $_POST['rt_aff_blog_url'], $_SERVER['HTTP_REFERER'], $services_list, $track_id, $_POST['rt_aff_email'], $_POST['rt_aff_comment'] );
 
             /*
              * send mail to client
              */
-            rt_affiliate_send_mail( 'to_client', $_POST['email'], $_POST['clientname'], $_POST['blog_url'], $_SERVER['HTTP_REFERER'], $services_list, $track_id );
+            rt_affiliate_send_mail( 'to_client', $_POST['rt_aff_email'], $_POST['rt_aff_clientname'], $_POST['rt_aff_blog_url'], $_SERVER['HTTP_REFERER'], $services_list, $track_id );
 
             /*
              * if refral is set, send email to him
              */
             if ( $uid > 0 ) {
-                rt_affiliate_send_mail( 'to_affiliate_user', $uid, $_POST['clientname'], $_POST['blog_url'], $_SERVER['HTTP_REFERER'], $services_list, $track_id );
+                rt_affiliate_send_mail( 'to_affiliate_user', $uid, $_POST['rt_aff_clientname'], $_POST['rt_aff_blog_url'], $_SERVER['HTTP_REFERER'], $services_list, $track_id );
             }
 
             $_SESSION['rt_msg'] = 'Form submitted successfully!';
