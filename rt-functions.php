@@ -236,6 +236,7 @@ function rt_affiliate_contact_form() {
             <input type="hidden" value="<?php echo urlencode( serialize( $_SESSION['browser_history'] ) );?>" name="rt_aff_browser_history" />
             <?php wp_nonce_field( 'rtaff123' );?>
             <li>
+                <input type="text" name="full_name" value="" id="rt_aff_full_name" style="display: none">
                 <input type="submit" name="rt_affiliate_contact" value="Submit" id="rt_affiliate_submit"/>
             </li>
     </ul>
@@ -321,6 +322,11 @@ function rt_affiliate_referer() {
      */
     if ( $_POST && wp_verify_nonce( $_POST['_wpnonce'], 'rtaff123' ) ) {
 
+        //if this is spam submission
+        if ( $_POST['full_name'] != ''){
+            return;
+        }
+        
         $error = 0;
         //if ( !isset( $_POST['rt_aff_email'] ) || !eregi("^[a-zA-Z ]", $_POST['rt_aff_clientname'])) {
         if ( !isset( $_POST['rt_aff_clientname'] )  || trim($_POST['rt_aff_clientname']) == '') {
