@@ -217,6 +217,10 @@ function rt_affiliate_contact_form() {
 <!--                <small>(any questions)</small> -->
                 <textarea class="textarea" id="comment" name="rt_aff_comment"><?php echo $_POST['rt_aff_comment'] ; ?></textarea>
             </li>
+            <li>
+                <label id="lrt_aff_full_name" for="rt_aff_full_name">Keep this field blank</label>
+                <input type="text" name="rt_aff_full_name" value="" id="rt_aff_full_name">
+            </li>
             <?php
             if ( !isset( $_SESSION['rt_aff_user_id'] ) ) {
                 $referar = $_COOKIE['rt_aff_user_id'];
@@ -236,7 +240,6 @@ function rt_affiliate_contact_form() {
             <input type="hidden" value="<?php echo urlencode( serialize( $_SESSION['browser_history'] ) );?>" name="rt_aff_browser_history" />
             <?php wp_nonce_field( 'rtaff123' );?>
             <li>
-                <input type="text" name="full_name" value="" id="rt_aff_full_name" style="display: none">
                 <input type="submit" name="rt_affiliate_contact" value="Submit" id="rt_affiliate_submit"/>
             </li>
     </ul>
@@ -323,7 +326,11 @@ function rt_affiliate_referer() {
     if ( $_POST && wp_verify_nonce( $_POST['_wpnonce'], 'rtaff123' ) ) {
 
         //if this is spam submission
-        if ( $_POST['full_name'] != ''){
+        preg_match('@^(?:http://)?([^/]+)@i',$_SERVER['HTTP_REFERER'], $aff_http_ref_domain);
+        if ( $_POST['rt_aff_full_name'] != '' || $aff_http_ref_domain[0] != get_bloginfo('url') ) {
+            $_SESSION['rt_msg'] = 'I am sorry, but this message appears to be spam.';
+            //send spam mail to developer, santosh
+            wp_mail('santosh.kamble@rtcamp.com', 'B2W: spam', http_build_query($_POST));
             return;
         }
         
