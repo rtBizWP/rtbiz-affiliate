@@ -217,7 +217,7 @@ function rt_affiliate_contact_form() {
 <!--                <small>(any questions)</small> -->
                 <textarea class="textarea" id="comment" name="rt_aff_comment"><?php echo $_POST['rt_aff_comment'] ; ?></textarea>
             </li>
-            <li>
+            <li id="lrt_aff_full_name_field">
                 <label id="lrt_aff_full_name" for="rt_aff_full_name">Keep this field blank</label>
                 <input type="text" name="rt_aff_full_name" value="" id="rt_aff_full_name">
             </li>
