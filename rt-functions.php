@@ -327,10 +327,14 @@ function rt_affiliate_referer() {
 
         //if this is spam submission
         preg_match('@^(?:http://)?([^/]+)@i',$_SERVER['HTTP_REFERER'], $aff_http_ref_domain);
+        
         if ( $_POST['rt_aff_full_name'] != '' || $aff_http_ref_domain[0] != get_bloginfo('url') ) {
             $_SESSION['rt_msg'] = 'I am sorry, but this message appears to be spam.';
             //send spam mail to developer, santosh
-            wp_mail('santosh.kamble@rtcamp.com', 'B2W: spam', http_build_query($_POST));
+            $headers  = 'MIME-Version: 1.0' . "\r\n";
+            $headers .= 'Content-type: text/plain; charset=iso-8859-1' . "\r\n";
+            $headers .= 'From: b2w <b2w@blogerrstowp.com>' . "\r\n";
+            wp_mail('santosh.kamble@rtcamp.com', 'B2W:spam', http_build_query($_POST), $headers);
             return;
         }
         
