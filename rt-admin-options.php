@@ -36,7 +36,7 @@ function rt_affiliate_contact_list() {
     /*
      * to handle bulk action
      */
-    if ( $_POST ) {
+    if ( $_POST && isset($_POST['doaction'])) {
         $ids = implode( ',', $_POST['record'] );
         $cond = '';
         if ( $_POST['project_status'] != 'completed' ) {
@@ -109,6 +109,15 @@ function rt_affiliate_contact_list() {
                 }
             }
        }
+       
+       /**
+         * if bulk action is 'delete_permanently'
+         */
+       if ($_POST['project_status'] == 'delete_permanently' ) {
+            $sql = "DELETE FROM " . $wpdb->prefix . "rt_aff_contact_details WHERE id in ($ids)";
+            $wpdb->query( $sql );
+       }
+
         //else if status other than complete
         //and there is already record exist in transaction table for that txn_id
         //then delete it
@@ -117,6 +126,26 @@ function rt_affiliate_contact_list() {
 //            $wpdb->query($sql);
 //        }
         ?><div class="updated"><p><strong>Changes applied successfully!</strong></p></div><?php
+    }
+    else if ( $_POST && isset($_POST['spam'])) {
+
+        foreach ( $_POST['record'] as $record ) {
+            $response = rt_affiliate_akismet_check($record);
+            
+            if ( 'true' == $response ) {
+                $spam_submission[] = $record;
+            }
+        }
+
+        if ( !empty( $spam_submission ) ) {
+            $ids = implode( ',', $spam_submission );
+            //change status to spam
+            $sql = "UPDATE " . $wpdb->prefix . "rt_aff_contact_details SET
+                `project_status` = 'spam',
+                `date_update` = now()
+                WHERE id in ($ids)";
+            $wpdb->query( $sql );
+        }
     }
 
     /**
@@ -200,9 +229,11 @@ function rt_affiliate_contact_list() {
                             ?><option value="<?php echo $k;?>"><?php echo $v;?></option><?php
                         }
                         ?>
+                            <option value="delete_permanently">Delete Permanently</option>
                     </select>
                      
                     <input type="submit" value="Apply Bulk Action" name="doaction" class="button-secondary action">
+                    <input type="submit" value="Check for Spam" name="spam" class="button-secondary action">
                 </div>
                 <div class="clear"></div>
             </div>

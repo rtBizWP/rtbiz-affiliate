@@ -505,4 +505,39 @@ function rt_affiliate_login_redirect($redirect_to, $request_redirect_to, $user) 
         return  $redirect_to;
     }
 }
+
+
+function rt_affiliate_akismet_check( $id ) {
+	global $wpdb, $akismet_api_host, $akismet_api_port;
+
+        $sql = "Select name, email, blog_url, cust_comment from " .$wpdb->prefix. "rt_aff_contact_details where id = ".$id;
+        $row = $wpdb->get_row($sql);
+	$comment['user_ip']    = preg_replace( '/[^0-9., ]/', '', $_SERVER['REMOTE_ADDR'] );
+	$comment['user_agent'] = $_SERVER['HTTP_USER_AGENT'];
+	$comment['referrer']   = $_SERVER['HTTP_REFERER'];
+	$comment['blog']       = get_option('home');
+	$comment['blog_lang']  = get_locale();
+	$comment['blog_charset'] = get_option('blog_charset');
+	$comment['permalink']  = get_option('home');
+        $comment['comment_type'] = 'comment';
+        $comment['comment_author'] = $row->name;
+        $comment['comment_author_email'] = $row->email;
+        $comment['comment_author_url'] = $row->blog_url;
+        $comment['comment_content'] = $row->cust_comment;
+
+	$ignore = array( 'HTTP_COOKIE' );
+
+	foreach ( $_SERVER as $key => $value )
+		if ( !in_array( $key, $ignore ) && is_string($value) )
+			$comment["$key"] = $value;
+
+	$query_string = '';
+	foreach ( $comment as $key => $data )
+		$query_string .= $key . '=' . urlencode( stripslashes($data) ) . '&';
+
+	$response = akismet_http_post($query_string, $akismet_api_host, '/1.1/comment-check', $akismet_api_port);
+        //akismet_http_post($request, $host, $path, $port = 80, $ip=null)
+        return $response[1];
+}
+
 ?>

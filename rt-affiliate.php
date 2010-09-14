@@ -21,7 +21,6 @@ define( 'RT_AFFILIATE_PATH', str_replace( '\\', '/', trailingslashit(dirname(__F
 define( 'RT_AFFILIATE_URL', plugins_url('', __FILE__) );
 define( 'RT_AFFILIATE_HANDLER', 'rt-affiliate-admin' );
 define( 'RT_AFFILIATE_HANDLER_USER', 'rt-affiliate-user' );
-//define( 'RT_AFFILIATE_SALES_EMAIL', 'sales@rtcamp.com' );
 define( 'RT_AFFILIATE_COMMISSION_B2W', 25 );
 define( 'RT_AFFILIATE_COMMISSION_THEME', 25 );
 define( 'RT_AFFILIATE_BANNER_PATH', RT_AFFILIATE_PATH.'/banners/' );
@@ -40,12 +39,13 @@ $rt_status =array( 'contact_submitted' => 'Client Submitted From',
             'completed_refunded' => 'Project Completed, but refunded',
             'canceled' => 'Project Canceled',
             'deleted' => 'Project Deleted',
+            'spam' => 'Spam'
     );
+
 $payment_method = array( '--' =>'--', 'paypal' => 'Paypal', 'bank' => 'Bank', 'wired' => 'Wired Transfer');
 $payment_type = array('earning' => 'Earning', 'payment_cancel' => 'Payment Canceled', 'payment' => 'Payment', 'client_refunded' => 'Refunded to Client');
 $rt_time_duration = array('today' => 'Today', 'yesterday' => 'Yesterday', 'this_week' => 'This Week', 'last_week' => 'Last Week', 'this_month' => 'This Month', 'last_month' => 'Last Month', 'this_year' => 'This Year', 'last_year' => 'Last Year' );
 $rt_user_details = array('clicks_100' => 'Last 100 Clicks', 'enquiries' => 'Enquiries');
-
 
 require_once( RT_AFFILIATE_PATH . '/rt-functions.php' );
 require_once( RT_AFFILIATE_PATH . '/rt-admin-options.php' );
