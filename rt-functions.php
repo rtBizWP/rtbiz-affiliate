@@ -273,14 +273,17 @@ function rt_affiliate_referer() {
      */
     if ( isset( $_GET['ref'] ) ){
         $landing_page = 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
+        
         /*
          * code to get page-redirect link
          */
-        if( count( $_GET ) == 1 ) {
-            $needle = '?ref';
-        }else {
-            $needle = '&ref';
-        }
+//        if( count( $_GET ) == 1 ) {
+//            $needle = '?ref';
+//        }else {
+//            $needle = '&ref';
+//        }
+
+        $needle = '?ref';
         $redirect_link = substr( $landing_page, 0, strpos($landing_page, $needle ) );
 
         /*
@@ -297,8 +300,9 @@ function rt_affiliate_referer() {
             /*
              * set cookies
              */
-            setcookie( 'rt_aff_username', $_GET['ref'], time()+( 30*24*3600 ) ); //, "/", str_replace('http://www','',get_bloginfo('url')));
-            setcookie( 'rt_aff_user_id', $row->ID, time()+( 30*24*3600 ) );
+            setcookie( 'rt_aff_username', $_GET['ref'], time()+( 30*24*3600 ), SITECOOKIEPATH ); //, "/", str_replace('http://www','',get_bloginfo('url')));
+            setcookie( 'rt_aff_user_id', $row->ID, time()+( 30*24*3600 ), SITECOOKIEPATH );
+            //setcookie ($name, $value = null, $expire = null, $path = null, $domain = null, $secure = null, $httponly = null) ;
 
             /*
              * save referer's user_id in session also
