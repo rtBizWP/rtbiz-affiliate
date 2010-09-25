@@ -285,7 +285,7 @@ function rt_affiliate_referer() {
 
         $needle = '?ref';
         $redirect_link = substr( $landing_page, 0, strpos($landing_page, $needle ) );
-
+        
         /*
          * check refrrer's usermname is valid
          */
