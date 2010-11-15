@@ -2,7 +2,7 @@ jQuery(document).ready( function(){
     //datepicker
     jQuery("#date").datepicker(  {dateFormat: 'yy-mm-dd'} );
     
-    jQuery('#time_action').click(function(){
+    jQuery('#time_action').click(function() {
         time_duration = jQuery('#time_duration').val();
         jQuery.ajax({
             type: "POST",
