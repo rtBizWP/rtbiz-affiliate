@@ -46,6 +46,7 @@ function rt_affiliate_stats() {
             <?php
             $admin_cond = '';
             $admin_ref_cond = '';
+            $admin_ref_cond2 = '';
             if( !current_user_can('manage_options' ) ) {
                 $admin_cond = " WHERE user_id = $user_ID";
                 $admin_ref_cond = " WHERE referred_by = $user_ID";
@@ -226,9 +227,9 @@ function rt_affiliate_links_banners() {
         ?>
             <tr class="read">
                 <th><?php echo $k;?></th>
-                <td><img src="<?php echo $banner[1];?>" alt="Blogger to WordPress Migration"/></td>
+                <td><img src="<?php if (isset($banner[1])) echo $banner[1];?>" alt="Blogger to WordPress Migration"/></td>
                 <td><?php echo $banner[0];?></td>
-                <td><textarea name="banner_code" cols="50" rows="5"><a href="<?php echo bloginfo( 'url' ).'/?ref='.  $username; ?>" target="_blank" title="Bogger To WordPress Migration Service"><img src="<?php echo trim($banner[1]);?>" alt="Bogger To WordPress Migration Service" width="<?php echo $size[0]; ?>" height="<?php echo $size[1]; ?>"/></a></textarea></td>
+                <td><textarea name="banner_code" cols="50" rows="5"><a href="<?php echo bloginfo( 'url' ).'/?ref='.  $username; ?>" target="_blank" title="Bogger To WordPress Migration Service"><img src="<?php if (isset($banner[1])) echo trim($banner[1]);?>" alt="Bogger To WordPress Migration Service" width="<?php if (isset($size[0])) echo $size[0]; ?>" height="<?php if (isset($size[1])) echo $size[1]; ?>"/></a></textarea></td>
             </tr>
         <?php
         }
@@ -266,15 +267,21 @@ function rt_affiliate_payment_info() {
     }
 
     $cond = '';
-    if ( $_GET['view_type'] == 'show_earning' ) {
-        $cond = " WHERE (type = 'earning' or type = 'payment_cancel') ";
-    }
-    else if ( $_GET['view_type'] == 'show_payment' ) {
-        $cond = " WHERE (type = 'payment' or type = 'client_refunded') ";
+    if(isset($_GET['view_type'])){
+        if ( $_GET['view_type'] == 'show_earning' ) {
+            $cond = " WHERE (type = 'earning' or type = 'payment_cancel') ";
+        }
+        else if ( $_GET['view_type'] == 'show_payment' ) {
+            $cond = " WHERE (type = 'payment' or type = 'client_refunded') ";
+        }
+        else {
+            $cond = " WHERE 1 ";
+        }
     }
     else {
         $cond = " WHERE 1 ";
     }
+    
     $admin_cond = '';
     if ( !current_user_can('manage_options' ) ) {
         $admin_cond = " AND user_id = $user_ID";
@@ -292,12 +299,12 @@ function rt_affiliate_payment_info() {
         <table class="form-table" border="0">
             <tr>
                 <td width="20%" class="label"><label id="lpaypal_email" for="paypal_email">Paypal Email Address</label></td>
-                <td class="field"><input id="paypal_email" name="paypal_email" type="text" value="<?php if($_POST) echo $_POST['paypal_email']; else echo $rows_pay->paypal_email?>" /></td>
+                <td class="field"><input id="paypal_email" name="paypal_email" type="text" value="<?php if($_POST) echo $_POST['paypal_email']; else if(isset($rows_pay->paypal_email)) echo $rows_pay->paypal_email;?>" /></td>
             </tr>
 
             <tr>
                 <td class="label"><label id="lmin_payout" for="min_payout">Minimum Payout</label></td>
-                <td class="field"><input id="min_payout" name="min_payout" size="4" type="text" value="<?php if($_POST) echo $_POST['min_payout']; else echo $rows_pay->min_payout?>" />USD</td>
+                <td class="field"><input id="min_payout" name="min_payout" size="4" type="text" value="<?php if($_POST) echo $_POST['min_payout']; else if(isset($rows_pay->min_payout)) echo $rows_pay->min_payout;?>" />USD</td>
             </tr>
             <tr>
                 <td class="label"></td>

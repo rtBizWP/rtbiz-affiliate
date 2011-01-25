@@ -172,17 +172,17 @@ function rt_affiliate_contact_form() {
         <ul id="rt_aff_list">
             <li>
                 <label for="clientname">Your Name</label>
-                <input type="text" class="regular-text" value="<?php echo $_POST['rt_aff_clientname'] ?>" id="clientname" name="rt_aff_clientname">
+                <input type="text" class="regular-text" value="<?php if (isset ($_POST['rt_aff_clientname'] )) echo $_POST['rt_aff_clientname'] ?>" id="clientname" name="rt_aff_clientname">
                 <?php if ( isset ($rt_aff_error['name_error'] ) ) echo $rt_aff_error['name_error']; ?>
             </li>
             <li>
                 <label for="email">Your Email</label>
-                <input type="text" class="regular-text" value="<?php echo $_POST['rt_aff_email'] ?>" id="email" name="rt_aff_email">
+                <input type="text" class="regular-text" value="<?php if (isset ($_POST['rt_aff_email'] )) echo $_POST['rt_aff_email'] ?>" id="email" name="rt_aff_email">
                 <?php if ( isset ($rt_aff_error['email_error'] ) ) echo $rt_aff_error['email_error']; ?>
             </li>
             <li>
                 <label for="blog_url">Blog URL</label>
-                <input type="text" class="regular-text" value="<?php echo $_POST['rt_aff_blog_url'] ?>" id="blog_url" name="rt_aff_blog_url">
+                <input type="text" class="regular-text" value="<?php if (isset ($_POST['rt_aff_blog_url'] )) echo $_POST['rt_aff_blog_url'] ?>" id="blog_url" name="rt_aff_blog_url">
                 <?php if ( isset ($rt_aff_error['blog_url_error'] ) ) echo $rt_aff_error['blog_url_error']; ?>
 
             </li>
@@ -215,7 +215,7 @@ function rt_affiliate_contact_form() {
             <li>
                 <label id="for_commnet" for="comment">Comment  </label>
 <!--                <small>(any questions)</small> -->
-                <textarea class="textarea" id="comment" name="rt_aff_comment"><?php echo $_POST['rt_aff_comment'] ; ?></textarea>
+                <textarea class="textarea" id="comment" name="rt_aff_comment"><?php if (isset ($_POST['rt_aff_comment'] ))  echo $_POST['rt_aff_comment'] ; ?></textarea>
             </li>
             <li id="lrt_aff_full_name_field">
                 <label id="lrt_aff_full_name" for="rt_aff_full_name">Keep this field blank</label>
@@ -223,8 +223,10 @@ function rt_affiliate_contact_form() {
             </li>
             <?php
             if ( !isset( $_SESSION['rt_aff_user_id'] ) ) {
-                $referar = $_COOKIE['rt_aff_user_id'];
-                $referar_username = $_COOKIE['rt_aff_username'];
+                if ( isset( $_COOKIE['rt_aff_user_id'] ) )
+                    $referar = $_COOKIE['rt_aff_user_id'];
+                if ( isset( $_COOKIE['rt_aff_username'] ) )
+                    $referar_username = $_COOKIE['rt_aff_username'];
             }
             else {
                 $referar = $_SESSION['rt_aff_user_id'];
@@ -233,7 +235,7 @@ function rt_affiliate_contact_form() {
             ?>
             <li>
                 <label id="for_referred_by" for="referred_by">Referred By</label>
-                <input type="text" class="regular-text" value="<?php if ( isset ( $_POST['rt_aff_referred_by'] ) ) echo $_POST['rt_aff_referred_by']; else echo $referar_username;?>" id="referred_by" name="rt_aff_referred_by">
+                <input type="text" class="regular-text" value="<?php if ( isset ( $_POST['rt_aff_referred_by'] ) ) echo $_POST['rt_aff_referred_by']; else if(isset ($referar_username)) echo $referar_username;?>" id="referred_by" name="rt_aff_referred_by">
             </li>
             <input type="hidden" value="<?php echo $_SESSION['rt_aff_referal_id'];?>" name="rt_aff_referal_id"/>
             <input type="hidden" value="<?php echo $_SERVER['REMOTE_ADDR'];?>" name="rt_aff_ip_address"/>
@@ -273,7 +275,7 @@ function rt_affiliate_referer() {
      */
     if ( isset( $_GET['ref'] ) ){
         $landing_page = 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
-        
+
         /*
          * code to get page-redirect link
          */
@@ -285,7 +287,7 @@ function rt_affiliate_referer() {
 
         $needle = '?ref';
         $redirect_link = substr( $landing_page, 0, strpos($landing_page, $needle ) );
-        
+
         /*
          * check refrrer's usermname is valid
          */
@@ -331,7 +333,7 @@ function rt_affiliate_referer() {
 
         //if this is spam submission
         preg_match('@^(?:http://)?([^/]+)@i',$_SERVER['HTTP_REFERER'], $aff_http_ref_domain);
-        
+
         if ( $_POST['rt_aff_full_name'] != '' || $aff_http_ref_domain[0] != get_bloginfo('url') ) {
             $_SESSION['rt_msg'] = 'I am sorry, but this message appears to be spam.';
             //send spam mail to developer, santosh
@@ -341,7 +343,7 @@ function rt_affiliate_referer() {
             wp_mail('santosh.kamble@rtcamp.com', 'B2W:spam', http_build_query($_POST), $headers);
             return;
         }
-        
+
         $error = 0;
         //if ( !isset( $_POST['rt_aff_email'] ) || !eregi("^[a-zA-Z ]", $_POST['rt_aff_clientname'])) {
         if ( !isset( $_POST['rt_aff_clientname'] )  || trim($_POST['rt_aff_clientname']) == '') {
@@ -353,8 +355,13 @@ function rt_affiliate_referer() {
             $rt_aff_error['email_error'] = '<label for="email" generated="true" class="error">Please enter a valid email address.</label>';
             $error = 1;
         }
+
+        $pattern = "/^(?#Protocol)(?:(?:ht|f)tp(?:s?)\:\/\/|~\/|\/)?(?#Username:Password)(?:\w+:\w+@)?(?#Subdomains)(?:(?:[-\w]+\.)+(?#TopLevel Domains)(?:com|org|net|gov|mil|biz|info|mobi|name|aero|jobs|museum|travel|[a-z]{2}))(?#Port)(?::[\d]{1,5})?(?#Directories)(?:(?:(?:\/(?:[-\w~!$+|.,=]|%[a-f\d]{2})+)+|\/)+|\?|#)?(?#Query)(?:(?:\?(?:[-\w~!$+|.,*:]|%[a-f\d{2}])+=?(?:[-\w~!$+|.,*:=]|%[a-f\d]{2})*)(?:&(?:[-\w~!$+|.,*:]|%[a-f\d{2}])+=?(?:[-\w~!$+|.,*:=]|%[a-f\d]{2})*)*)*(?#Anchor)(?:#(?:[-\w~!$+|.,*:=]|%[a-f\d]{2})*)?$/i";
+        
 //        if ( !isset( $_POST['rt_aff_blog_url'] ) || !eregi("^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,3})$", $_POST['rt_aff_blog_url'])) {
-        if ( !isset( $_POST['rt_aff_blog_url'] ) || !filter_var( $_POST['rt_aff_blog_url'], FILTER_VALIDATE_URL ) ) {
+//        if ( !isset( $_POST['rt_aff_blog_url'] ) || !filter_var( $_POST['rt_aff_blog_url'], FILTER_VALIDATE_URL ) ) {
+//        if ( !isset( $_POST['rt_aff_blog_url'] ) || !eregi($pattern, $_POST['rt_aff_blog_url']) ) {
+        if ( !isset( $_POST['rt_aff_blog_url'] ) || !preg_match_all($pattern, $_POST['rt_aff_blog_url'], $r ) ) {
             $rt_aff_error['blog_url_error'] = '<label for="blog_url" generated="true" class="error">Please enter a valid URL.</label>';
             $error = 1;
         }
