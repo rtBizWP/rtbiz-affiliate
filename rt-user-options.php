@@ -229,7 +229,7 @@ function rt_affiliate_links_banners() {
                 <th><?php echo $k;?></th>
                 <td><img src="<?php if (isset($banner[1])) echo $banner[1];?>" alt="Blogger to WordPress Migration"/></td>
                 <td><?php echo $banner[0];?></td>
-                <td><textarea name="banner_code" cols="50" rows="5"><a href="<?php echo bloginfo( 'url' ).'/?ref='.  $username; ?>" target="_blank" title="Bogger To WordPress Migration Service"><img src="<?php if (isset($banner[1])) echo trim($banner[1]);?>" alt="Bogger To WordPress Migration Service" width="<?php if (isset($size[0])) echo $size[0]; ?>" height="<?php if (isset($size[1])) echo $size[1]; ?>"/></a></textarea></td>
+                <td><textarea name="banner_code" cols="50" rows="5"><a href="<?php echo bloginfo( 'url' ).'/?ref='.  $username; ?>" target="_blank" title="Blogger To WordPress Migration Service"><img src="<?php if (isset($banner[1])) echo trim($banner[1]);?>" alt="Bogger To WordPress Migration Service" width="<?php if (isset($size[0])) echo $size[0]; ?>" height="<?php if (isset($size[1])) echo $size[1]; ?>"/></a></textarea></td>
             </tr>
         <?php
         }
