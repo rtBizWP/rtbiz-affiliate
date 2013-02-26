@@ -292,7 +292,7 @@ function rt_affiliate_referer() {
          * check refrrer's usermname is valid
          */
 
-        $sql = "SELECT ID FROM ".$wpdb->base_prefix."users WHERE user_login = '".trim($_GET['ref'])."'";
+        $sql = "SELECT ID FROM ".$wpdb->users." WHERE user_login = '".trim($_GET['ref'])."'";
         $row = $wpdb->get_row( $sql );
 
         /*
@@ -329,7 +329,7 @@ function rt_affiliate_referer() {
     /*
      * HANDLE CONTACT FORM DETAILS
      */
-    if ( $_POST && wp_verify_nonce( $_POST['_wpnonce'], 'rtaff123' ) ) {
+    if ( $_POST && isset($_POST['_wpnonce']) && wp_verify_nonce( $_POST['_wpnonce'], 'rtaff123' ) ) {
 
         //if this is spam submission
         preg_match('@^(?:http://)?([^/]+)@i',$_SERVER['HTTP_REFERER'], $aff_http_ref_domain);
@@ -373,7 +373,7 @@ function rt_affiliate_referer() {
             /*
              * check refrrer's usermname is valid
              */
-            $sql_ref_user = "SELECT ID FROM ".$wpdb->base_prefix."users WHERE user_login = '".trim( $_POST['rt_aff_referred_by'] )."'";
+            $sql_ref_user = "SELECT ID FROM ".$wpdb->users." WHERE user_login = '".trim( $_POST['rt_aff_referred_by'] )."'";
             $row_ref_user = $wpdb->get_row( $sql_ref_user );
 
             $uid = 0;
@@ -549,6 +549,16 @@ function rt_affiliate_akismet_check( $id ) {
 	$response = akismet_http_post($query_string, $akismet_api_host, '/1.1/comment-check', $akismet_api_port);
         //akismet_http_post($request, $host, $path, $port = 80, $ip=null)
         return $response[1];
+}
+
+function rt_affiliate_woocommerce_add_refferral_info($order_id){
+	$rt_ref_affiliate = null;
+	if ( isset($_COOKIE['rt_aff_username']) )
+		$rt_ref_affiliate .= $_COOKIE['rt_aff_username'].', ';
+	if ( isset($_COOKIE['rt_aff_user_id']) )
+		$rt_ref_affiliate .= $_COOKIE['rt_aff_user_id'];
+	if ( $rt_ref_affiliate )
+		update_post_meta($order_id,'rt-ref-affiliate',$rt_ref_affiliate);
 }
 
 ?>

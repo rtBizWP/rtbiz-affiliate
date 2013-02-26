@@ -8,7 +8,8 @@ function rt_affiliate_admin_options_html() {
         <div class="icon32" id="icon-options-general"></div>
         <h2>Contact Form Submissions</h2>
         <?php
-        switch ( $_GET['action'] ) {
+        $action = isset($_GET['action'])?$_GET['action']:'';
+        switch ( $action ) {
             case 'list_contacts':
                 rt_affiliate_contact_list();
                 break;
@@ -649,7 +650,7 @@ function rt_affiliate_options_manage_payment_list() {
                     <select name="user">
                         <option value="0">All</option>
                         <?php
-                        $sql_user = "SELECT ID, user_login from ".$wpdb->base_prefix."users";
+                        $sql_user = "SELECT ID, user_login from ".$wpdb->users;
                         $rows_user = $wpdb->get_results( $sql_user );
                         foreach ( $rows_user as $row_user ) {
                             ?><option value="<?php echo $row_user->ID;?>" <?php if($_GET['user'] == $row_user->ID) echo 'selected';?>><?php echo $row_user->user_login;?></option><?php
@@ -751,7 +752,7 @@ function rt_affiliate_options_manage_payment_edit() {
                 <td>
                     <select name="user" id="user">
                         <?php
-                        $sql = "SELECT ID, user_login from ".$wpdb->base_prefix."users";
+                        $sql = "SELECT ID, user_login from ".$wpdb->users;
                         $rows = $wpdb->get_results( $sql );
                         foreach ( $rows as $row ) {
                             ?><option value="<?php echo $row->ID;?>"><?php echo $row->user_login;?></option><?php

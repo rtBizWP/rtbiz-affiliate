@@ -34,7 +34,7 @@ function rt_affiliate_stats() {
                 <select name="time_duration" id="time_duration">
                     <?php
                     foreach ( $rt_time_duration as $k => $v ) {
-                        ?><option value="<?php echo $k;?>" <?php if ( $_GET['status'] == $k ) echo 'selected';?>><?php echo $v;?></option><?php
+                        ?><option value="<?php echo $k;?>" <?php if ( isset($_GET['status']) && $_GET['status'] == $k ) echo 'selected';?>><?php echo $v;?></option><?php
                     }
                     ?>
                 </select>
@@ -73,7 +73,7 @@ function rt_affiliate_stats() {
                     <select name="rt_show">
                         <?php
                         foreach ( $rt_user_details as $k => $v ) {
-                            ?><option value="<?php echo $k;?>" <?php if($_POST['rt_show'] == $k) echo'selected'; ?>><?php echo $v;?></option><?php
+                            ?><option value="<?php echo $k;?>" <?php if(isset($_POST['rt_show']) && $_POST['rt_show'] == $k) echo'selected'; ?>><?php echo $v;?></option><?php
                         }
                         ?>
                     </select>
@@ -333,10 +333,11 @@ function rt_affiliate_payment_info() {
         <input type="hidden" name="page" value="payment_info"/>
             <div class="tablenav">
                 <div class="alignleft actions">
-                    <select name="view_type">
-                        <option value="show_all" <?php if ($_GET['view_type'] == 'show_all') echo 'selected'; ?> >Show All</option>
-                        <option value="show_earning" <?php if ($_GET['view_type'] == 'show_earning') echo 'selected'; ?>>Show Earning only</option>
-                        <option value="show_payment" <?php if ($_GET['view_type'] == 'show_payment') echo 'selected'; ?>>Show Payment only</option>
+                    <select name="view_type"><?php 
+                    $view_type = ( isset($_GET['view_type']) ) ? $_GET['view_type'] : ''; ?>
+                        <option value="show_all" <?php if ($view_type == 'show_all') echo 'selected'; ?> >Show All</option>
+                        <option value="show_earning" <?php if ($view_type == 'show_earning') echo 'selected'; ?>>Show Earning only</option>
+                        <option value="show_payment" <?php if ($view_type == 'show_payment') echo 'selected'; ?>>Show Payment only</option>
                     </select>
                     <input type="submit" value="Apply" name="doaction" class="button-secondary action">
                 </div>
