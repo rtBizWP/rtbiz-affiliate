@@ -636,12 +636,14 @@ function rt_affiliate_options_manage_payment() {
  * @global <type> $payment_type
  */
 function rt_affiliate_options_manage_payment_list() {
-    global $wpdb, $payment_type;
+    global $wpdb, $payment_type, $payment_method;
     $cond = '';
     if ($_GET['user'] !=0 ) $cond = 'WHERE user_id = '.$_GET['user'];
     $sql = "SELECT * FROM ".$wpdb->prefix."rt_aff_transaction $cond order by date desc ";
     $rows = $wpdb->get_results( $sql );
     ?>
+<!--    <label for="commission"><strong>Commission</strong></label>
+    <input type="text" value="<?php echo get_option('rt_aff_commission', 20); ?>" id="commission" name="commission">-->
         <div class="tablenav">
             <div class="alignleft actions">
                 <form action="" method="get">
@@ -668,11 +670,11 @@ function rt_affiliate_options_manage_payment_list() {
             <tr class="tablemenu">
                 <th width="5%">#</th>
                 <th>User Name</th>
-                <th>Contact ID/ Transaction /Chq ID</th>
+                <th>Transaction ID</th>
                 <th>Payment Method</th>
                 <th>Type</th>
-                <th>Deposit</th>
-                <th>Withdraw</th>
+                <th>Amount</th>
+                <th>Approved</th>
                 <th>Note</th>
                 <th>Date</th>
                 <th>Edit</th>
@@ -680,15 +682,27 @@ function rt_affiliate_options_manage_payment_list() {
         </thead>
         <?php
         foreach ( $rows as $k => $row ) {
+            $prefix = '';
+            if( $row->type == 'earning' ) {
+                $prefix = '+$';
+            } else if ( $row->type == 'payout') {
+                $prefix = '-$';
+            }
         ?>
              <tr class="read">
                 <th><?php echo $k;?></th>
-                <td><?php echo get_userdata( $row->user_id )->user_login;?></td>
-                <td><?php echo $row->txn_id?></td>
-                <td><?php echo $row->payment_method?></td>
+                <td><?php echo get_userdata( $row->user_id )->user_login;?></td><?php
+if ( isset( $row->txn_id ) && !empty( $row->txn_id ) && ('shop_order' == get_post_type($row->txn_id)) ) {
+    $txn_id = '<a href="'.get_edit_post_link($row->txn_id).'" target="_blank">WC-'.$row->txn_id.'</a>';
+} else {
+    $txn_id = $row->txn_id;
+}
+?>
+                <td><?php echo $txn_id; ?></td>
+                <td><?php echo isset($payment_method[$row->payment_method])?$payment_method[$row->payment_method]:'--'; ?></td>
                 <td><?php echo $payment_type[$row->type];?></td>
-                <td><?php if ( $row->type == 'earning' || $row->type == 'payment_cancel' ) echo '+'.$row->amount;?></td>
-                <td><?php if ( $row->type == 'payment' || $row->type == 'client_refunded' ) echo '-'.$row->amount;?></td>
+                <td><?php echo $prefix.$row->amount;?></td>
+                <td><?php echo ($row->approved) ?'Yes':'No';?></td>
                 <td><?php echo $row->note;?></td>
                 <td><?php echo date( "F j, Y, g:i a", strtotime( $row->date ) );?></td>
                 <td><a href="?page=manage_payment&action=edit&pid=<?php echo $row->id;?>">Edit</a> </td>
@@ -719,6 +733,7 @@ function rt_affiliate_options_manage_payment_edit() {
                 `type` = '" . $_POST['type'] . "',
                 `amount` = '" . $_POST['amount'] . "',
                 `payment_method` = '" . $_POST['payment_method'] . "',
+                `approved` = '" . $_POST['approved'] . "',
                 `note` = '" . $_POST['note'] . "',
                 `date` = '" . $_POST['date'] . "'
                 WHERE id = ".$_GET['pid'];
@@ -771,12 +786,21 @@ function rt_affiliate_options_manage_payment_edit() {
                 <td><input type="text" value="<?php echo $row_tranx->amount; ?>" id="amount" name="amount" class="regular-text"></td>
             </tr>
             <tr valign="top">
-                <th scope="row"><label for="type">Payment Method</label></th>
+                <th scope="row"><label for="type">Payment Type</label></th>
                 <td>
                     <select name="type" id="type">
                         <?php foreach ( $payment_type as $k=>$v ) { ?>
                         <option value="<?php echo $k;?>" <?php if ( $row_tranx->type == $k ) echo 'selected'; ?>><?php echo $v;?></option>
                         <?php } ?>
+                    </select>
+                </td>
+            </tr>
+            <tr valign="top">
+                <th scope="row"><label for="approved">Approved</label></th>
+                <td>
+                    <select name="approved" id="approved">
+                        <option value="1" <?php if ( $row_tranx->approved == 1 ) echo 'selected'; ?>>Yes</option>
+                        <option value="0" <?php if ( $row_tranx->approved == 0 ) echo 'selected'; ?>>No</option>
                     </select>
                 </td>
             </tr>

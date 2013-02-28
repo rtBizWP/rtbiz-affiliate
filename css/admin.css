@@ -1,0 +1,3 @@
+.affiliate-payment-summary th {text-align: left;padding:10px; border: 1px solid;}
+.affiliate-payment-summary td {padding:10px; border: 1px solid;}
+.affiliate-payment-summary .available th, .affiliate-payment-summary .available td { padding: 13px;border: 2px solid green;}

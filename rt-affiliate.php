@@ -42,8 +42,8 @@ $rt_status =array( 'contact_submitted' => 'Client Submitted From',
             'spam' => 'Spam'
     );
 
-$payment_method = array( '--' =>'--', 'paypal' => 'Paypal', 'bank' => 'Bank', 'wired' => 'Wired Transfer');
-$payment_type = array('earning' => 'Earning', 'payment_cancel' => 'Payment Canceled', 'payment' => 'Payment', 'client_refunded' => 'Refunded to Client');
+$payment_method = array( '--' =>'--', 'paypal' => 'Paypal', 'bacs' => 'Direct Bank Transfer', 'cheque' => 'Cheque Payment');
+$payment_type = array('earning' => 'Earning', 'payout' => 'Payout');
 $rt_time_duration = array('today' => 'Today', 'yesterday' => 'Yesterday', 'this_week' => 'This Week', 'last_week' => 'Last Week', 'this_month' => 'This Month', 'last_month' => 'Last Month', 'this_year' => 'This Year', 'last_year' => 'Last Year' );
 $rt_user_details = array('clicks_100' => 'Last 100 Clicks', 'enquiries' => 'Enquiries');
 
@@ -98,6 +98,6 @@ add_action('init', 'rt_affiliate_referer');
  */
 add_filter('login_redirect','rt_affiliate_login_redirect', 1, 3);
 
-add_action('woocommerce_checkout_update_order_meta','rt_affiliate_woocommerce_add_refferral_info');
+add_action('woocommerce_checkout_update_order_meta','rt_affiliate_woocommerce_add_refferral_info','', 2);
 
 ?>
