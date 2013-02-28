@@ -108,7 +108,7 @@ function rt_affiliate_menu() {
     add_menu_page('Affiliate Admin', 'Affiliate Admin', 'manage_options', RT_AFFILIATE_HANDLER, '', '');
     add_submenu_page(RT_AFFILIATE_HANDLER, 'Submission', 'Submission', 'manage_options', RT_AFFILIATE_HANDLER, 'rt_affiliate_admin_options_html');
     add_submenu_page(RT_AFFILIATE_HANDLER, 'Email Setting', 'Email Setting', 'manage_options', 'email_setting', 'rt_affiliate_options_email_setting');
-    $payment_page = add_submenu_page(RT_AFFILIATE_HANDLER, 'Manage Payment', 'Manage Payment', 'manage_options', 'manage_payment', 'rt_affiliate_options_manage_payment');
+    echo $payment_page = add_submenu_page(RT_AFFILIATE_HANDLER, 'Manage Payment', 'Manage Payment', 'manage_options', 'manage_payment', 'rt_affiliate_options_manage_payment');
     add_submenu_page(RT_AFFILIATE_HANDLER, 'Manage Banners', 'Manage Banners', 'manage_options', 'manage_banners', 'rt_affiliate_manage_banners');
     add_action('admin_print_styles-' . $payment_page, 'rt_affiliate_options_load_payment_css');
     add_action('admin_print_styles', 'rt_affiliate_options_load_admin_css');
