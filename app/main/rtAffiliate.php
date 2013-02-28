@@ -170,7 +170,7 @@ if (!class_exists('rtAffiliate')) {
                 );
             }
             if ($rt_ref_affiliate)
-                update_post_meta($order_id, 'rt-ref-affiliate', $rt_ref_affiliate);
+                update_post_meta($order_id, '_rt-ref-affiliate', $rt_ref_affiliate);
         }
 
     }

@@ -12,6 +12,11 @@ if (!class_exists('rtAffiliateAdmin')) {
             add_action('admin_enqueue_scripts', array($this, 'ui'));
             add_action('admin_menu', array($this, 'menu'), 12);
             add_action('wp_ajax_rt_affiliate_summary', array($this, 'affiliate_summary'));
+            
+            // WP 3.0+
+            add_action('add_meta_boxes', array($this,'order_referer_info'));
+            // backwards compatible
+            add_action('admin_init', array($this,'order_referer_info'), 1);
         }
 
         public function menu() {
@@ -639,6 +644,20 @@ if (!class_exists('rtAffiliateAdmin')) {
             <p>Total Enquiries:<?php echo $rows_enq->cnt; ?> </p>
             <?php
             die();
+        }
+        
+        public function order_referer_info($post){
+            add_meta_box('rt-affiliate-referer-info', __('Customer Referer Info'), array($this,'referer_info'), 'shop_order', 'side');
+        }
+        
+        public function referer_info($post){
+            $referer = get_post_meta($post->ID, '_rt-ref-affiliate', true);
+            if ( $referer ) {
+                $referer = explode(',',$referer);
+                echo '<p><a href="'.admin_url( 'user-edit.php?user_id=' . $referer[1], 'http' ).'">'.$referer[0].'</a></p>';
+            } else {
+                echo '<p>This customer was not refered.</p>';
+            }
         }
 
     }
