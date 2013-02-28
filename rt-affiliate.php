@@ -86,13 +86,6 @@ add_action( 'wp_print_scripts', 'rt_affiliate_options_load_js' );
  */
 add_shortcode('rt_affiliate_contact_form', 'rt_affiliate_contact_form');
 
-/*
- *  START SESSION AND TRACK BROWSER HISTORY IN SESSION
- *  ALSO SAVE REFERAL DATA TO COOKIES
- *  HANDLE CONTACT FORM'S POST DATA
- */
-add_action('init', 'rt_affiliate_referer');
-
 /**
  * ADD FILTER TO REDIRECT SUBSCRIBER TO STATS PAGE
  */
