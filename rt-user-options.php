@@ -258,9 +258,9 @@ function rt_affiliate_payment_info() {
     $cond = '';
     if (isset($_GET['view_type'])) {
         if ($_GET['view_type'] == 'show_earning') {
-            $cond = " WHERE (type = 'earning' or type = 'payment_cancel') ";
-        } else if ($_GET['view_type'] == 'show_payment') {
-            $cond = " WHERE (type = 'payment' or type = 'client_refunded') ";
+            $cond = " WHERE type = 'earning' ";
+        } else if ($_GET['view_type'] == 'show_payout') {
+            $cond = " WHERE type = 'payout' ";
         } else {
             $cond = " WHERE 1 ";
         }
@@ -316,25 +316,30 @@ function rt_affiliate_payment_info() {
         $cond2 = " AND `date` > DATE_SUB(CURDATE(), INTERVAL 60 DAY )";
         $sql_balance_hold = "SELECT SUM(amount) as hold FROM " . $wpdb->prefix . "rt_aff_transaction  WHERE type = 'earning' " . $admin_cond . $cond2 . " AND approved = 1";
         $rows_balance_hold = $wpdb->get_row($sql_balance_hold);
+        
+        $earning = ($rows_balance_plus->plus)?$rows_balance_plus->plus:'0';
+        $payout = ($rows_balance_minus->minus)?$rows_balance_minus->minus:'0';
+        $available = ($rows_balance_available->avail)?$rows_balance_available->avail-$payout:0-$payout;
+        $onhold = ($rows_balance_hold->hold)?$rows_balance_hold->hold:0;
     ?>
         <h3>Payment Summary</h3>
         <table class="affiliate-payment-summary" width="25%" border="0">
             <tr>
                 <th>Total Earning Till Date</th>
-                <td><?php echo ($rows_balance_plus->plus)?'$'.$rows_balance_plus->plus:'$0'; ?></td>
+                <td><?php echo '$'.$earning; ?></td>
             </tr>
 
             <tr>
                 <th>Total Payout Till Date</th>
-                <td><?php echo ($rows_balance_minus->minus)?'$'.$rows_balance_minus->minus:'$0'; ?></td>
+                <td><?php echo '$'.$payout; ?></td>
             </tr>
             <tr class="available">
                 <th>Available Balance</th>
-                <td><?php echo ($rows_balance_available->avail)?'$'.$rows_balance_available->avail:'$0'; ?></td>
+                <td><?php echo '$'.$available; ?></td>
             </tr>
             <tr>
                 <th>Earnings on Hold</th>
-                <td><?php echo ($rows_balance_hold->hold)?'$'.$rows_balance_hold->hold:'$0'; ?></td>
+                <td><?php echo '$'.$onhold; ?></td>
             </tr>
         </table><?php 
     } ?>
@@ -347,7 +352,7 @@ function rt_affiliate_payment_info() {
                     <select name="view_type"><?php $view_type = ( isset($_GET['view_type']) ) ? $_GET['view_type'] : ''; ?>
                         <option value="show_all" <?php if ($view_type == 'show_all') echo 'selected'; ?> >Show All</option>
                         <option value="show_earning" <?php if ($view_type == 'show_earning') echo 'selected'; ?>>Show Earning only</option>
-                        <option value="show_payment" <?php if ($view_type == 'show_payment') echo 'selected'; ?>>Show Payment only</option>
+                        <option value="show_payout" <?php if ($view_type == 'show_payout') echo 'selected'; ?>>Show Payout only</option>
                     </select>
                     <input type="submit" value="Apply" name="doaction" class="button-secondary action">
                 </div>
