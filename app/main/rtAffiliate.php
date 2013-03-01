@@ -165,7 +165,7 @@ if (!class_exists('rtAffiliate')) {
                     'amount' => round($woocommerce->cart->total * (get_option('rt_aff_commission', 20) / 100), 2),
                     'payment_method' => $detail['payment_method'],
                     'note' => $comment,
-                    'date' => date("Y-m-d g:i:s")
+                    'date' => get_post_field('post_date_gmt',$order_id)
                         )
                 );
             }

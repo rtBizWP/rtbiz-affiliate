@@ -144,9 +144,10 @@ if (!class_exists('rtAffiliateAdmin')) {
 
                     <?php
                     foreach ($rows as $k => $row) {
+                        $date = date('F j, Y, g:i a', strtotime($row->date) + (get_site_option('gmt_offset') * 1 * 3600));
                         ?>
                         <tr class="read">
-                            <td><?php echo date("F j, Y, g:i a", strtotime($row->date)); ?></td>
+                            <td><?php echo $date; ?></td>
                             <td><?php if ($row->referred_from != '') echo '<a target="_blank" href="' . $row->referred_from . '">' . $row->referred_from . '</a>'; else echo 'No Link'; ?></td>
                             <td><?php if ($row->landing_page != '') echo '<a target="_blank" href="' . $row->landing_page . '">' . $row->landing_page . '</a>'; else echo 'No Link'; ?></td>
                         </tr>
@@ -276,7 +277,7 @@ if (!class_exists('rtAffiliateAdmin')) {
                 </form>
 
                 <?php
-                if (!current_user_can('manage_options')) {
+//                if (!current_user_can('manage_options')) {
                     $sql_balance_plus = "SELECT SUM(amount) as plus FROM " . $wpdb->prefix . "rt_aff_transaction  WHERE type = 'earning' " . $admin_cond . " AND approved = 1";
                     $rows_balance_plus = $wpdb->get_row($sql_balance_plus);
 
@@ -316,7 +317,7 @@ if (!class_exists('rtAffiliateAdmin')) {
                             <th>Earnings on Hold</th>
                             <td><?php echo '$' . $onhold; ?></td>
                         </tr>
-                    </table><?php }
+                    </table><?php //}
                 ?>
 
                 <h3>Earning History</h3>
@@ -363,6 +364,8 @@ if (!class_exists('rtAffiliateAdmin')) {
                         } else {
                             $txn_id = $row->txn_id;
                         }
+                        echo $row->date;
+                        $date = date('F j, Y, g:i a', strtotime($row->date) + (get_site_option('gmt_offset') * 1 * 3600));
                         ?>
                         <tr class="read">
                             <th><?php echo $k; ?></th>
@@ -371,7 +374,7 @@ if (!class_exists('rtAffiliateAdmin')) {
                             <td><?php echo $row->type; ?></td>
                             <td><?php echo $prefix . $row->amount; ?></td>
                             <td><?php echo $row->note; ?></td>
-                            <td><?php echo date("F j, Y, g:i a", strtotime($row->date)); ?></td>
+                            <td><?php echo $date; ?></td>
                         </tr>
                         <?php
                     }
@@ -393,21 +396,21 @@ if (!class_exists('rtAffiliateAdmin')) {
                                         <input type="text" value="<?php echo get_option('rt_aff_commission', 20); ?>" id="commission" name="commission">-->
             <div class="tablenav">
                 <div class="alignleft actions">
-                    <form action="" method="get">
-                        <input type="hidden" name="page" value="<?php echo $_GET['page']; ?>"/>
-                        Select User:
+                    <!--<form action="" method="get">-->
+                        <!--<input type="hidden" name="page" value="<?php echo $_GET['page']; ?>"/>-->
+<!--                        Select User:
                         <select name="user">
                             <option value="0">All</option>
                             <?php
-                            $sql_user = "SELECT ID, user_login from " . $wpdb->users;
-                            $rows_user = $wpdb->get_results($sql_user);
-                            foreach ($rows_user as $row_user) {
-                                ?><option value="<?php echo $row_user->ID; ?>" <?php if ($_GET['user'] == $row_user->ID) echo 'selected'; ?>><?php echo $row_user->user_login; ?></option><?php
-            }
+//                            $sql_user = "SELECT ID, user_login from " . $wpdb->users;
+//                            $rows_user = $wpdb->get_results($sql_user);
+//                            foreach ($rows_user as $row_user) {
+                                ?><option value="<?php // echo $row_user->ID; ?>" <?php // if ($_GET['user'] == $row_user->ID) echo 'selected'; ?>><?php // echo $row_user->user_login; ?></option><?php
+//            }
                             ?>
-                        </select>
-                        <input type="submit" value="Apply Filter" name="sort_action" class="button-secondary action"/>
-                    </form>
+                        </select>-->
+                        <!--<input type="submit" value="Apply Filter" name="sort_action" class="button-secondary action"/>-->
+<!--                    </form>-->
                 </div>
                 <div class="clear"></div>
             </div>
@@ -444,6 +447,7 @@ if (!class_exists('rtAffiliateAdmin')) {
                 } else {
                     $txn_id = $row->txn_id;
                 }
+                $date = date('F j, Y, g:i a', strtotime($row->date) + (get_site_option('gmt_offset') * 1 * 3600));
                     ?>
                         <td><?php echo $txn_id; ?></td>
                         <td><?php echo isset($rt_affiliate->payment_methods[$row->payment_method]) ? $rt_affiliate->payment_methods[$row->payment_method] : '--'; ?></td>
@@ -451,7 +455,7 @@ if (!class_exists('rtAffiliateAdmin')) {
                         <td><?php echo $prefix . $row->amount; ?></td>
                         <td><?php echo ($row->approved) ? 'Yes' : 'No'; ?></td>
                         <td><?php echo $row->note; ?></td>
-                        <td><?php echo date("F j, Y, g:i a", strtotime($row->date)); ?></td>
+                        <td><?php echo $date; ?></td>
                         <td><a href="?page=rt-affiliate-manage-payment&action=edit&pid=<?php echo $row->id; ?>">Edit</a> </td>
                     </tr>
                     <?php
