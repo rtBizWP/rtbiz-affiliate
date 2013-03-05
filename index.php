@@ -5,8 +5,9 @@
  *     Plugin URI:   http://rtcamp.com
  *     Description:  RT Affiliate
  *     Version:      2.0
- *     Author:       Santosh, rtcamp
+ *     Author:       rtCamp
  *     Author URI:   http://rtcamp.com
+ *     Contributer:  Joshua Abenazer, Santosh Kamble
  */
 
 if (!defined('RT_AFFILIATE_PATH')) {
@@ -24,7 +25,7 @@ if (!defined('RT_AFFILIATE_URL')) {
  *
  * @param string $class_name The name of the class to autoload
  */
-function rt_affiliate_media_autoloader($class_name) {
+function rt_affiliate_autoloader($class_name) {
     $rtlibpath = array(
         'app/admin/' . $class_name . '.php',
         'app/main/' . $class_name . '.php',
@@ -41,7 +42,7 @@ function rt_affiliate_media_autoloader($class_name) {
 /**
  * Register the autoloader function into spl_autoload
  */
-spl_autoload_register('rt_affiliate_media_autoloader');
+spl_autoload_register('rt_affiliate_autoloader');
 
 /**
  * Instantiate the rtAffiliate class.
