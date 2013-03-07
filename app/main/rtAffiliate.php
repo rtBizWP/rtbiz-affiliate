@@ -79,7 +79,7 @@ if (!class_exists('rtAffiliate')) {
                     `txn_id` VARCHAR(100) NULL ,
                     `user_id` INT NULL ,
                     `type` VARCHAR(100) NULL ,
-                    `amount` float(5,2) NULL ,
+                    `amount` float(10,2) NULL ,
                     `payment_method`  VARCHAR(100) NULL,
                     `approved` BOOLEAN NOT NULL DEFAULT  '1', 
                     `note`  TEXT NULL,
