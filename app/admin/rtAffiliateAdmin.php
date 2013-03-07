@@ -84,11 +84,7 @@ if (!class_exists('rtAffiliateAdmin')) {
                 $admin_cond = " where user_id = $user_ID";
 
 
-            if ($_POST && $_POST['rt_show'] == 'enquiries') {
-                $sql = "SELECT a.* FROM " . $wpdb->prefix . "rt_aff_contact_details b LEFT JOIN " . $wpdb->prefix . "rt_aff_users_referals a on a.id = b.users_referal_id $admin_cond order by a.date DESC"; // limit 0, 100";
-            } else {
-                $sql = "SELECT * FROM " . $wpdb->prefix . "rt_aff_users_referals $admin_cond order by date DESC limit 0, 100";
-            }
+            $sql = "SELECT * FROM " . $wpdb->prefix . "rt_aff_users_referals $admin_cond order by date DESC limit 0, 100";
             $rows = $wpdb->get_results($sql);
             ?>
             <div class="wrap">
@@ -124,11 +120,8 @@ if (!class_exists('rtAffiliateAdmin')) {
 
                     $sql_clicks = "SELECT count(id) as cnt FROM " . $wpdb->prefix . "rt_aff_users_referals $admin_cond";
                     $rows_clicks = $wpdb->get_row($sql_clicks);
-                    $sql_enq = "SELECT count(id) as cnt FROM " . $wpdb->prefix . "rt_aff_contact_details $admin_ref_cond";
-                    $rows_enq = $wpdb->get_row($sql_enq);
                     ?>
                     <p>Number of clicks: <?php echo $rows_clicks->cnt; ?></p>
-                    <p>Total Enquiries:<?php echo $rows_enq->cnt; ?> </p>
                 </div>
 
                 <h3>Details</h3>
@@ -641,11 +634,8 @@ if (!class_exists('rtAffiliateAdmin')) {
 
             $sql_clicks = "SELECT count(id) as cnt FROM " . $wpdb->prefix . "rt_aff_users_referals WHERE $admin_cond" . $cond1;
             $rows_clicks = $wpdb->get_row($sql_clicks);
-            $sql_enq = "SELECT count(id) as cnt FROM " . $wpdb->prefix . "rt_aff_contact_details WHERE $admin_ref_cond" . $cond2;
-            $rows_enq = $wpdb->get_row($sql_enq);
             ?>
             <p>Number of clicks: <?php echo $rows_clicks->cnt; ?></p>
-            <p>Total Enquiries:<?php echo $rows_enq->cnt; ?> </p>
             <?php
             die();
         }

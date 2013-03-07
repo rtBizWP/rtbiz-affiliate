@@ -36,7 +36,7 @@ if (!class_exists('rtAffiliate')) {
         );
 
         public function __construct() {
-            register_activation_hook(RT_AFFILIATE_PATH, array($this, 'create_tables'));
+            register_activation_hook(RT_AFFILIATE_PATH.'index.php', array($this, 'create_tables'));
             add_action('init', array($this,'set_referer_cookie'));
             add_action('woocommerce_checkout_update_order_meta', array($this,'store_order_meta_referer_info'), '', 2);
             new rtAffiliateAdmin();
@@ -53,9 +53,9 @@ if (!class_exists('rtAffiliate')) {
              * detects if this is a new installation or simply an update.
              */
             $new_installation = $wpdb->get_var("show tables like '$users_referals'");
-
+            
             if (!$new_installation) {
-                $sql .= "CREATE TABLE " . $users_referals . " (
+                $sql = "CREATE TABLE " . $users_referals . " (
                     id int NOT NULL AUTO_INCREMENT PRIMARY KEY ,
                     `user_id` INT NULL ,
                     `referred_from` VARCHAR(200) NULL ,
