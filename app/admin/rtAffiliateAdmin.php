@@ -237,12 +237,13 @@ if (!class_exists('rtAffiliateAdmin')) {
                 $cond = " WHERE 1 ";
             }
 
-            $admin_cond = '';
-            if (!current_user_can('manage_options')) {
+//            $admin_cond = '';
+//            if (!current_user_can('manage_options')) {
                 $admin_cond = " AND user_id = $user_ID";
-            }
+//            }
 
             $sql_pay = "SELECT * FROM " . $wpdb->prefix . "rt_aff_payment_info  $cond " . $admin_cond;
+            echo $sql_pay;
             $rows_pay = $wpdb->get_row($sql_pay);
             ?>
             <div class="wrap">
@@ -433,8 +434,9 @@ if (!class_exists('rtAffiliateAdmin')) {
                     }
                     ?>
                     <tr class="read">
-                        <th><?php echo $k; ?></th>
-                        <td><?php echo get_userdata($row->user_id)->user_login; ?></td><?php
+                        <th><?php echo $k+1; ?></th>
+                            <?php $userdata = get_userdata($row->user_id); ?>
+                        <td><?php echo '<a href="'.admin_url( 'user-edit.php?user_id=' . $row->user_id, 'http' ).'">'.$userdata->user_login.'</a><br />('.$userdata->user_email.')'; ?></td><?php
                 if (isset($row->txn_id) && !empty($row->txn_id) && ('shop_order' == get_post_type($row->txn_id))) {
                     $txn_id = '<a href="' . get_edit_post_link($row->txn_id) . '" target="_blank">WC-' . $row->txn_id . '</a>';
                 } else {
