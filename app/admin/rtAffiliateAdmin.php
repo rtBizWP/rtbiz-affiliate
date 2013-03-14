@@ -357,7 +357,6 @@ if (!class_exists('rtAffiliateAdmin')) {
                         } else {
                             $txn_id = $row->txn_id;
                         }
-                        echo $row->date;
                         $date = date('F j, Y, g:i a', strtotime($row->date) + (get_site_option('gmt_offset') * 1 * 3600));
                         ?>
                         <tr class="read">
