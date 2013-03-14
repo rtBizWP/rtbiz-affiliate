@@ -243,7 +243,6 @@ if (!class_exists('rtAffiliateAdmin')) {
 //            }
 
             $sql_pay = "SELECT * FROM " . $wpdb->prefix . "rt_aff_payment_info  $cond " . $admin_cond;
-            echo $sql_pay;
             $rows_pay = $wpdb->get_row($sql_pay);
             ?>
             <div class="wrap">
