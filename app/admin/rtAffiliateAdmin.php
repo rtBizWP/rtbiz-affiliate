@@ -37,7 +37,6 @@ if (!class_exists('rtAffiliateAdmin')) {
             if ('toplevel_page_rt-affiliate-manage-payment' == $hook)
                 wp_enqueue_style('jquery-ui-css', 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css');
             wp_register_script('jquery-ui-timepicker', RT_AFFILIATE_URL . 'app/assets/js/jquery-ui-timepicker-addon.js');
-//            wp_enqueue_script('suggest');
             wp_enqueue_script('jquery-ui-autocomplete');
             if (in_array($hook, array('toplevel_page_rt-affiliate-manage-payment', 'toplevel_page_rt-affiliate-stats'))) {
                 wp_enqueue_script('rt-affiliate-admin', RT_AFFILIATE_URL . 'app/assets/js/admin.js', array('jquery', 'jquery-ui-slider', 'jquery-ui-datepicker', 'jquery-ui-timepicker'));
@@ -380,8 +379,8 @@ if (!class_exists('rtAffiliateAdmin')) {
         public function manage_payment_list() {
             global $wpdb, $rt_affiliate;
             $cond = '';
-            if (isset($_GET['user']) && $_GET['user'] != 0)
-                $cond = 'WHERE user_id = ' . $_GET['user'];
+            if (isset($_GET['user_id']) && $_GET['user_id'] != 0)
+                $cond = 'WHERE user_id = ' . $_GET['user_id'];
             $sql = "SELECT * FROM " . $wpdb->prefix . "rt_aff_transaction $cond order by date desc ";
             $rows = $wpdb->get_results($sql);
             ?>
@@ -389,22 +388,16 @@ if (!class_exists('rtAffiliateAdmin')) {
                                         <input type="text" value="<?php echo get_option('rt_aff_commission', 20); ?>" id="commission" name="commission">-->
             <div class="tablenav">
                 <div class="alignleft actions">
-                    <!--<form action="" method="get">-->
-                        <!--<input type="hidden" name="page" value="<?php echo $_GET['page']; ?>"/>-->
-                    <!--                        Select User:
-                                            <select name="user">
-                                                <option value="0">All</option>
-                    <?php
-//                            $sql_user = "SELECT ID, user_login from " . $wpdb->users;
-//                            $rows_user = $wpdb->get_results($sql_user);
-//                            foreach ($rows_user as $row_user) {
-                    ?><option value="<?php // echo $row_user->ID; ?>" <?php // if ($_GET['user'] == $row_user->ID) echo 'selected'; ?>><?php // echo $row_user->user_login; ?></option><?php
-//            }
-                    ?>
-                                            </select>-->
-                                            <!--<input type="submit" value="Apply Filter" name="sort_action" class="button-secondary action"/>-->
-                    <!--                    </form>-->
-                </div>
+                    <form action="" method="get">
+                        <input type="hidden" name="page" value="<?php echo $_GET['page']; ?>"/>
+                        Select User:
+                        <input type="text" name="user" id="user">
+                        <input type="hidden" name="user_id" id="user_id">
+                        <input type="submit" value="Apply Filter" name="sort_action" class="button-secondary action"/>
+                    </form>
+                </div><?php if (isset($_GET['user_id']) && $_GET['user_id'] != 0) { ?>
+                    <a class="rt-aff-show-all" href="<?php echo admin_url('admin.php?page=rt-affiliate-manage-payment'); ?>">Show All</a><?php }
+            ?>
                 <div class="clear"></div>
             </div>
 
@@ -424,35 +417,39 @@ if (!class_exists('rtAffiliateAdmin')) {
                     </tr>
                 </thead>
                 <?php
-                foreach ($rows as $k => $row) {
-                    $prefix = '';
-                    if ($row->type == 'earning') {
-                        $prefix = '+$';
-                    } else if ($row->type == 'payout') {
-                        $prefix = '-$';
-                    }
-                    ?>
-                    <tr class="read">
-                        <th><?php echo $k + 1; ?></th>
-                        <?php $userdata = get_userdata($row->user_id); ?>
-                        <td><?php echo '<a href="' . admin_url('user-edit.php?user_id=' . $row->user_id, 'http') . '">' . $userdata->user_login . '</a><br />(' . $userdata->user_email . ')'; ?></td><?php
-                if (isset($row->txn_id) && !empty($row->txn_id) && ('shop_order' == get_post_type($row->txn_id))) {
-                    $txn_id = '<a href="' . get_edit_post_link($row->txn_id) . '" target="_blank">WC-' . $row->txn_id . '</a>';
-                } else {
-                    $txn_id = $row->txn_id;
-                }
-                $date = date('F j, Y, g:i a', strtotime($row->date) + (get_site_option('gmt_offset') * 1 * 3600));
+                if ($rows) {
+                    foreach ($rows as $k => $row) {
+                        $prefix = '';
+                        if ($row->type == 'earning') {
+                            $prefix = '+$';
+                        } else if ($row->type == 'payout') {
+                            $prefix = '-$';
+                        }
                         ?>
-                        <td><?php echo $txn_id; ?></td>
-                        <td><?php echo isset($rt_affiliate->payment_methods[$row->payment_method]) ? $rt_affiliate->payment_methods[$row->payment_method] : '--'; ?></td>
-                        <td><?php echo $rt_affiliate->payment_types[$row->type]; ?></td>
-                        <td><?php echo $prefix . $row->amount; ?></td>
-                        <td><?php echo ($row->approved) ? 'Yes' : 'No'; ?></td>
-                        <td><?php echo $row->note; ?></td>
-                        <td><?php echo $date; ?></td>
-                        <td><a href="?page=rt-affiliate-manage-payment&action=edit&pid=<?php echo $row->id; ?>">Edit</a> </td>
-                    </tr>
-                    <?php
+                        <tr class="read">
+                            <th><?php echo $k + 1; ?></th>
+                            <?php $userdata = get_userdata($row->user_id); ?>
+                            <td><?php echo '<a href="' . admin_url('user-edit.php?user_id=' . $row->user_id, 'http') . '">' . $userdata->user_login . '</a><br />(' . $userdata->user_email . ')'; ?></td><?php
+                    if (isset($row->txn_id) && !empty($row->txn_id) && ('shop_order' == get_post_type($row->txn_id))) {
+                        $txn_id = '<a href="' . get_edit_post_link($row->txn_id) . '" target="_blank">WC-' . $row->txn_id . '</a>';
+                    } else {
+                        $txn_id = $row->txn_id;
+                    }
+                    $date = date('F j, Y, g:i a', strtotime($row->date) + (get_site_option('gmt_offset') * 1 * 3600));
+                            ?>
+                            <td><?php echo $txn_id; ?></td>
+                            <td><?php echo isset($rt_affiliate->payment_methods[$row->payment_method]) ? $rt_affiliate->payment_methods[$row->payment_method] : '--'; ?></td>
+                            <td><?php echo $rt_affiliate->payment_types[$row->type]; ?></td>
+                            <td><?php echo $prefix . $row->amount; ?></td>
+                            <td><?php echo ($row->approved) ? 'Yes' : 'No'; ?></td>
+                            <td><?php echo $row->note; ?></td>
+                            <td><?php echo $date; ?></td>
+                            <td><a href="?page=rt-affiliate-manage-payment&action=edit&pid=<?php echo $row->id; ?>">Edit</a> </td>
+                        </tr>
+                        <?php
+                    }
+                } else {
+                    echo '<tr><th class="rt-aff-no-results" colspan="10">No results found for <strong>' . $_GET['user'] . '</strong></td></tr>';
                 }
                 ?>
             </table>
@@ -657,10 +654,10 @@ if (!class_exists('rtAffiliateAdmin')) {
         WHERE user_login LIKE \'' . $search . '%\'
             OR user_nicename LIKE \'' . $search . '%\'
             OR display_name LIKE \'' . $search . '%\'
-            LIMIT '.$_REQUEST['maxRows'];
+            LIMIT ' . $_REQUEST['maxRows'];
             $response = array();
             foreach ($wpdb->get_results($query) as $row) {
-                $response[] = array("name"=>$row->display_name, "id" => $row->ID, "login_name" => $row->user_login,"imghtml"=> get_avatar($row->user_email, 64, '', 'gravatar')) ;
+                $response[] = array("name" => $row->display_name, "id" => $row->ID, "login_name" => $row->user_login, "imghtml" => get_avatar($row->user_email, 64, '', 'gravatar'));
             }
             echo json_encode($response);
             die();

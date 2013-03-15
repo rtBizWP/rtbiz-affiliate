@@ -2,8 +2,6 @@ jQuery(document).ready( function(){
     //datepicker
     jQuery("#date").datetimepicker(  {dateFormat: 'yy-mm-dd', timeFormat: 'HH:mm:ss', showSecond: true} );
     
-//    jQuery('#user').suggest(ajaxurl + '?action=rt_aff_users_lookup');
-    
     jQuery("#user").autocomplete({
         source: function( request, response ) {
         jQuery.ajax({
@@ -33,7 +31,7 @@ jQuery(document).ready( function(){
             return false;
         }
     }).data("ui-autocomplete")._renderItem = function(ul, item) {
-        return jQuery("<li></li>").data("ui-autocomplete-item", item).append("<a>" + item.imghtml + "&nbsp;" + item.name + "</a>").appendTo(ul);
+        return jQuery("<li></li>").data("ui-autocomplete-item", item).append("<a class='rt-aff-user-ac'>" + item.imghtml + "&nbsp;" + item.name + "</a>").appendTo(ul);
     };
     
     jQuery('#time_action').click(function() {
