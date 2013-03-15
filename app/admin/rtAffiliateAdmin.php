@@ -34,12 +34,11 @@ if (!class_exists('rtAffiliateAdmin')) {
         }
 
         public function ui($hook) {
-            if ('affiliate-admin_page_manage-payment' == $hook)
+            if ('toplevel_page_rt-affiliate-manage-payment' == $hook)
                 wp_enqueue_style('jquery-ui-css', 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css');
-            if (in_array($hook, array('affiliate-admin_page_rt-affiliate-manage-payment', 'affiliate_page_rt-affiliate-stats'))) {
-                wp_enqueue_script('jquery-api', 'http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js');
-                wp_enqueue_script('jquery-ui-api', 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js');
-                wp_enqueue_script('rt-affiliate-admin', RT_AFFILIATE_URL . 'app/assets/js/admin.js');
+                wp_register_script('jquery-ui-timepicker', RT_AFFILIATE_URL.'app/assets/js/jquery-ui-timepicker-addon.js');
+            if (in_array($hook, array('toplevel_page_rt-affiliate-manage-payment', 'toplevel_page_rt-affiliate-stats'))) {
+                wp_enqueue_script('rt-affiliate-admin', RT_AFFILIATE_URL . 'app/assets/js/admin.js', array('jquery','jquery-ui-slider','jquery-ui-datepicker','jquery-ui-timepicker'));
             }
             wp_enqueue_style('rt-affiliate-admin', RT_AFFILIATE_URL . 'app/assets/css/admin.css');
         }
@@ -360,7 +359,7 @@ if (!class_exists('rtAffiliateAdmin')) {
                         $date = date('F j, Y, g:i a', strtotime($row->date) + (get_site_option('gmt_offset') * 1 * 3600));
                         ?>
                         <tr class="read">
-                            <th><?php echo $k; ?></th>
+                            <th><?php echo $k+1; ?></th>
                             <td><?php echo $txn_id; ?></td>
                             <td><?php echo isset($rt_affiliate->payment_methods[$row->payment_method]) ? $rt_affiliate->payment_methods[$row->payment_method] : '--'; ?></td>
                             <td><?php echo $row->type; ?></td>
@@ -467,7 +466,7 @@ if (!class_exists('rtAffiliateAdmin')) {
             $approved = '';
             $method = '';
             $note = '';
-            $date = date('Y-m-d');
+            $date = date('Y-m-d h:i:s');
 
             if (isset($_POST['action'])) {
                 if ($_POST['action'] == 'add') {
@@ -483,7 +482,7 @@ if (!class_exists('rtAffiliateAdmin')) {
                 `payment_method` = '" . $_POST['payment_method'] . "',
                 `approved` = '" . $_POST['approved'] . "',
                 `note` = '" . $_POST['note'] . "',
-                `date` = '" . $_POST['date'] . "'
+                `date` = '" . date('Y-m-d H:i:s', strtotime($_POST['date']) - (get_site_option('gmt_offset') * 1 * 3600)) . "'
                 WHERE id = " . $_GET['pid'];
                     $wpdb->query($sql);
                     $msg = 'Updated successfully!';
@@ -498,7 +497,7 @@ if (!class_exists('rtAffiliateAdmin')) {
                 $approved = $row_tranx->approved;
                 $method = $row_tranx->payment_method;
                 $note = $row_tranx->note;
-                $date = date('Y-m-d', strtotime($row_tranx->date));
+                $date = date('Y-m-d H:i:s', strtotime($row_tranx->date) + (get_site_option('gmt_offset') * 1 * 3600));
             }
             if (isset($msg))
                 echo '<div class="updated"><p><strong>' . $msg . '</strong></p></div>'

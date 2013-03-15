@@ -1,6 +1,6 @@
 jQuery(document).ready( function(){
     //datepicker
-    jQuery("#date").datepicker(  {dateFormat: 'yy-mm-dd'} );
+    jQuery("#date").datetimepicker(  {dateFormat: 'yy-mm-dd', timeFormat: 'HH:mm:ss', showSecond: true} );
     
     jQuery('#time_action').click(function() {
         time_duration = jQuery('#time_duration').val();
