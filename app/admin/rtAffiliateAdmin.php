@@ -12,11 +12,11 @@ if (!class_exists('rtAffiliateAdmin')) {
             add_action('admin_enqueue_scripts', array($this, 'ui'));
             add_action('admin_menu', array($this, 'menu'), 12);
             add_action('wp_ajax_rt_affiliate_summary', array($this, 'affiliate_summary'));
-            
+            add_action('wp_ajax_rt_aff_users_lookup', array($this, 'users_lookup'));
             // WP 3.0+
-            add_action('add_meta_boxes', array($this,'order_referer_info'));
+            add_action('add_meta_boxes', array($this, 'order_referer_info'));
             // backwards compatible
-            add_action('admin_init', array($this,'order_referer_info'), 1);
+            add_action('admin_init', array($this, 'order_referer_info'), 1);
         }
 
         public function menu() {
@@ -36,9 +36,11 @@ if (!class_exists('rtAffiliateAdmin')) {
         public function ui($hook) {
             if ('toplevel_page_rt-affiliate-manage-payment' == $hook)
                 wp_enqueue_style('jquery-ui-css', 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css');
-                wp_register_script('jquery-ui-timepicker', RT_AFFILIATE_URL.'app/assets/js/jquery-ui-timepicker-addon.js');
+            wp_register_script('jquery-ui-timepicker', RT_AFFILIATE_URL . 'app/assets/js/jquery-ui-timepicker-addon.js');
+//            wp_enqueue_script('suggest');
+            wp_enqueue_script('jquery-ui-autocomplete');
             if (in_array($hook, array('toplevel_page_rt-affiliate-manage-payment', 'toplevel_page_rt-affiliate-stats'))) {
-                wp_enqueue_script('rt-affiliate-admin', RT_AFFILIATE_URL . 'app/assets/js/admin.js', array('jquery','jquery-ui-slider','jquery-ui-datepicker','jquery-ui-timepicker'));
+                wp_enqueue_script('rt-affiliate-admin', RT_AFFILIATE_URL . 'app/assets/js/admin.js', array('jquery', 'jquery-ui-slider', 'jquery-ui-datepicker', 'jquery-ui-timepicker'));
             }
             wp_enqueue_style('rt-affiliate-admin', RT_AFFILIATE_URL . 'app/assets/css/admin.css');
         }
@@ -209,7 +211,7 @@ if (!class_exists('rtAffiliateAdmin')) {
                 $sql_pay = "SELECT id FROM " . $wpdb->prefix . "rt_aff_payment_info where user_id = $user_ID ";
                 $rows_pay = $wpdb->get_row($sql_pay);
 
-                if ( isset($rows_pay) && $rows_pay->id == NULL) {
+                if (isset($rows_pay) && $rows_pay->id == NULL) {
                     $sql = "INSERT INTO " . $wpdb->prefix . "rt_aff_payment_info
                      ( `user_id`, `payment_method`, `paypal_email`, `min_payout` )   VALUES
                     ( $user_ID, 'paypal', '" . $_POST['paypal_email'] . "', '" . $_POST['min_payout'] . "')";
@@ -238,7 +240,7 @@ if (!class_exists('rtAffiliateAdmin')) {
 
 //            $admin_cond = '';
 //            if (!current_user_can('manage_options')) {
-                $admin_cond = " AND user_id = $user_ID";
+            $admin_cond = " AND user_id = $user_ID";
 //            }
 
             $sql_pay = "SELECT * FROM " . $wpdb->prefix . "rt_aff_payment_info  $cond " . $admin_cond;
@@ -270,46 +272,46 @@ if (!class_exists('rtAffiliateAdmin')) {
 
                 <?php
 //                if (!current_user_can('manage_options')) {
-                    $sql_balance_plus = "SELECT SUM(amount) as plus FROM " . $wpdb->prefix . "rt_aff_transaction  WHERE type = 'earning' " . $admin_cond . " AND approved = 1";
-                    $rows_balance_plus = $wpdb->get_row($sql_balance_plus);
+                $sql_balance_plus = "SELECT SUM(amount) as plus FROM " . $wpdb->prefix . "rt_aff_transaction  WHERE type = 'earning' " . $admin_cond . " AND approved = 1";
+                $rows_balance_plus = $wpdb->get_row($sql_balance_plus);
 
-                    $sql_balance_minus = "SELECT SUM(amount) as minus FROM " . $wpdb->prefix . "rt_aff_transaction  WHERE type = 'payout' " . $admin_cond . " AND approved = 1";
-                    $rows_balance_minus = $wpdb->get_row($sql_balance_minus);
-                    $balance = $rows_balance_plus->plus - $rows_balance_minus->minus;
+                $sql_balance_minus = "SELECT SUM(amount) as minus FROM " . $wpdb->prefix . "rt_aff_transaction  WHERE type = 'payout' " . $admin_cond . " AND approved = 1";
+                $rows_balance_minus = $wpdb->get_row($sql_balance_minus);
+                $balance = $rows_balance_plus->plus - $rows_balance_minus->minus;
 
-                    $cond1 = " AND `date` < DATE_SUB(CURDATE(), INTERVAL 60 DAY )";
-                    $sql_balance_available = "SELECT SUM(amount) as avail FROM " . $wpdb->prefix . "rt_aff_transaction  WHERE type = 'earning' " . $admin_cond . $cond1 . " AND approved = 1";
-                    $rows_balance_available = $wpdb->get_row($sql_balance_available);
+                $cond1 = " AND `date` < DATE_SUB(CURDATE(), INTERVAL 60 DAY )";
+                $sql_balance_available = "SELECT SUM(amount) as avail FROM " . $wpdb->prefix . "rt_aff_transaction  WHERE type = 'earning' " . $admin_cond . $cond1 . " AND approved = 1";
+                $rows_balance_available = $wpdb->get_row($sql_balance_available);
 
-                    $cond2 = " AND `date` > DATE_SUB(CURDATE(), INTERVAL 60 DAY )";
-                    $sql_balance_hold = "SELECT SUM(amount) as hold FROM " . $wpdb->prefix . "rt_aff_transaction  WHERE type = 'earning' " . $admin_cond . $cond2 . " AND approved = 1";
-                    $rows_balance_hold = $wpdb->get_row($sql_balance_hold);
+                $cond2 = " AND `date` > DATE_SUB(CURDATE(), INTERVAL 60 DAY )";
+                $sql_balance_hold = "SELECT SUM(amount) as hold FROM " . $wpdb->prefix . "rt_aff_transaction  WHERE type = 'earning' " . $admin_cond . $cond2 . " AND approved = 1";
+                $rows_balance_hold = $wpdb->get_row($sql_balance_hold);
 
-                    $earning = ($rows_balance_plus->plus) ? $rows_balance_plus->plus : '0';
-                    $payout = ($rows_balance_minus->minus) ? $rows_balance_minus->minus : '0';
-                    $available = ($rows_balance_available->avail) ? $rows_balance_available->avail - $payout : 0 - $payout;
-                    $onhold = ($rows_balance_hold->hold) ? $rows_balance_hold->hold : 0;
-                    ?>
-                    <h3>Payment Summary</h3>
-                    <table class="affiliate-payment-summary" width="25%" border="0">
-                        <tr>
-                            <th>Total Earning Till Date</th>
-                            <td><?php echo '$' . $earning; ?></td>
-                        </tr>
+                $earning = ($rows_balance_plus->plus) ? $rows_balance_plus->plus : '0';
+                $payout = ($rows_balance_minus->minus) ? $rows_balance_minus->minus : '0';
+                $available = ($rows_balance_available->avail) ? $rows_balance_available->avail - $payout : 0 - $payout;
+                $onhold = ($rows_balance_hold->hold) ? $rows_balance_hold->hold : 0;
+                ?>
+                <h3>Payment Summary</h3>
+                <table class="affiliate-payment-summary" width="25%" border="0">
+                    <tr>
+                        <th>Total Earning Till Date</th>
+                        <td><?php echo '$' . $earning; ?></td>
+                    </tr>
 
-                        <tr>
-                            <th>Total Payout Till Date</th>
-                            <td><?php echo '$' . $payout; ?></td>
-                        </tr>
-                        <tr class="available">
-                            <th>Available Balance</th>
-                            <td><?php echo '$' . $available; ?></td>
-                        </tr>
-                        <tr>
-                            <th>Earnings on Hold</th>
-                            <td><?php echo '$' . $onhold; ?></td>
-                        </tr>
-                    </table><?php //}
+                    <tr>
+                        <th>Total Payout Till Date</th>
+                        <td><?php echo '$' . $payout; ?></td>
+                    </tr>
+                    <tr class="available">
+                        <th>Available Balance</th>
+                        <td><?php echo '$' . $available; ?></td>
+                    </tr>
+                    <tr>
+                        <th>Earnings on Hold</th>
+                        <td><?php echo '$' . $onhold; ?></td>
+                    </tr>
+                </table><?php //}
                 ?>
 
                 <h3>Earning History</h3>
@@ -359,7 +361,7 @@ if (!class_exists('rtAffiliateAdmin')) {
                         $date = date('F j, Y, g:i a', strtotime($row->date) + (get_site_option('gmt_offset') * 1 * 3600));
                         ?>
                         <tr class="read">
-                            <th><?php echo $k+1; ?></th>
+                            <th><?php echo $k + 1; ?></th>
                             <td><?php echo $txn_id; ?></td>
                             <td><?php echo isset($rt_affiliate->payment_methods[$row->payment_method]) ? $rt_affiliate->payment_methods[$row->payment_method] : '--'; ?></td>
                             <td><?php echo $row->type; ?></td>
@@ -389,19 +391,19 @@ if (!class_exists('rtAffiliateAdmin')) {
                 <div class="alignleft actions">
                     <!--<form action="" method="get">-->
                         <!--<input type="hidden" name="page" value="<?php echo $_GET['page']; ?>"/>-->
-<!--                        Select User:
-                        <select name="user">
-                            <option value="0">All</option>
-                            <?php
+                    <!--                        Select User:
+                                            <select name="user">
+                                                <option value="0">All</option>
+                    <?php
 //                            $sql_user = "SELECT ID, user_login from " . $wpdb->users;
 //                            $rows_user = $wpdb->get_results($sql_user);
 //                            foreach ($rows_user as $row_user) {
-                                ?><option value="<?php // echo $row_user->ID; ?>" <?php // if ($_GET['user'] == $row_user->ID) echo 'selected'; ?>><?php // echo $row_user->user_login; ?></option><?php
+                    ?><option value="<?php // echo $row_user->ID; ?>" <?php // if ($_GET['user'] == $row_user->ID) echo 'selected'; ?>><?php // echo $row_user->user_login; ?></option><?php
 //            }
-                            ?>
-                        </select>-->
-                        <!--<input type="submit" value="Apply Filter" name="sort_action" class="button-secondary action"/>-->
-<!--                    </form>-->
+                    ?>
+                                            </select>-->
+                                            <!--<input type="submit" value="Apply Filter" name="sort_action" class="button-secondary action"/>-->
+                    <!--                    </form>-->
                 </div>
                 <div class="clear"></div>
             </div>
@@ -431,16 +433,16 @@ if (!class_exists('rtAffiliateAdmin')) {
                     }
                     ?>
                     <tr class="read">
-                        <th><?php echo $k+1; ?></th>
-                            <?php $userdata = get_userdata($row->user_id); ?>
-                        <td><?php echo '<a href="'.admin_url( 'user-edit.php?user_id=' . $row->user_id, 'http' ).'">'.$userdata->user_login.'</a><br />('.$userdata->user_email.')'; ?></td><?php
+                        <th><?php echo $k + 1; ?></th>
+                        <?php $userdata = get_userdata($row->user_id); ?>
+                        <td><?php echo '<a href="' . admin_url('user-edit.php?user_id=' . $row->user_id, 'http') . '">' . $userdata->user_login . '</a><br />(' . $userdata->user_email . ')'; ?></td><?php
                 if (isset($row->txn_id) && !empty($row->txn_id) && ('shop_order' == get_post_type($row->txn_id))) {
                     $txn_id = '<a href="' . get_edit_post_link($row->txn_id) . '" target="_blank">WC-' . $row->txn_id . '</a>';
                 } else {
                     $txn_id = $row->txn_id;
                 }
                 $date = date('F j, Y, g:i a', strtotime($row->date) + (get_site_option('gmt_offset') * 1 * 3600));
-                    ?>
+                        ?>
                         <td><?php echo $txn_id; ?></td>
                         <td><?php echo isset($rt_affiliate->payment_methods[$row->payment_method]) ? $rt_affiliate->payment_methods[$row->payment_method] : '--'; ?></td>
                         <td><?php echo $rt_affiliate->payment_types[$row->type]; ?></td>
@@ -466,12 +468,12 @@ if (!class_exists('rtAffiliateAdmin')) {
             $approved = '';
             $method = '';
             $note = '';
-            $date = date('Y-m-d h:i:s');
+            $date = date('Y-m-d h:i:s', time() + (get_site_option('gmt_offset') * 1 * 3600));
 
             if (isset($_POST['action'])) {
                 if ($_POST['action'] == 'add') {
                     $sql = "INSERT INTO " . $wpdb->prefix . "rt_aff_transaction ( `txn_id`, `user_id`, `type`, `amount`, `payment_method`, `note`, `date`) VALUES
-                ( '" . $_POST['txn_id'] . "', '" . $_POST['user'] . "', '" . $_POST['type'] . "', '" . $_POST['amount'] . "', '" . $_POST['payment_method'] . "', '" . $_POST['note'] . "', '" . $_POST['date'] . "')";
+                ( '" . $_POST['txn_id'] . "', '" . $_POST['user_id'] . "', '" . $_POST['type'] . "', '" . $_POST['amount'] . "', '" . $_POST['payment_method'] . "', '" . $_POST['note'] . "', '" . $_POST['date'] . "')";
                     $wpdb->query($sql);
                     $msg = 'Saved successfully!';
                 } else if ($_POST['action'] == 'edit') {
@@ -520,15 +522,8 @@ if (!class_exists('rtAffiliateAdmin')) {
                         <tr valign="top">
                             <th scope="row"><label for="user">Select User</label></th>
                             <td>
-                                <select name="user" id="user">
-                                    <?php
-                                    $sql = "SELECT ID, user_login from " . $wpdb->users;
-                                    $rows = $wpdb->get_results($sql);
-                                    foreach ($rows as $row) {
-                                        ?><option value="<?php echo $row->ID; ?>"><?php echo $row->user_login; ?></option><?php
-                }
-                                    ?>
-                                </select>
+                                <input type="text" name="user" id="user" class="regular-text" />
+                                <input type="hidden" name="user_id" id="user_id" />
                             </td>
                         </tr>
                     <?php } ?>
@@ -638,19 +633,37 @@ if (!class_exists('rtAffiliateAdmin')) {
             <?php
             die();
         }
-        
-        public function order_referer_info($post){
-            add_meta_box('rt-affiliate-referer-info', __('Customer Referer Info'), array($this,'referer_info'), 'shop_order', 'side');
+
+        public function order_referer_info($post) {
+            add_meta_box('rt-affiliate-referer-info', __('Customer Referer Info'), array($this, 'referer_info'), 'shop_order', 'side');
         }
-        
-        public function referer_info($post){
+
+        public function referer_info($post) {
             $referer = get_post_meta($post->ID, '_rt-ref-affiliate', true);
-            if ( $referer ) {
-                $referer = explode(',',$referer);
-                echo '<p><a href="'.admin_url( 'user-edit.php?user_id=' . $referer[1], 'http' ).'">'.$referer[0].'</a></p>';
+            if ($referer) {
+                $referer = explode(',', $referer);
+                echo '<p><a href="' . admin_url('user-edit.php?user_id=' . $referer[1], 'http') . '">' . $referer[0] . '</a></p>';
             } else {
                 echo '<p>This customer was not refered.</p>';
             }
+        }
+
+        public function users_lookup() {
+            global $wpdb;
+
+            $search = like_escape($_REQUEST['query']);
+
+            $query = 'SELECT ID,user_login,user_email,display_name FROM ' . $wpdb->users . '
+        WHERE user_login LIKE \'' . $search . '%\'
+            OR user_nicename LIKE \'' . $search . '%\'
+            OR display_name LIKE \'' . $search . '%\'
+            LIMIT '.$_REQUEST['maxRows'];
+            $response = array();
+            foreach ($wpdb->get_results($query) as $row) {
+                $response[] = array("name"=>$row->display_name, "id" => $row->ID, "login_name" => $row->user_login,"imghtml"=> get_avatar($row->user_email, 64, '', 'gravatar')) ;
+            }
+            echo json_encode($response);
+            die();
         }
 
     }
