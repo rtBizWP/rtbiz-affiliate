@@ -102,7 +102,7 @@ if (!class_exists('rtAffiliate')) {
              * if this is from affiliate referer
              */
             if (isset($_GET['ref'])) {
-                $landing_page = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+                $landing_page = (is_ssl()?'https://':'http://') . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
 
                 $redirect_link = remove_query_arg('ref', $landing_page);
 
