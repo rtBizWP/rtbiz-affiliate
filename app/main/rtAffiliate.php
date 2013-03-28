@@ -104,14 +104,7 @@ if (!class_exists('rtAffiliate')) {
             if (isset($_GET['ref'])) {
                 $landing_page = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
 
-                $needle = '?ref';
-                $url_parameters = $_GET;
-                $redirect_link = substr($landing_page, 0, strpos($landing_page, $needle));
-
-                foreach($url_parameters as $key => $params){
-                    if ( $key != 'ref' )
-                        $redirect_link = add_query_arg($key,$params,$redirect_link);
-                }
+                $redirect_link = remove_query_arg('ref', $landing_page);
 
                 /*
                  * check referer's usermname is valid
