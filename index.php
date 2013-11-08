@@ -1,15 +1,19 @@
 <?php
 
 /*
- *     Plugin Name:  RT Affiliate
+ *     Plugin Name:  rtAffiliate
  *     Plugin URI:   http://rtcamp.com
- *     Description:  RT Affiliate
- *     Version:      2.0
+ *     Description:  rtAffiliate
+ *     Version:      3.0.1
  *     Author:       rtCamp
  *     Author URI:   http://rtcamp.com
- *     Contributer:  Joshua Abenazer, Santosh Kamble
+ *     Contributer:  $trik3r<faishal.saiyed@rtcamp.com>,Joshua Abenazer, Santosh Kamble
  */
 
+/**
+ *  RT_AFFILIATE_PATH
+ *  Gives plugin server path
+ */
 if (!defined('RT_AFFILIATE_PATH')) {
     define('RT_AFFILIATE_PATH', plugin_dir_path(__FILE__));
 }
@@ -29,6 +33,8 @@ function rt_affiliate_autoloader($class_name) {
     $rtlibpath = array(
         'app/admin/' . $class_name . '.php',
         'app/main/' . $class_name . '.php',
+        'app/helper/' . $class_name . '.php',
+        'app/helper/db/' . $class_name . '.php',
     );
     foreach ($rtlibpath as $i => $path) {
         $path = RT_AFFILIATE_PATH . $path;

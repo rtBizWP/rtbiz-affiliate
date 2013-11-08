@@ -17,6 +17,49 @@ if (!class_exists('rtAffiliateAdmin')) {
             add_action('add_meta_boxes', array($this, 'order_referer_info'));
             // backwards compatible
             add_action('admin_init', array($this, 'order_referer_info'), 1);
+            add_action('admin_init', array($this, 'payment_history_delete_check'), 1);
+            add_action('admin_bar_menu', array($this, 'admin_nav'), 1);
+        }
+        function payment_history_delete_check(){
+            if(isset($_REQUEST["page"]) && $_REQUEST["page"] = 'rt-affiliate-manage-payment'){
+                global $wpdb;
+                if(isset($_GET['action']) && $_GET['action'] == 'delete'){
+                    $sql = "update {$wpdb->prefix}rt_aff_transaction set deleted='y', deleted_date=now() where id = " . $_GET['pid'] ;
+                    $wpdb->get_row($sql);
+                    $userid = "select distinct user_id from {$wpdb->prefix}rt_aff_transaction  where id = " . $_GET['pid'] ;
+                    $user_ids = $wpdb->get_results($userid);
+                    global $rtAffiliateAdmin;
+                    foreach($user_ids as $uid){
+                        var_dump($rtAffiliateAdmin->update_user_earning($uid->user_id));
+                    }
+                    if($_SERVER["HTTP_REFERER"]){
+                        wp_safe_redirect($_SERVER["HTTP_REFERER"]);
+                    } else{
+                        wp_safe_redirect(  admin_url ("admin.php?page=rt-affiliate-manage-payment"));
+                    }
+                    exit;
+                }
+            }
+        }
+        function admin_nav () {
+            global $wp_admin_bar ;
+            // Bail if this is an ajax request
+            if ( defined ( 'DOING_AJAX' ) )
+                return ;
+            // Only add menu for logged in user
+            if ( is_user_logged_in () ) {
+                // Add secondary parent item for all BuddyPress components
+                $earning = $this->  get_user_earning(get_current_user_id());
+                foreach($earning as $currency => $er){
+                    $wp_admin_bar -> add_menu ( array (
+                        'parent' => 'my-account' ,
+                        'id'     => 'my-account-affiliater_'. $currency  ,
+                        'title'  => strtoupper($currency) . " Balance: " .number_format($er["available"],2) .' '. $currency ,
+                        'href'   => admin_url ( "admin.php?page=rt-affiliate-payment-info")
+                    ) ) ;
+                }
+
+            }
         }
 
         public function menu() {
@@ -25,12 +68,14 @@ if (!class_exists('rtAffiliateAdmin')) {
 //            add_submenu_page('rt-affiliate-admin', 'Email Setting', 'Email Setting', 'manage_options', 'email_setting', 'rt_affiliate_options_email_setting');
             add_submenu_page('rt-affiliate-manage-payment', 'Manage Payment', 'Manage Payment', 'manage_options', 'rt-affiliate-manage-payment', array($this, 'manage_payment'));
             add_submenu_page('rt-affiliate-manage-payment', 'Manage Banners', 'Manage Banners', 'manage_options', 'rt-affiliate-manage-banners', array($this, 'manage_banners'));
+            add_submenu_page('rt-affiliate-manage-payment', 'Settings', 'Settings', 'manage_options', 'rt-affiliate-manage-settings', array($this, 'manage_settings'));
 
 
             add_menu_page('Affiliate', 'Affiliate', 'read', 'rt-affiliate-stats', '', '');
             add_submenu_page('rt-affiliate-stats', 'Stats & History', 'Stats & History', 'read', 'rt-affiliate-stats', array($this, 'affiliate_stats'));
             add_submenu_page('rt-affiliate-stats', 'Get Links & Banners', 'Get Links & Banners', 'read', 'rt-affiliate-banners', array($this, 'affiliate_banners'));
             add_submenu_page('rt-affiliate-stats', 'Payment Info', 'Payment Info', 'read', 'rt-affiliate-payment-info', array($this, 'payment_info'));
+            add_submenu_page('rt-affiliate-stats', 'Payment Setting', 'Payment Setting', 'read', 'rt-affiliate-payment-setting', array($this, 'payment_setting'));
         }
 
         public function ui($hook) {
@@ -43,14 +88,50 @@ if (!class_exists('rtAffiliateAdmin')) {
             }
             wp_enqueue_style('rt-affiliate-admin', RT_AFFILIATE_URL . 'app/assets/css/admin.css');
         }
-
+        function manage_settings(){ 
+            if( isset($_POST["rt_aff_woo_commission"])){
+                if( ! is_numeric($_POST["rt_aff_woo_commission"])){
+                    $_POST["rt_aff_woo_commission"]= 0;
+                }
+                update_site_option("rt_aff_woo_commission" , $_POST["rt_aff_woo_commission"]);
+            }
+            ?>
+            <div class="wrap">
+                <div class="icon32" id="icon-options-general"></div>
+                <h2>Affiliate Settings</h2>
+                <br/>
+                <h3>WooCommerce</h3>
+                <form method="post">
+                    <div class="tablenav">
+                        <table class="form-table">
+                            <tr valign="top">
+                                <th scope="row"><label for="rt_aff_woo_commission">WooCommerce Commission in (%)</label></th>
+                                <td ><input type="number" required id="rt_aff_woo_commission" name="rt_aff_woo_commission" value='<?php echo get_site_option('rt_aff_woo_commission',20) ?>' /></td>
+                            </tr>
+                            <tr valign="top">
+                                <th scope="row"></th>
+                                <td ><input type="submit" class='button button-primary' value='Save' /></td>
+                            </tr>
+                        </table>
+                    </div>
+                </form>
+            </div> <?php
+        }
         public function manage_payment() {
+            if(isset($_GET["action"])){
+                $current= $_REQUEST["action"];
+            }else{
+                $current = "list";
+            }
             ?>
             <div class="wrap">
                 <div class="icon32" id="icon-options-general"></div>
                 <h2>Manage Payment</h2>
                 <br/>
-                <p><a href="?page=rt-affiliate-manage-payment&action=list">LIST</a> | <a href="?page=rt-affiliate-manage-payment&action=add">ADD</a> </p>
+                <ul class="subsubsub">
+                    <li><a href="?page=rt-affiliate-manage-payment&action=list" class="<?php echo ($current =="list")? "current" : ""; ?>">List</a> | </li>
+                    <li><a href="?page=rt-affiliate-manage-payment&action=add" class="<?php echo ($current =="add")? "current" : ""; ?>">Add</a> </li>
+                </ul>
                 <?php
                 if (isset($_GET['action']) && ( $_GET['action'] == 'add' || $_GET['action'] == 'edit'))
                     $this->manage_payment_edit();
@@ -93,61 +174,30 @@ if (!class_exists('rtAffiliateAdmin')) {
                 <br/>
 
                 <h3>Summary</h3>
+                <form method="post">
                 <div class="tablenav">
                     <div class="alignleft actions">
                         Time Duration
                         <select name="time_duration" id="time_duration">
+                            <option value="">All Time</option>
                             <?php
                             foreach ($rt_affiliate->time_durations as $k => $v) {
-                                ?><option value="<?php echo $k; ?>" <?php if (isset($_GET['status']) && $_GET['status'] == $k) echo 'selected'; ?>><?php echo $v; ?></option><?php
-            }
+                                ?><option value="<?php echo $k; ?>" <?php if (isset($_POST['time_duration']) && $_POST['time_duration'] == $k) echo 'selected'; ?>><?php echo $v; ?></option><?php
+                            }
                             ?>
                         </select>
-                        <input type="submit" value="Apply" name="time_action" class="button-secondary action" id="time_action"/>
+                        <input type="submit" value="Apply" name="time_action" class="button-secondary action"/>
                     </div>
                     <div class="clear"></div>
                 </div>
-                <div id="rt_stats">
-                    <?php
-                    $admin_cond = '';
-                    $admin_ref_cond = '';
-                    $admin_ref_cond2 = '';
-                    if (!current_user_can('manage_options')) {
-                        $admin_cond = " WHERE user_id = $user_ID";
-                        $admin_ref_cond = " WHERE referred_by = $user_ID";
-                        $admin_ref_cond2 = " AND referred_by = $user_ID";
-                    }
-
-                    $sql_clicks = "SELECT count(id) as cnt FROM " . $wpdb->prefix . "rt_aff_users_referals $admin_cond";
-                    $rows_clicks = $wpdb->get_row($sql_clicks);
-                    ?>
-                    <p>Number of clicks: <?php echo $rows_clicks->cnt; ?></p>
-                </div>
-
+                </form>
+                
                 <h3>Details</h3>
-
-                <table class="widefat post fixed" id="messagelist" width="90%">
-                    <thead>
-                        <tr class="tablemenu">
-                            <th width="20%">Date & Time</th>
-                            <th width="25%">Referred From</th>
-                            <th width="25%">Landing Page</th>
-                        </tr>
-                    </thead>
-
-                    <?php
-                    foreach ($rows as $k => $row) {
-                        $date = date('F j, Y, g:i a', strtotime($row->date) + (get_site_option('gmt_offset') * 1 * 3600));
-                        ?>
-                        <tr class="read">
-                            <td><?php echo $date; ?></td>
-                            <td><?php if ($row->referred_from != '') echo '<a target="_blank" href="' . $row->referred_from . '">' . $row->referred_from . '</a>'; else echo 'No Link'; ?></td>
-                            <td><?php if ($row->landing_page != '') echo '<a target="_blank" href="' . $row->landing_page . '">' . $row->landing_page . '</a>'; else echo 'No Link'; ?></td>
-                        </tr>
-                        <?php
-                    }
-                    ?>
-                </table>
+                <?php 
+                    $rtAffStates = new rtAffiliateStates();
+                    $rtAffStates->  prepare_items ();  
+                    $rtAffStates->  display ();
+                ?>
             </div>
             <?php
         }
@@ -202,28 +252,23 @@ if (!class_exists('rtAffiliateAdmin')) {
             </div>
             <?php
         }
-
-        public function payment_info() {
+        function payment_setting(){
             global $wpdb, $user_ID, $rt_affiliate;
 
-            if ($_POST) {
-                $sql_pay = "SELECT id FROM " . $wpdb->prefix . "rt_aff_payment_info where user_id = $user_ID ";
-                $rows_pay = $wpdb->get_row($sql_pay);
-
-                if (isset($rows_pay) && $rows_pay->id == NULL) {
-                    $sql = "INSERT INTO " . $wpdb->prefix . "rt_aff_payment_info
-                     ( `user_id`, `payment_method`, `paypal_email`, `min_payout` )   VALUES
-                    ( $user_ID, 'paypal', '" . $_POST['paypal_email'] . "', '" . $_POST['min_payout'] . "')";
-                    $wpdb->query($sql);
-                } else {
-                    $sql = "UPDATE " . $wpdb->prefix . "rt_aff_payment_info SET
-                `paypal_email` = '" . $_POST['paypal_email'] . "',
-                `min_payout` = '" . $_POST['min_payout'] . "'
-                WHERE user_id = $user_ID";
-                    $wpdb->query($sql);
+            if ( isset($_POST["pay-info-submit"]) ) {
+                $sql_pay  = $wpdb -> prepare ( "SELECT id FROM " . $wpdb -> prefix . "rt_aff_payment_info where user_id = %d " , $user_ID ) ;
+                $rows_pay = $wpdb -> get_row ( $sql_pay ) ;
+                if ( empty ( $rows_pay ) ) {
+                   $result = $wpdb -> insert ( $wpdb -> prefix . "rt_aff_payment_info" , array ( 'user_id'        => $user_ID ,
+                        'payment_method' => 'paypal' ,
+                        'paypal_email'   => $_POST[ 'paypal_email' ] ,
+                        'min_payout'     => $_POST[ 'min_payout' ] ) , array ( '%d' , '%s' , '%s' , '%s' ) ) ;
+                }
+                else {
+                   $result =  $wpdb -> update ( $wpdb -> prefix . "rt_aff_payment_info" , array ( 'paypal_email' => $_POST[ 'paypal_email' ] ,
+                        'min_payout'   => $_POST[ 'min_payout' ] ) , array ( 'user_id' => $user_ID ) , array ( '%s' , '%s' ) , array ( '%d' ) ) ;
                 }
             }
-
             $cond = '';
             if (isset($_GET['view_type'])) {
                 if ($_GET['view_type'] == 'show_earning') {
@@ -250,142 +295,122 @@ if (!class_exists('rtAffiliateAdmin')) {
                 <h2>Payment Info & History</h2>
                 <br/>
                 <h3>Payment Info</h3>
-                <form method="post" action="<?php echo "?page=rt-affiliate-payment-info"; ?>" >
+                <form method="post" action="<?php echo "?page=rt-affiliate-payment-setting"; ?>" >
                     <table class="form-table" border="0">
                         <tr>
                             <td width="20%" class="label"><label id="lpaypal_email" for="paypal_email">Paypal Email Address</label></td>
-                            <td class="field"><input id="paypal_email" name="paypal_email" type="text" value="<?php if ($_POST) echo $_POST['paypal_email']; else if (isset($rows_pay->paypal_email)) echo $rows_pay->paypal_email; ?>" /></td>
+                            <td class="field"><input id="paypal_email" name="paypal_email" type="text" value="<?php if ($_POST["pay-info-submit"]) echo $_POST['paypal_email']; else if (isset($rows_pay->paypal_email)) echo $rows_pay->paypal_email; ?>" /></td>
                         </tr>
-
                         <tr>
                             <td class="label"><label id="lmin_payout" for="min_payout">Minimum Payout</label></td>
-                            <td class="field"><input id="min_payout" name="min_payout" size="4" type="text" value="<?php if ($_POST) echo $_POST['min_payout']; else if (isset($rows_pay->min_payout)) echo $rows_pay->min_payout; ?>" />USD</td>
+                            <td class="field"><input id="min_payout" name="min_payout" size="4" type="text" value="<?php if ($_POST["pay-info-submit"]) echo $_POST['min_payout']; else if (isset($rows_pay->min_payout)) echo $rows_pay->min_payout; ?>" />USD</td>
                         </tr>
                         <tr>
                             <td class="label"></td>
                             <td class="field">There is no restriction on this from our side. This just for your convenience.</td>
                         </tr>
                     </table>
-                    <div class="submit"><input type="submit" value="save" name="submit"/></div>
-                </form>
+                    <div class="submit"><input type="submit" class="button button-primary" value="Save" name="pay-info-submit"/></div>
+                </form> <?php
+        }
 
-                <?php
-//                if (!current_user_can('manage_options')) {
-                $sql_balance_plus = "SELECT SUM(amount) as plus FROM " . $wpdb->prefix . "rt_aff_transaction  WHERE type = 'earning' " . $admin_cond . " AND approved = 1";
-                $rows_balance_plus = $wpdb->get_row($sql_balance_plus);
-
-                $sql_balance_minus = "SELECT SUM(amount) as minus FROM " . $wpdb->prefix . "rt_aff_transaction  WHERE type = 'payout' " . $admin_cond . " AND approved = 1";
-                $rows_balance_minus = $wpdb->get_row($sql_balance_minus);
-                $balance = $rows_balance_plus->plus - $rows_balance_minus->minus;
-
-                $cond1 = " AND `date` < DATE_SUB(CURDATE(), INTERVAL 60 DAY )";
-                $sql_balance_available = "SELECT SUM(amount) as avail FROM " . $wpdb->prefix . "rt_aff_transaction  WHERE type = 'earning' " . $admin_cond . $cond1 . " AND approved = 1";
-                $rows_balance_available = $wpdb->get_row($sql_balance_available);
-
-                $cond2 = " AND `date` > DATE_SUB(CURDATE(), INTERVAL 60 DAY )";
-                $sql_balance_hold = "SELECT SUM(amount) as hold FROM " . $wpdb->prefix . "rt_aff_transaction  WHERE type = 'earning' " . $admin_cond . $cond2 . " AND approved = 1";
-                $rows_balance_hold = $wpdb->get_row($sql_balance_hold);
-
-                $earning = ($rows_balance_plus->plus) ? $rows_balance_plus->plus : '0';
-                $payout = ($rows_balance_minus->minus) ? $rows_balance_minus->minus : '0';
-                $available = ($rows_balance_available->avail) ? $rows_balance_available->avail - $payout : 0 - $payout;
-                $onhold = ($rows_balance_hold->hold) ? $rows_balance_hold->hold : 0;
-                ?>
+        public function payment_info() {
+            global $user_ID, $rt_affiliate;
+            ?>
+            <div class="wrap">
+                <div class="icon32" id="icon-options-general"></div>
+                <h2>Payment History</h2>
+                <br/>
                 <h3>Payment Summary</h3>
-                <table class="affiliate-payment-summary" width="25%" border="0">
-                    <tr>
-                        <th>Total Earning Till Date</th>
-                        <td><?php echo '$' . $earning; ?></td>
-                    </tr>
+                <div id="aff-payment-summary">
+                <?php
+//                  if (!current_user_can('manage_options')) {
+                $user_earnings = $this->get_user_earning($user_ID);
+                foreach($user_earnings as $currency=>$u_earning){ ?>
+                    <table class="affiliate-payment-summary" width="25%" border="0" cellspacing="0" cellpadding="0">
+                        <tr>
+                            <th>Total Earning Till Date</th>
+                            <td><?php echo $u_earning["earning"] . ' ' .  $currency ; ?></td>
+                        </tr>
 
-                    <tr>
-                        <th>Total Payout Till Date</th>
-                        <td><?php echo '$' . $payout; ?></td>
-                    </tr>
-                    <tr class="available">
-                        <th>Available Balance</th>
-                        <td><?php echo '$' . $available; ?></td>
-                    </tr>
-                    <tr>
-                        <th>Earnings on Hold</th>
-                        <td><?php echo '$' . $onhold; ?></td>
-                    </tr>
-                </table><?php //}
-                ?>
-
-                <h3>Earning History</h3>
-                <form method="get" action="">
-                    <input type="hidden" name="page" value="payment_info"/>
+                        <tr>
+                            <th>Total Payout Till Date</th>
+                            <td><?php echo $u_earning["payout"] . ' ' .  $currency; ?></td>
+                        </tr>
+                        <tr class="available">
+                            <th>Available Balance</th>
+                            <td><?php echo $u_earning["available"] . ' ' .  $currency; ?></td>
+                        </tr>
+                        <tr>
+                            <th>Earnings on Hold</th>
+                            <td><?php echo  $u_earning["onhold"] . ' ' .  $currency; ?></td>
+                        </tr>
+                    </table>
+                <?php } ?>
+                </div>
+                <br />
+                <h3 class="aff_earning_title">Earning History</h3>
+                 <?php 
+                    $rtmedia_moderation_list = new rtAffiliateEarningHistory();
+                    $rtmedia_moderation_list->prepare_items();
+                    echo "<form id='rtmedia-moderation-form' action='' method='post'>"; ?>
                     <div class="tablenav">
                         <div class="alignleft actions">
-                            <select name="view_type"><?php $view_type = ( isset($_GET['view_type']) ) ? $_GET['view_type'] : ''; ?>
+                            <select name="view_type"><?php $view_type = ( isset($_POST['view_type']) ) ? $_POST['view_type'] : ''; ?>
                                 <option value="show_all" <?php if ($view_type == 'show_all') echo 'selected'; ?> >Show All</option>
                                 <option value="show_earning" <?php if ($view_type == 'show_earning') echo 'selected'; ?>>Show Earning only</option>
                                 <option value="show_payout" <?php if ($view_type == 'show_payout') echo 'selected'; ?>>Show Payout only</option>
                             </select>
-                            <input type="submit" value="Apply" name="doaction" class="button-secondary action">
+                            <input type="submit" value="Apply" name="" class="button-secondary action">
                         </div>
                         <div class="clear"></div>
                     </div>
-                </form>
-
-                <table class="widefat post fixed" id="messagelist" width="90%">
-                    <thead>
-                        <tr class="tablemenu">
-                            <th width="5%">#</th>
-                            <th>Transaction ID</th>
-                            <th>Payment Method</th>
-                            <th>Type</th>
-                            <th>Amount</th>
-                            <th>Note</th>
-                            <th>Date</th>
-                        </tr>
-                    </thead>
-                    <?php
-                    $sql = "SELECT * FROM " . $wpdb->prefix . "rt_aff_transaction  $cond AND approved = 1" . $admin_cond;
-                    $rows = $wpdb->get_results($sql);
-                    foreach ($rows as $k => $row) {
-                        $prefix = '';
-                        if ($row->type == 'earning') {
-                            $prefix = '+$';
-                        } else if ($row->type == 'payout') {
-                            $prefix = '-$';
-                        }
-
-                        if (isset($row->txn_id) && !empty($row->txn_id) && ('shop_order' == get_post_type($row->txn_id))) {
-                            $txn_id = 'WC-' . $row->txn_id;
-                        } else {
-                            $txn_id = $row->txn_id;
-                        }
-                        $date = date('F j, Y, g:i a', strtotime($row->date) + (get_site_option('gmt_offset') * 1 * 3600));
-                        ?>
-                        <tr class="read">
-                            <th><?php echo $k + 1; ?></th>
-                            <td><?php echo $txn_id; ?></td>
-                            <td><?php echo isset($rt_affiliate->payment_methods[$row->payment_method]) ? $rt_affiliate->payment_methods[$row->payment_method] : '--'; ?></td>
-                            <td><?php echo $row->type; ?></td>
-                            <td><?php echo $prefix . $row->amount; ?></td>
-                            <td><?php echo $row->note; ?></td>
-                            <td><?php echo $date; ?></td>
-                        </tr>
                         <?php
-                    }
-                    ?>
-                </table>
+                    echo "</form><div class='wrap'>";
+                    $rtmedia_moderation_list->display();
+                    echo "</div> ";
+                ?>
             </div>
             <?php
         }
+        function update_user_earning($user_id){
+            global $wpdb,$rt_affiliate;
+            $user_earning  = array();
+            $admin_cond = " AND user_id = $user_id";
+            foreach ( $rt_affiliate -> currency_types as $currency ) {
+                $sql_balance_plus  = "SELECT SUM(amount) as plus FROM " . $wpdb -> prefix . "rt_aff_transaction  WHERE  deleted is null and type = 'earning' " . $admin_cond . " AND currency='" . $currency . "' AND approved = 1" ;
+                $rows_balance_plus = $wpdb -> get_row ( $sql_balance_plus ) ;
 
-        public function manage_payment_list() {
-            global $wpdb, $rt_affiliate;
-            $cond = '';
-            if (isset($_GET['user_id']) && $_GET['user_id'] != 0)
-                $cond = 'WHERE user_id = ' . $_GET['user_id'];
-            $sql = "SELECT * FROM " . $wpdb->prefix . "rt_aff_transaction $cond order by date desc ";
-            $rows = $wpdb->get_results($sql);
-            ?>
-                                        <!--    <label for="commission"><strong>Commission</strong></label>
-                                        <input type="text" value="<?php echo get_option('rt_aff_commission', 20); ?>" id="commission" name="commission">-->
+                $sql_balance_minus  = "SELECT SUM(amount) as minus FROM " . $wpdb -> prefix . "rt_aff_transaction  WHERE deleted is null and type = 'payout' " . $admin_cond . " AND currency='" . $currency . "' AND approved = 1" ;
+                $rows_balance_minus = $wpdb -> get_row ( $sql_balance_minus ) ;
+                $balance            = $rows_balance_plus -> plus - $rows_balance_minus -> minus ;
+
+                $cond1                  = " AND `date` < DATE_SUB(CURDATE(), INTERVAL 60 DAY )";
+                $sql_balance_available  = "SELECT SUM(amount) as avail FROM " . $wpdb -> prefix . "rt_aff_transaction  WHERE deleted is null and  type = 'earning' " . $admin_cond . $cond1 . " AND currency='" . $currency . "' AND approved = 1" ;
+                $rows_balance_available = $wpdb -> get_row ( $sql_balance_available ) ;
+
+                $cond2             = " AND `date` > DATE_SUB(CURDATE(), INTERVAL 60 DAY )";
+                $sql_balance_hold  = "SELECT SUM(amount) as hold FROM " . $wpdb -> prefix . "rt_aff_transaction  WHERE deleted is null  and type = 'earning' " . $admin_cond . $cond2 . " AND currency='" . $currency . "' AND approved = 0" ;
+                $rows_balance_hold = $wpdb -> get_row ( $sql_balance_hold ) ;
+
+                $earning   = ($rows_balance_plus -> plus) ? $rows_balance_plus -> plus : '0' ;
+                $payout    = ($rows_balance_minus -> minus) ? $rows_balance_minus -> minus : '0' ;
+                $available = ($rows_balance_available -> avail) ? $rows_balance_available -> avail - $payout : 0 - $payout ;
+                $onhold    = ($rows_balance_hold -> hold) ? $rows_balance_hold -> hold : 0 ;   
+                $user_earning[$currency] = array( "earning" => $earning, "payout" => $payout, "available" => $available, "onhold" => $onhold);
+            }
+            update_user_meta($user_id , 'rt_affiliate_earning' , $user_earning);
+            return $user_earning;
+        }
+        function get_user_earning($user_id){
+            $user_earning = get_user_meta($user_id , 'rt_affiliate_earning' , true);
+            if($user_earning)
+                return $user_earning;
+            else{
+                return $this->update_user_earning($user_id);
+            }
+        }
+        public function manage_payment_list() {?>
             <div class="tablenav">
                 <div class="alignleft actions">
                     <form action="" method="get">
@@ -400,60 +425,14 @@ if (!class_exists('rtAffiliateAdmin')) {
             ?>
                 <div class="clear"></div>
             </div>
-
-            <table class="widefat post fixed" id="messagelist" width="90%">
-                <thead>
-                    <tr class="tablemenu">
-                        <th width="5%">#</th>
-                        <th>User Name</th>
-                        <th>Transaction ID</th>
-                        <th>Payment Method</th>
-                        <th>Type</th>
-                        <th>Amount</th>
-                        <th>Approved</th>
-                        <th>Note</th>
-                        <th>Date</th>
-                        <th>Edit</th>
-                    </tr>
-                </thead>
-                <?php
-                if ($rows) {
-                    foreach ($rows as $k => $row) {
-                        $prefix = '';
-                        if ($row->type == 'earning') {
-                            $prefix = '+$';
-                        } else if ($row->type == 'payout') {
-                            $prefix = '-$';
-                        }
-                        ?>
-                        <tr class="read">
-                            <th><?php echo $k + 1; ?></th>
-                            <?php $userdata = get_userdata($row->user_id); ?>
-                            <td><?php echo '<a href="' . admin_url('user-edit.php?user_id=' . $row->user_id, 'http') . '">' . $userdata->user_login . '</a><br />(' . $userdata->user_email . ')'; ?></td><?php
-                    if (isset($row->txn_id) && !empty($row->txn_id) && ('shop_order' == get_post_type($row->txn_id))) {
-                        $txn_id = '<a href="' . get_edit_post_link($row->txn_id) . '" target="_blank">WC-' . $row->txn_id . '</a>';
-                    } else {
-                        $txn_id = $row->txn_id;
-                    }
-                    $date = date('F j, Y, g:i a', strtotime($row->date) + (get_site_option('gmt_offset') * 1 * 3600));
-                            ?>
-                            <td><?php echo $txn_id; ?></td>
-                            <td><?php echo isset($rt_affiliate->payment_methods[$row->payment_method]) ? $rt_affiliate->payment_methods[$row->payment_method] : '--'; ?></td>
-                            <td><?php echo $rt_affiliate->payment_types[$row->type]; ?></td>
-                            <td><?php echo $prefix . $row->amount; ?></td>
-                            <td><?php echo ($row->approved) ? 'Yes' : 'No'; ?></td>
-                            <td><?php echo $row->note; ?></td>
-                            <td><?php echo $date; ?></td>
-                            <td><a href="?page=rt-affiliate-manage-payment&action=edit&pid=<?php echo $row->id; ?>">Edit</a> </td>
-                        </tr>
-                        <?php
-                    }
-                } else {
-                    echo '<tr><th class="rt-aff-no-results" colspan="10">No results found for <strong>' . $_GET['user'] . '</strong></td></tr>';
-                }
-                ?>
-            </table>
             <?php
+            global $plugin_page;
+            echo "<form id='rtmedia-moderation-form' action='' method='POST'>";
+            echo '<input type="hidden" name="page" value="'.esc_attr( $plugin_page ).'" />';
+            $rtAffPaylist = new rtAffiliatePaymentList();
+            $rtAffPaylist ->  prepare_items();
+            $rtAffPaylist ->  display();
+            echo "</form>";
         }
 
         public function manage_payment_edit() {
@@ -469,21 +448,27 @@ if (!class_exists('rtAffiliateAdmin')) {
 
             if (isset($_POST['action'])) {
                 if ($_POST['action'] == 'add') {
-                    $sql = "INSERT INTO " . $wpdb->prefix . "rt_aff_transaction ( `txn_id`, `user_id`, `type`, `amount`, `payment_method`, `note`, `date`) VALUES
-                ( '" . $_POST['txn_id'] . "', '" . $_POST['user_id'] . "', '" . $_POST['type'] . "', '" . $_POST['amount'] . "', '" . $_POST['payment_method'] . "', '" . $_POST['note'] . "', '" . $_POST['date'] . "')";
-                    $wpdb->query($sql);
+                    $wpdb->insert($wpdb->prefix . "rt_aff_transaction",
+                            array('txn_id'=>$_POST['txn_id'],
+                                'user_id'=>$_POST['user_id'],
+                                 'type'=>$_POST['type'] ,
+                                 'currency'=>$_POST['currency'] ,
+                                 'amount'=> $_POST['amount'],
+                                 'payment_method'=> $_POST['payment_method'],
+                                 'note'=> $_POST['note'],
+                                 'date'=>$_POST['date']
+                            ),array('%s','%d','%s','%s','%s','%s','%s'));
                     $msg = 'Saved successfully!';
                 } else if ($_POST['action'] == 'edit') {
-                    $sql = "UPDATE " . $wpdb->prefix . "rt_aff_transaction SET
-                `txn_id` = '" . $_POST['txn_id'] . "',
-                `type` = '" . $_POST['type'] . "',
-                `amount` = '" . $_POST['amount'] . "',
-                `payment_method` = '" . $_POST['payment_method'] . "',
-                `approved` = '" . $_POST['approved'] . "',
-                `note` = '" . $_POST['note'] . "',
-                `date` = '" . date('Y-m-d H:i:s', strtotime($_POST['date']) - (get_site_option('gmt_offset') * 1 * 3600)) . "'
-                WHERE id = " . $_GET['pid'];
-                    $wpdb->query($sql);
+                    $wpdb->update($wpdb->prefix . "rt_aff_transaction",
+                            array('txn_id'=>$_POST['txn_id'],
+                                 'type'=>$_POST['type'] ,
+                                 'currency'=> $_POST['currency'],
+                                 'amount'=> $_POST['amount'],
+                                 'payment_method'=> $_POST['payment_method'],
+                                 'note'=> $_POST['note'],
+                                 'date'=>$_POST['date']
+                            ),array('id' => $_GET['pid']),array('%s','%s','%s','%s','%s','%s','%s'),array('%d'));
                     $msg = 'Updated successfully!';
                 }
             }
@@ -491,6 +476,7 @@ if (!class_exists('rtAffiliateAdmin')) {
                 $sql = "SELECT * from " . $wpdb->prefix . "rt_aff_transaction where id = " . $_GET['pid'];
                 $row_tranx = $wpdb->get_row($sql);
                 $txn_id = $row_tranx->txn_id;
+                $currency = $row_tranx->currency;
                 $amount = $row_tranx->amount;
                 $type = $row_tranx->type;
                 $approved = $row_tranx->approved;
@@ -498,7 +484,12 @@ if (!class_exists('rtAffiliateAdmin')) {
                 $note = $row_tranx->note;
                 $date = date('Y-m-d H:i:s', strtotime($row_tranx->date) + (get_site_option('gmt_offset') * 1 * 3600));
             }
-            if (isset($msg))
+            if(isset($_POST['action']) && $_POST['action'] == 'edit'){                    
+                    $this->  update_user_earning($row_tranx->user_id);
+            } else if(isset($_POST['user_id'])){
+                $this->  update_user_earning($_POST['user_id']);
+            }
+            if (isset($msg) )
                 echo '<div class="updated"><p><strong>' . $msg . '</strong></p></div>'
                 ?>
             <form action="" method="post">
@@ -519,7 +510,7 @@ if (!class_exists('rtAffiliateAdmin')) {
                         <tr valign="top">
                             <th scope="row"><label for="user">Select User</label></th>
                             <td>
-                                <input type="text" name="user" id="user" class="regular-text" />
+                                <input type="text" name="user" id="user" class="regular-text" required />
                                 <input type="hidden" name="user_id" id="user_id" />
                             </td>
                         </tr>
@@ -529,8 +520,18 @@ if (!class_exists('rtAffiliateAdmin')) {
                         <td><input type="text" value="<?php echo $txn_id; ?>" id="txn_id" name="txn_id" class="regular-text"></td>
                     </tr>
                     <tr valign="top">
+                        <th scope="row"><label for="amount">Currency</label></th>
+                        <td>
+                             <select name="currency" id="currency">
+                                <?php foreach ($rt_affiliate->currency_types as  $v) { ?>
+                                    <option value="<?php echo $v; ?>" <?php if ($currency == $v) echo 'selected'; ?>><?php echo $v; ?></option>
+                                <?php } ?>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr valign="top">
                         <th scope="row"><label for="amount">Amount</label></th>
-                        <td><input type="text" value="<?php echo $amount; ?>" id="amount" name="amount" class="regular-text"></td>
+                        <td><input type="text" value="<?php echo $amount; ?>" id="amount" name="amount" required class="regular-text"></td>
                     </tr>
                     <tr valign="top">
                         <th scope="row"><label for="type">Payment Type</label></th>
@@ -570,14 +571,14 @@ if (!class_exists('rtAffiliateAdmin')) {
                         <td><input type="text" value="<?php echo $date; ?>" id="date" name="date" class="regular-text"></td>
                     </tr>
                 </table>
-                <div class="submit"><input type="submit" name="submit" value="save"></div>
+                <div class="submit"><input type="submit" class="button button-primary" name="submit" value="save"></div>
             </form>
             <?php
         }
 
         function affiliate_summary() {
             global $wpdb, $user_ID;
-            $cond1 = "";
+            $cond1 = " 1=1 ";
             $cond2 = "";
             //DATE_FORMAT('1900-10-04 22:23:00','%D %y %a %d %m %b %j');
 
@@ -587,7 +588,7 @@ if (!class_exists('rtAffiliateAdmin')) {
                     $cond2 = " DATE_FORMAT(`date_update`, '%D %y %a') = DATE_FORMAT(now() , '%D %y %a')";
                     break;
                 case 'yesterday':
-                    $cond1 = " DATE_FORMAT(`date`, '%D %y %a') = DATE_FORMAT(DATE_SUB(now(), INTERVAL 1 day ), '%D %y %a')";
+                    $cond1 = " DATE_FORMAT(`date`, '%Y/%m/%d') = DATE_FORMAT(DATE_SUB(now(), INTERVAL 1 day ), '%Y/%m/%d')";
                     $cond2 = " DATE_FORMAT(`date_update`, '%D %y %a') = DATE_FORMAT(DATE_SUB(now(), INTERVAL 1 day ), '%D %y %a')";
                     break;
                 case 'this_week':

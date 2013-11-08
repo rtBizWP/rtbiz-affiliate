@@ -1,6 +1,17 @@
-.affiliate-payment-summary th {text-align: left;padding:10px; border: 1px solid;}
-.affiliate-payment-summary td {padding:10px; border: 1px solid;}
-.affiliate-payment-summary .available th, .affiliate-payment-summary .available td { padding: 13px;border: 2px solid green;}
+#aff-payment-summary table:last-child{float: none}
+.aff_earning_title {clear:both}
+.affiliate-payment-summary { float: left; margin-right:20px; clear:right;}
+.affiliate-payment-summary th {text-align: left;}
+.affiliate-payment-summary .available { background-color: lightgreen}
+.affiliate-payment-summary { background: white; margin-bottom: 1.25em; border: solid 1px #dddddd; }
+.affiliate-payment-summary thead, .affiliate-payment-summary tfoot { background: whitesmoke; font-weight: bold; }
+.affiliate-payment-summary thead tr th, .affiliate-payment-summary thead tr td, .affiliate-payment-summary tfoot tr th, .affiliate-payment-summary tfoot tr td { padding: 0.5em 0.625em 0.625em; font-size: 0.875em; color: #222222; text-align: left; }
+.affiliate-payment-summary tr th, .affiliate-payment-summary tr td { padding: 0.5625em 0.625em; font-size: 0.875em; color: #222222; }
+.affiliate-payment-summary tr.even, .affiliate-payment-summary tr.alt, .affiliate-payment-summary tr:nth-of-type(even) { background: #EEE; }
+.affiliate-payment-summary thead tr th, .affiliate-payment-summary tfoot tr th, .affiliate-payment-summary tbody tr td, .affiliate-payment-summary tr td, .affiliate-payment-summary tfoot tr td { display: table-cell; line-height: 1.125em; }
+
+
+
 .rt-aff-user-ac img { vertical-align: middle; }
 .rt-aff-show-all {float: left; margin-top: 5px;} 
 .widefat th.rt-aff-no-results {text-align: center;} 
@@ -15,3 +26,5 @@
 .ui-timepicker-rtl{ direction: rtl; }
 .ui-timepicker-rtl dl { text-align: right; }
 .ui-timepicker-rtl dl dd { margin: 0 65px 10px 10px; }
+
+.rtAff-delete-payment{ color :#D54E21}
