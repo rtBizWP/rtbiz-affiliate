@@ -1,7 +1,9 @@
 CREATE TABLE %s (
     id int NOT NULL AUTO_INCREMENT,
     `user_id` INT NULL ,
-    `domain_name` VARCHAR(200) NULL ,
+    `domain_name` VARCHAR(500) NULL ,
     `ent_date` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+    `status` VARCHAR(2) NULL DEFAULT NULL,
+    `count` INT NULL DEFAULT 1,
     PRIMARY KEY  (id)
 );

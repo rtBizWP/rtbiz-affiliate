@@ -21,7 +21,7 @@ if (!class_exists('rtAffiliateAdmin')) {
             add_action('admin_bar_menu', array($this, 'admin_nav'), 1);
         }
         function payment_history_delete_check(){
-            if(isset($_REQUEST["page"]) && $_REQUEST["page"] = 'rt-affiliate-manage-payment'){
+            if(isset($_REQUEST["page"]) && $_REQUEST["page"] == 'rt-affiliate-manage-payment'){
                 global $wpdb;
                 if(isset($_GET['action']) && $_GET['action'] == 'delete'){
                     $sql = "update {$wpdb->prefix}rt_aff_transaction set deleted='y', deleted_date=now() where id = " . $_GET['pid'] ;
@@ -76,8 +76,18 @@ if (!class_exists('rtAffiliateAdmin')) {
             add_submenu_page('rt-affiliate-stats', 'Get Links & Banners', 'Get Links & Banners', 'read', 'rt-affiliate-banners', array($this, 'affiliate_banners'));
             add_submenu_page('rt-affiliate-stats', 'Payment Info', 'Payment Info', 'read', 'rt-affiliate-payment-info', array($this, 'payment_info'));
             add_submenu_page('rt-affiliate-stats', 'Payment Setting', 'Payment Setting', 'read', 'rt-affiliate-payment-setting', array($this, 'payment_setting'));
+            add_submenu_page('rt-affiliate-stats', 'Reports', 'Reports', 'read', 'rt-affiliate-payment-reports', array($this, 'payment_reports'));
         }
-
+        function payment_reports(){ ?>
+            <div class="wrap">
+                <div class="icon32" id="icon-edit"></div>
+                <h2>Reports</h2>
+                <br/> <?php 
+                $reports = new rtReports();
+                $reports->draw_chart('Test',array( array("x","val"),array("1st Nov",20), array("2nd Nov",0), array("3rd Now",10)),'line',array("pointSize" => 5));
+            ?></div>
+        <?php 
+        }
         public function ui($hook) {
             if ('toplevel_page_rt-affiliate-manage-payment' == $hook)
                 wp_enqueue_style('jquery-ui-css', 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css');
@@ -258,15 +268,16 @@ if (!class_exists('rtAffiliateAdmin')) {
             if ( isset($_POST["pay-info-submit"]) ) {
                 $sql_pay  = $wpdb -> prepare ( "SELECT id FROM " . $wpdb -> prefix . "rt_aff_payment_info where user_id = %d " , $user_ID ) ;
                 $rows_pay = $wpdb -> get_row ( $sql_pay ) ;
+                $type_col = $_POST[ 'paypal_detail' ];
                 if ( empty ( $rows_pay ) ) {
                    $result = $wpdb -> insert ( $wpdb -> prefix . "rt_aff_payment_info" , array ( 'user_id'        => $user_ID ,
-                        'payment_method' => 'paypal' ,
-                        'paypal_email'   => $_POST[ 'paypal_email' ] ,
+                        'payment_method' => $_POST["payment_method"] ,
+                        'payment_details'   => $_POST[ 'payment_details' ] ,
                         'min_payout'     => $_POST[ 'min_payout' ] ) , array ( '%d' , '%s' , '%s' , '%s' ) ) ;
                 }
                 else {
-                   $result =  $wpdb -> update ( $wpdb -> prefix . "rt_aff_payment_info" , array ( 'paypal_email' => $_POST[ 'paypal_email' ] ,
-                        'min_payout'   => $_POST[ 'min_payout' ] ) , array ( 'user_id' => $user_ID ) , array ( '%s' , '%s' ) , array ( '%d' ) ) ;
+                   $result =  $wpdb -> update ( $wpdb -> prefix . "rt_aff_payment_info" , array ( 'payment_details' => $_POST[ 'payment_details' ] ,
+                        'min_payout'   => $_POST[ 'min_payout' ],'payment_method' => $_POST["payment_method"]  ) , array ( 'user_id' => $user_ID ) , array ( '%s' , '%s', '%s' ) , array ( '%d' ) ) ;
                 }
             }
             $cond = '';
@@ -288,7 +299,7 @@ if (!class_exists('rtAffiliateAdmin')) {
 //            }
 
             $sql_pay = "SELECT * FROM " . $wpdb->prefix . "rt_aff_payment_info  $cond " . $admin_cond;
-            $rows_pay = $wpdb->get_row($sql_pay);
+            $rows_pay = $wpdb->get_row($sql_pay);            
             ?>
             <div class="wrap">
                 <div class="icon32" id="icon-options-general"></div>
@@ -298,12 +309,26 @@ if (!class_exists('rtAffiliateAdmin')) {
                 <form method="post" action="<?php echo "?page=rt-affiliate-payment-setting"; ?>" >
                     <table class="form-table" border="0">
                         <tr>
-                            <td width="20%" class="label"><label id="lpaypal_email" for="paypal_email">Paypal Email Address</label></td>
-                            <td class="field"><input id="paypal_email" name="paypal_email" type="text" value="<?php if ($_POST["pay-info-submit"]) echo $_POST['paypal_email']; else if (isset($rows_pay->paypal_email)) echo $rows_pay->paypal_email; ?>" /></td>
+                            <td width="20%" class="label"><label id="lpaypal_email" for="paypal_email">Payment Method</label></td>
+                            <td class="field">
+                                <select id='payment_type' name='payment_method'>
+                                     <?php foreach ($rt_affiliate->payment_methods as $k => $v) { 
+                                         if($k == "--") continue;
+                                         ?>
+                                        <option value="<?php echo $k; ?>" <?php if ($rows_pay->payment_method == $k) echo 'selected'; ?>><?php echo $v; ?></option>
+                                <?php } ?>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td width="20%" class="label"><label id="lpaypal_email" for="paypal_details">Details</label></td>
+                            <td class="field">
+                                <textarea id="paypal_details" name="payment_details"><?php if ($_POST["pay-info-submit"]) echo $_POST['payment_details']; else if (isset($rows_pay->payment_details)) echo $rows_pay->payment_details; ?></textarea>
+                            </td>
                         </tr>
                         <tr>
                             <td class="label"><label id="lmin_payout" for="min_payout">Minimum Payout</label></td>
-                            <td class="field"><input id="min_payout" name="min_payout" size="4" type="text" value="<?php if ($_POST["pay-info-submit"]) echo $_POST['min_payout']; else if (isset($rows_pay->min_payout)) echo $rows_pay->min_payout; ?>" />USD</td>
+                            <td class="field"><input id="min_payout" name="min_payout" size="4" type="text" value="<?php if ($_POST["pay-info-submit"]) echo $_POST['min_payout']; else if (isset($rows_pay->min_payout)) echo $rows_pay->min_payout; ?>" /></td>
                         </tr>
                         <tr>
                             <td class="label"></td>

@@ -2,9 +2,7 @@ CREATE TABLE %s (
     id int NOT NULL AUTO_INCREMENT,
     `user_id` INT NULL ,
     `payment_method` VARCHAR(45) NULL ,
-    `paypal_email` VARCHAR(200) NULL ,
-    `check_address` VARCHAR(200) NULL ,
-    `bank_details` VARCHAR(200) NULL ,
+    `payment_details` text NULL ,
     `min_payout` INT NULL,
     PRIMARY KEY  (id)
 );
