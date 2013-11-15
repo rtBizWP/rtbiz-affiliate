@@ -24,7 +24,7 @@ if (!class_exists('rtAffiliateAdmin')) {
             if(isset($_REQUEST["page"]) && $_REQUEST["page"] == 'rt-affiliate-manage-payment'){
                 global $wpdb;
                 if(isset($_GET['action']) && $_GET['action'] == 'delete'){
-                    $sql = "update {$wpdb->prefix}rt_aff_transaction set deleted='y', deleted_date=now() where id = " . $_GET['pid'] ;
+                    $sql = "update {$wpdb->prefix}rt_aff_transaction set deleted='y', deleted_date=now() where id = " . $_GET['pid'];
                     $wpdb->get_row($sql);
                     $userid = "select distinct user_id from {$wpdb->prefix}rt_aff_transaction  where id = " . $_GET['pid'] ;
                     $user_ids = $wpdb->get_results($userid);
@@ -82,11 +82,56 @@ if (!class_exists('rtAffiliateAdmin')) {
             <div class="wrap">
                 <div class="icon32" id="icon-edit"></div>
                 <h2>Reports</h2>
-                <br/> <?php 
-                $reports = new rtReports();
-                $reports->draw_chart('Test',array( array("x","val"),array("1st Nov",20), array("2nd Nov",0), array("3rd Now",10)),'line',array("pointSize" => 5));
+                <br/>
+                <ul class="subsubsub">
+                    <li><a href="?page=rt-affiliate-payment-reports" class="<?php if(!isset($_GET["type"])) echo "current" ?>">Current Monthly Visits</a> | </li>
+                    <li><a href="?page=rt-affiliate-payment-reports&type=domain" class="<?php if(isset($_GET["type"]) && $_GET["type"] == "domain") echo "current" ?>">Domain</a> </li>
+                </ul>
+                <br/> 
+                    <br/> <?php 
+                    if(!isset($_GET["type"]))
+                        $this->monthly_visit_report();
+                    else if(isset($_GET["type"]) == "domain"){
+                        $this->domain_visit_report();
+                    }
+                
             ?></div>
         <?php 
+        }
+        function domain_visit_report(){
+            global $wpdb;   
+            $sql = "SELECT domain_name as `key`, `count` as `count` FROM {$wpdb->prefix}rt_aff_users_domain where user_id = " . get_current_user_id () . " ";
+            $data = $wpdb->get_results($sql);
+            $graph_data = array( array("key","val") );
+            foreach($data as $row){
+                $graph_data[] = array($row->key, intval($row->count)); 
+            }
+            $reports = new rtReports();
+            
+            $reports->draw_chart("Domain",$graph_data,false);
+        }
+        
+        function monthly_visit_report(){
+            global $wpdb;   
+            $sql = "SELECT date(`date`) as date,count(*) as count FROM  {$wpdb->prefix}rt_aff_users_referals where user_id = " . get_current_user_id () . " and  month(date) = month(now()) and year(date) =  year(now()) group by date(`date`) order by date(`date`)";
+            $data = $wpdb->get_results($sql);
+            $today_date = date("d");
+            $k = 0;
+            $graph_data = array( array("x","Visits") );
+            for($i = 1 ; $i <= $today_date; $i++ ){
+                $r_date = explode("-" , $data[$k]->date);
+                if(intval($r_date[2]) == $i ){
+                   $date_obj = date_create_from_format("Y-m-j", $data[$k]->date );
+                   $graph_data[] = array($date_obj->format("dS"), intval($data[$k]->count)); 
+                   $k++;
+                }else{
+                    $date_obj = date_create_from_format("Y-m-j", date("Y"). "-" . date("m") . "-" .  $i  );
+                    $graph_data[] = array($date_obj->format("dS"), intval(0)); 
+                }
+            }
+            $reports = new rtReports();
+            
+            $reports->draw_chart(date("M") . " " . date("Y"),$graph_data,'line',array("pointSize" => 5));
         }
         public function ui($hook) {
             if ('toplevel_page_rt-affiliate-manage-payment' == $hook)
