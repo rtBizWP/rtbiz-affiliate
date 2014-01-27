@@ -5,6 +5,7 @@
  * A simple container class for holding information about an available update.
  * @author faishal
  */
+if(  ! class_exists ( 'rtPluginUpdate' ) ) :
 class rtPluginUpdate {
 
     public $id = 0;
@@ -126,3 +127,4 @@ class rtPluginUpdate {
     }
 
 }
+endif;

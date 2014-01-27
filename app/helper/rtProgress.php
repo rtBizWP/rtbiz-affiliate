@@ -10,31 +10,33 @@
  *
  * @author saurabh
  */
-class rtProgress {
+if ( ! class_exists('rtProgress') ) {
+        class rtProgress {
 
-	/**
-	 *
-	 */
-	function __construct() {
+                /**
+                 *
+                 */
+                function __construct() {
 
-	}
+                }
 
-	function progress_ui($progress, $echo = true){
-		$progress_ui = '
-			<div id="rtprogressbar">
-				<div style="width:'.$progress.'%"></div>
-			</div>
-			';
-                if ( $echo )
-                    echo $progress_ui;
-                else
-                    return $progress_ui;
-	}
+                function progress_ui($progress, $echo = true){
+                        $progress_ui = '
+                                <div id="rtprogressbar">
+                                        <div style="width:'.$progress.'%"></div>
+                                </div>
+                                ';
+                        if ( $echo )
+                            echo $progress_ui;
+                        else
+                            return $progress_ui;
+                }
 
-	function progress($progress,$total){
-                if($total<1)
-                    return 100;
-		return ($progress/$total)*100;
-	}
+                function progress($progress,$total){
+                        if($total<1)
+                            return 100;
+                        return ($progress/$total)*100;
+                }
 
+        }
 }

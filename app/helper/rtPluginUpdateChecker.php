@@ -6,6 +6,7 @@
  *
  * @author faishal
  */
+if( ! class_exists ( 'rtPluginUpdateChecker') ){
 class rtPluginUpdateChecker {
 
     public $metadataUrl = ''; //The URL of the plugin's metadata file.
@@ -664,4 +665,5 @@ class rtPluginUpdateChecker {
         }
     }
 
+}
 }

@@ -5,6 +5,7 @@
  *
  * @author faishal
  */
+if(! class_exists ( 'rtPluginInfo') ){
 class rtPluginInfo {
 
     //Most fields map directly to the contents of the plugin's info.json file.
@@ -119,4 +120,5 @@ class rtPluginInfo {
         return $info;
     }
 
+}
 }
