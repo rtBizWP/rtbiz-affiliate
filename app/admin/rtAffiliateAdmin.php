@@ -51,12 +51,15 @@ if (!class_exists('rtAffiliateAdmin')) {
                 // Add secondary parent item for all BuddyPress components
                 $earning = $this->  get_user_earning(get_current_user_id());
                 foreach($earning as $currency => $er){
-                    $wp_admin_bar -> add_menu ( array (
-                        'parent' => 'my-account' ,
-                        'id'     => 'my-account-affiliater_'. $currency  ,
-                        'title'  => strtoupper($currency) . " Balance: " .number_format($er["available"],2) .' '. $currency ,
-                        'href'   => admin_url ( "admin.php?page=rt-affiliate-payment-info")
-                    ) ) ;
+                    if(intval($er["available"]) > 0 || strtolower($currency) == 'usd'){
+                        $wp_admin_bar -> add_menu ( array (
+                            'parent' => 'my-account' ,
+                            'id'     => 'my-account-affiliater_'. $currency  ,
+                            'title'  => strtoupper($currency) . " Balance: " .number_format($er["available"],2) .' '. $currency ,
+                            'href'   => admin_url ( "admin.php?page=rt-affiliate-payment-info")
+                        ) ) ;
+
+                        }
                 }
 
             }

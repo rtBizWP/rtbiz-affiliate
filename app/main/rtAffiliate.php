@@ -9,51 +9,52 @@ if ( ! class_exists ( 'rtAffiliate' ) ) {
 
     class rtAffiliate {
 
-        var
-                $payment_methods = array (
-            '--'     => '--' ,
-            'paypal' => 'Paypal' ,
-            'bacs'   => 'Direct Bank Transfer' ,
-            'cheque' => 'Cheque Payment'
-                ) ;
-        var
-                $payment_types   = array (
-            'earning' => 'Earning' ,
-            'payout'  => 'Payout'
-                ) ;
-        var
-                $time_durations  = array (
-            'today'      => 'Today' ,
-            'yesterday'  => 'Yesterday' ,
-            'this_week'  => 'This Week' ,
-            'last_week'  => 'Last Week' ,
-            'this_month' => 'This Month' ,
-            'last_month' => 'Last Month' ,
-            'this_year'  => 'This Year' ,
-            'last_year'  => 'Last Year'
-                ) ;
-        var
-                $tables          = array (
-            'rt_aff_users_referals' ,
-            'rt_aff_payment_info' ,
-            'rt_aff_transaction'
-                ) ;
-        var
-                $currency_types  = array (
-            'USD' ,
-            'INR'
-        ) ;
+                var
+                        $payment_methods = array (
+                    '--'     => '--' ,
+                    'paypal' => 'Paypal' ,
+                    'bacs'   => 'Direct Bank Transfer' ,
+                    'cheque' => 'Cheque Payment'
+                        ) ;
+                var
+                        $payment_types   = array (
+                    'earning' => 'Earning' ,
+                    'payout'  => 'Payout'
+                        ) ;
+                var
+                        $time_durations  = array (
+                    'today'      => 'Today' ,
+                    'yesterday'  => 'Yesterday' ,
+                    'this_week'  => 'This Week' ,
+                    'last_week'  => 'Last Week' ,
+                    'this_month' => 'This Month' ,
+                    'last_month' => 'Last Month' ,
+                    'this_year'  => 'This Year' ,
+                    'last_year'  => 'Last Year'
+                        ) ;
+                var
+                        $tables          = array (
+                    'rt_aff_users_referals' ,
+                    'rt_aff_payment_info' ,
+                    'rt_aff_transaction'
+                        ) ;
+                var
+                        $currency_types  = array (
+                                                        'USD' ,
+                                                        'INR'
+                                                ) ;
 
-        public function __construct () {
-            register_activation_hook ( RT_AFFILIATE_PATH . 'index.php' , array ( $this , 'create_tables' ) ) ;
-            add_action ( 'init' , array ( $this , 'create_tables' ) ) ;
-            add_action ( 'init' , array ( $this , 'set_referer_cookie' ) ) ;
-            add_action ( 'woocommerce_checkout_update_order_meta' , array ( $this , 'store_order_meta_referer_info' ) , '' , 2 ) ;
-            global $rtAffiliateAdmin ;
-            $rtAffiliateAdmin = new rtAffiliateAdmin() ;
-        }
+                public
+                        function __construct () {
+                        register_activation_hook ( RT_AFFILIATE_PATH . 'index.php' , array ( $this , 'create_tables' ) ) ;
+                        add_action ( 'init' , array ( $this , 'create_tables' ) ) ;
+                        add_action ( 'init' , array ( $this , 'set_referer_cookie' ) ) ;
+                        add_action ( 'woocommerce_checkout_update_order_meta' , array ( $this , 'store_order_meta_referer_info' ) , '' , 2 ) ;
+                        global $rtAffiliateAdmin ;
+                        $rtAffiliateAdmin = new rtAffiliateAdmin() ;
+                }
 
-        public function create_tables () {
+                public function create_tables () {
             global $wpdb ;
             $users_referals = $wpdb -> prefix . 'rt_aff_users_referals' ;
             $payment_info   = $wpdb -> prefix . 'rt_aff_payment_info' ;
