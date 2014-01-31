@@ -47,7 +47,7 @@ if ( !class_exists ( 'rtAffiliate' ) ) {
                         register_activation_hook ( RT_AFFILIATE_PATH . 'index.php' , array ( $this , 'create_tables' ) ) ;
                         add_action ( 'init' , array ( $this , 'create_tables' ) ) ;
                         add_action ( 'init' , array ( $this , 'set_referer_cookie' ) ) ;
-                        add_action ( 'woocommerce_checkout_update_order_meta' , array ( $this , 'store_order_meta_referer_info' ) , '' , 2 ) ;
+                        add_action ( 'woocommerce_checkout_update_order_meta' , array ( $this , 'store_order_meta_referer_info' ) , 1 , 2 ) ;
                         global $rtAffiliateAdmin ;
                         $rtAffiliateAdmin=new rtAffiliateAdmin() ;
                 }
@@ -139,6 +139,7 @@ if ( !class_exists ( 'rtAffiliate' ) ) {
                 }
                 public
                         function store_order_meta_referer_info ( $order_id , $detail ) {
+                        
                         global $wpdb , $woocommerce ;
                         $rt_ref_affiliate=null ;
                         if ( isset ( $_COOKIE[ 'rt_aff_username' ] ) )
@@ -146,11 +147,9 @@ if ( !class_exists ( 'rtAffiliate' ) ) {
                         if ( isset ( $_COOKIE[ 'rt_aff_user_id' ] ) ) {
                                 $rt_ref_affiliate .= $_COOKIE[ 'rt_aff_user_id' ] ;
                                 $order_items=( array ) maybe_unserialize ( get_post_meta ( $order_id , '_order_items' , true ) ) ;
-                                $comment    =NULL ;
-                                foreach ( $order_items as $item ) {
-                                        $comment .= $item[ 'name' ] . '<br /><br />' ;
-                                }
-                                $wpdb->insert (
+                                $comment    = 'Order #' . $order_id;
+                                
+                                $result = $wpdb->insert (
                                         $wpdb->prefix . "rt_aff_transaction" , array (
                                         'txn_id'        =>$order_id ,
                                         'user_id'       =>$_COOKIE[ 'rt_aff_user_id' ] ,
@@ -159,13 +158,15 @@ if ( !class_exists ( 'rtAffiliate' ) ) {
                                         'amount'        =>round ( $woocommerce->cart->total*(get_option ( 'rt_aff_woo_commission' , 20 )/100) , 2 ) ,
                                         'payment_method'=>$detail[ 'payment_method' ] ,
                                         'note'          =>$comment ,
-                                        'date'          =>get_post_field ( 'post_date_gmt' , $order_id )
-                                        , array ( '%d' , '%d' , '%s' , '%d' , '%s' , '%s' , '%s' , '%s' ) )
+                                        'date'          => get_post_field ( 'post_date_gmt' , $order_id ))
+                                        , array ( '%d' , '%d' , '%s' , '%d' , '%s' , '%s' , '%s' , '%s' )
                                 ) ;
+                                
                         }
                         if ( $rt_ref_affiliate )
                                 update_post_meta ( $order_id , '_rt-ref-affiliate' , $rt_ref_affiliate ) ;
                 }
+                
         }
 }
 ?>
