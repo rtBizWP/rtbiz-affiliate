@@ -38,7 +38,7 @@ function rt_affiliate_autoloader ( $class_name ) {
             'app/admin/' . $class_name . '.php' ,
             'app/main/' . $class_name . '.php' ,
             'app/helper/' . $class_name . '.php' ,
-            'helper/rtdbmodel/' . $class_name . '.php' ,
+            'app/helper/rtdbmodel/' . $class_name . '.php' ,
         ) ;
         foreach ( $rtlibpath as $path ) {
                 $path = RT_AFFILIATE_PATH . $path ;
