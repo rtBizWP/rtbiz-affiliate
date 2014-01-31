@@ -363,7 +363,7 @@ if (!class_exists('rtAffiliateAdmin')) {
                                      <?php foreach ($rt_affiliate->payment_methods as $k => $v) { 
                                          if($k == "--") continue;
                                          ?>
-                                        <option value="<?php echo $k; ?>" <?php if ($rows_pay->payment_method == $k) echo 'selected'; ?>><?php echo $v; ?></option>
+                                        <option value="<?php echo $k; ?>" <?php if (isset($rows_pay) &&  $rows_pay->payment_method == $k) echo 'selected'; ?>><?php echo $v; ?></option>
                                 <?php } ?>
                                 </select>
                             </td>
@@ -371,12 +371,12 @@ if (!class_exists('rtAffiliateAdmin')) {
                         <tr>
                             <td width="20%" class="label"><label id="lpaypal_email" for="paypal_details">Details</label></td>
                             <td class="field">
-                                <textarea id="paypal_details" name="payment_details"><?php if ($_POST["pay-info-submit"]) echo $_POST['payment_details']; else if (isset($rows_pay->payment_details)) echo $rows_pay->payment_details; ?></textarea>
+                                <textarea id="paypal_details" name="payment_details"><?php if (isset($_POST["pay-info-submit"]) ) echo $_POST['payment_details']; else if (isset($rows_pay->payment_details)) echo $rows_pay->payment_details; ?></textarea>
                             </td>
                         </tr>
                         <tr>
                             <td class="label"><label id="lmin_payout" for="min_payout">Minimum Payout</label></td>
-                            <td class="field"><input id="min_payout" name="min_payout" size="4" type="text" value="<?php if ($_POST["pay-info-submit"]) echo $_POST['min_payout']; else if (isset($rows_pay->min_payout)) echo $rows_pay->min_payout; ?>" /></td>
+                            <td class="field"><input id="min_payout" name="min_payout" size="4" type="text" value="<?php if (isset($_POST["pay-info-submit"])) echo $_POST['min_payout']; else if (isset($rows_pay->min_payout)) echo $rows_pay->min_payout; ?>" /></td>
                         </tr>
                         <tr>
                             <td class="label"></td>
@@ -556,6 +556,9 @@ if (!class_exists('rtAffiliateAdmin')) {
                 $method = $row_tranx->payment_method;
                 $note = $row_tranx->note;
                 $date = date('Y-m-d H:i:s', strtotime($row_tranx->date) + (get_site_option('gmt_offset') * 1 * 3600));
+            }  else  {
+                $currency = '';
+                        
             }
             if(isset($_POST['action']) && $_POST['action'] == 'edit'){                    
                     $this->  update_user_earning($row_tranx->user_id);
@@ -733,6 +736,7 @@ if (!class_exists('rtAffiliateAdmin')) {
             foreach ($wpdb->get_results($query) as $row) {
                 $response[] = array("name" => $row->display_name, "id" => $row->ID, "login_name" => $row->user_login, "imghtml" => get_avatar($row->user_email, 64, '', 'gravatar'));
             }
+            ob_get_clean();
             echo json_encode($response);
             die();
         }

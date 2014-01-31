@@ -14,7 +14,7 @@ class rtAffiliatePaymentList extends WP_List_Table {
 	global $wpdb;
         $this->process_bulk_action();
         $cond = " WHERE deleted is null ";
-        if (isset(filter_input(INPUT_GET, 'user_id')) && filter_input(INPUT_GET, 'user_id') != 0){
+        if (filter_input(INPUT_GET, 'user_id') != null  && filter_input(INPUT_GET, 'user_id') != 0){
             $cond .= " and user_id = " . filter_input(INPUT_GET, 'user_id');
         }
         
@@ -173,7 +173,7 @@ class rtAffiliatePaymentList extends WP_List_Table {
 	echo $rt_affiliate->payment_types[$row->type];
     }
     function column_amount( $row ) {
-	    echo $prefix . $row->amount . " " . ((isset( $row->currency )?$row->currency:'')) ;
+	    echo $row->amount . " " . ((isset( $row->currency )?$row->currency:'')) ;
     }
     function column_approved( $row ) {
 	    echo ($row->approved) ? 'Yes' : 'No';
