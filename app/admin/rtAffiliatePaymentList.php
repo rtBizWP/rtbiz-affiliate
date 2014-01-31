@@ -11,14 +11,12 @@ class rtAffiliatePaymentList extends WP_List_Table {
     }
 
     function prepare_items() {
-	global $wpdb, $_wp_column_headers;
-	$screen = get_current_screen();
+	global $wpdb;
         $this->process_bulk_action();
-	/* -- Preparing your query -- */
         $cond = " WHERE deleted is null ";
-        if (isset($_GET['user_id']) && $_GET['user_id'] != 0)
-            $cond .= " and user_id = " . $_GET['user_id'];
-        //DATE_FORMAT('1900-10-04 22:23:00','%D %y %a %d %m %b %j');
+        if (isset(filter_input(INPUT_GET, 'user_id')) && filter_input(INPUT_GET, 'user_id') != 0){
+            $cond .= " and user_id = " . filter_input(INPUT_GET, 'user_id');
+        }
         
 	$query = "SELECT * FROM " . $wpdb->prefix . "rt_aff_transaction  $cond " ;
 

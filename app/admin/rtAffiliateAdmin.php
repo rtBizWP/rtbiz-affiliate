@@ -219,7 +219,7 @@ if (!class_exists('rtAffiliateAdmin')) {
             global $wpdb, $user_ID, $rt_affiliate, $rt_user_details;
 
             $admin_cond = '';
-            if (!current_user_can('manage_options'))
+            if ( ! current_user_can('manage_options'))
                 $admin_cond = " where user_id = $user_ID";
 
 
