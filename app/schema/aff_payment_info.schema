@@ -4,5 +4,6 @@ CREATE TABLE %s (
     `payment_method` VARCHAR(45) NULL ,
     `payment_details` text NULL ,
     `min_payout` INT NULL,
+    `affiliate_plan` varchar(45) NOT NULL DEFAULT '1',
     PRIMARY KEY  (id)
 );

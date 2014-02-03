@@ -78,7 +78,7 @@ if (!class_exists('rtAffiliateAdmin')) {
             add_submenu_page('rt-affiliate-stats', 'Stats & History', 'Stats & History', 'read', 'rt-affiliate-stats', array($this, 'affiliate_stats'));
             add_submenu_page('rt-affiliate-stats', 'Get Links & Banners', 'Get Links & Banners', 'read', 'rt-affiliate-banners', array($this, 'affiliate_banners'));
             add_submenu_page('rt-affiliate-stats', 'Payment Info', 'Payment Info', 'read', 'rt-affiliate-payment-info', array($this, 'payment_info'));
-            add_submenu_page('rt-affiliate-stats', 'Payment Setting', 'Payment Setting', 'read', 'rt-affiliate-payment-setting', array($this, 'payment_setting'));
+            add_submenu_page('rt-affiliate-stats', 'My Setting', 'My Setting', 'read', 'rt-affiliate-payment-setting', array($this, 'payment_setting'));
             add_submenu_page('rt-affiliate-stats', 'Reports', 'Reports', 'read', 'rt-affiliate-payment-reports', array($this, 'payment_reports'));
         }
         function payment_reports(){ ?>
@@ -153,6 +153,12 @@ if (!class_exists('rtAffiliateAdmin')) {
                 }
                 update_site_option("rt_aff_woo_commission" , $_POST["rt_aff_woo_commission"]);
             }
+            if( isset($_POST["rt_aff_plan_commision"])){
+                if( ! is_numeric($_POST["rt_aff_plan_commision"])){
+                    $_POST["rt_aff_plan_commision"]= 0;
+                }
+                update_site_option("rt_aff_plan_commision" , $_POST["rt_aff_plan_commision"]);
+            }
             ?>
             <div class="wrap">
                 <div class="icon32" id="icon-options-general"></div>
@@ -165,6 +171,10 @@ if (!class_exists('rtAffiliateAdmin')) {
                             <tr valign="top">
                                 <th scope="row"><label for="rt_aff_woo_commission">WooCommerce Commission in (%)</label></th>
                                 <td ><input type="number" required id="rt_aff_woo_commission" name="rt_aff_woo_commission" value='<?php echo get_site_option('rt_aff_woo_commission',20) ?>' /></td>
+                            </tr>
+                            <tr valign="top">
+                                <th scope="row"><label for="rt_aff_plan_commision">Recurring Commission in (%)</label></th>
+                                <td ><input type="number" required id="rt_aff_plan_commision" name="rt_aff_plan_commision" value='<?php echo get_site_option('rt_aff_plan_commision',5) ?>' /></td>
                             </tr>
                             <tr valign="top">
                                 <th scope="row"></th>
@@ -311,6 +321,67 @@ if (!class_exists('rtAffiliateAdmin')) {
             <?php
         }
         function payment_setting(){
+            
+            if(isset($_GET["action"])){
+                $current= $_REQUEST["action"];
+            }else{
+                $current = "paymentinfo";
+            }?>
+            
+            <div class="wrap">
+                <div class="icon32" id="icon-options-general"></div>
+                <h2>Payment Info</h2>
+                <br/>
+                <ul class="subsubsub">
+                    <li><a href="?page=rt-affiliate-payment-setting&action=paymentinfo" class="<?php echo ($current =="paymentinfo")? "current" : ""; ?>">Payment Info</a> | </li>
+                    <li><a href="?page=rt-affiliate-payment-setting&action=affiliateplan" class="<?php echo ($current =="affiliateplan")? "current" : ""; ?>">My Affiliate Plan</a> </li>
+                </ul>
+                <?php
+                if (isset($_GET['action']) && ( $_GET['action'] == 'affiliateplan' ))
+                    $this->payment_affiliateplan();
+                else
+                    $this->my_payment_settings();
+                ?></div> <?php
+        }
+        
+        public function payment_affiliateplan(){
+
+            global $wpdb;
+            $affiliate_plan = 0;
+            $currentuserid = get_current_user_id();
+            
+            if ( isset($_POST["my-affiliate-plan"]) ) {
+                
+                $result =  $wpdb -> update ( $wpdb -> prefix . "rt_aff_payment_info" , array ( 'affiliate_plan' => $_POST[ 'rt_aff_my_plan' ]   ) , array (  'user_id' => $currentuserid ) ,  array ( '%d' ,'%d' ) ) ;
+                
+                //Message
+                if( $result == 1 ){
+                    echo '<br><br><div class="updated settings-error" id="setting-error-settings_updated"> 
+                                <p><strong>Settings saved.</strong></p>
+                        </div>';
+                }
+                
+            }
+
+            $sql_pay  = $wpdb -> prepare ( "SELECT affiliate_plan FROM " . $wpdb -> prefix . "rt_aff_payment_info where user_id = %d " , $currentuserid ) ;
+            $rows_pay = $wpdb -> get_row ( $sql_pay ) ; 
+            
+            ?>
+            <form method="post" action="<?php echo "?page=rt-affiliate-payment-setting&action=affiliateplan"; ?>" >
+                    <table class="form-table" border="0">
+                        <tr>
+                            <td width="20%" class="label"><label id="rt_aff_my_plan" for="paypal_details">Affiliate Plan</label></td>
+                            <td class="field">
+                                <input type="radio" <?php if ( $rows_pay->affiliate_plan == 1  ) echo ' checked="checked" '; ?> value="1" name="rt_aff_my_plan" id="rt_aff_my_plan" /><?php _e( '  One Time Plan', 'rtaffiliate' ); ?>
+                                <input type="radio" <?php if( $rows_pay->affiliate_plan == 2  ) echo ' checked="checked" '; ?> value="2" name="rt_aff_my_plan" id="rt_aff_my_plan" /><?php _e( '  Recurring', 'rtaffiliate' ); ?>
+                            </td>
+                        </tr>
+                    </table>
+                    <div class="submit"><input type="submit" class="button button-primary" value="Save" name="my-affiliate-plan"/></div>
+            </form><?php
+        }
+
+        public function my_payment_settings(){
             global $wpdb, $user_ID, $rt_affiliate;
 
             if ( isset($_POST["pay-info-submit"]) ) {
@@ -326,7 +397,15 @@ if (!class_exists('rtAffiliateAdmin')) {
                 else {
                    $result =  $wpdb -> update ( $wpdb -> prefix . "rt_aff_payment_info" , array ( 'payment_details' => $_POST[ 'payment_details' ] ,
                         'min_payout'   => $_POST[ 'min_payout' ],'payment_method' => $_POST["payment_method"]  ) , array ( 'user_id' => $user_ID ) , array ( '%s' , '%s', '%s' ) , array ( '%d' ) ) ;
+                
+                    
                 }
+                //Message
+                 if( $result == 1 ){
+                     echo '<br><br><div class="updated settings-error" id="setting-error-settings_updated"> 
+                                 <p><strong>Settings saved.</strong></p>
+                         </div>';
+                 }
             }
             $cond = '';
             if (isset($_GET['view_type'])) {
@@ -348,13 +427,9 @@ if (!class_exists('rtAffiliateAdmin')) {
 
             $sql_pay = "SELECT * FROM " . $wpdb->prefix . "rt_aff_payment_info  $cond " . $admin_cond;
             $rows_pay = $wpdb->get_row($sql_pay);            
+            
             ?>
-            <div class="wrap">
-                <div class="icon32" id="icon-options-general"></div>
-                <h2>Payment Info & History</h2>
-                <br/>
-                <h3>Payment Info</h3>
-                <form method="post" action="<?php echo "?page=rt-affiliate-payment-setting"; ?>" >
+                <form method="post" action="<?php echo "?page=rt-affiliate-payment-setting&action=paymentinfo"; ?>" >
                     <table class="form-table" border="0">
                         <tr>
                             <td width="20%" class="label"><label id="lpaypal_email" for="paypal_email">Payment Method</label></td>
@@ -384,9 +459,8 @@ if (!class_exists('rtAffiliateAdmin')) {
                         </tr>
                     </table>
                     <div class="submit"><input type="submit" class="button button-primary" value="Save" name="pay-info-submit"/></div>
-                </form> <?php
+                </form><?php
         }
-
         public function payment_info() {
             global $user_ID, $rt_affiliate;
             ?>
@@ -528,6 +602,7 @@ if (!class_exists('rtAffiliateAdmin')) {
                                  'currency'=>$_POST['currency'] ,
                                  'amount'=> $_POST['amount'],
                                  'payment_method'=> $_POST['payment_method'],
+                                 'approved'=> $_POST['approved'],
                                  'note'=> $_POST['note'],
                                  'date'=>$_POST['date']
                             ),array('%s','%d','%s','%s','%s','%s','%s'));
@@ -539,6 +614,7 @@ if (!class_exists('rtAffiliateAdmin')) {
                                  'currency'=> $_POST['currency'],
                                  'amount'=> $_POST['amount'],
                                  'payment_method'=> $_POST['payment_method'],
+                                 'approved'=> $_POST['approved'],
                                  'note'=> $_POST['note'],
                                  'date'=>$_POST['date']
                             ),array('id' => $_GET['pid']),array('%s','%s','%s','%s','%s','%s','%s'),array('%d'));

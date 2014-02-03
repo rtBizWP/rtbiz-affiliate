@@ -121,13 +121,13 @@ if ( !class_exists ( 'rtAffiliate' ) ) {
                                                  */
                                                 $_SESSION[ 'rt_aff_user_id' ]=$row->ID ;
 
-                                                $wpdb->insert ( $wpdb->prefix . "rt_aff_users_referals" , array ( "user_id"      =>$row->ID ,
-                                                        "referred_from"=>$_SERVER[ 'HTTP_REFERER' ] ,
-                                                        'ip_address'   =>$_SERVER[ 'REMOTE_ADDR' ] ,
-                                                        'landing_page' =>$landing_page ,
-                                                        'date'         =>current_time ( 'mysql' ) ) , array ( '%d' , '%s' , '%s' , '%s' , '%s' ) ) ;
-                                                /*
-                                                 * save referal's id in session also
+                                                    $wpdb->insert ( $wpdb->prefix . "rt_aff_users_referals" , array ( "user_id"      =>$row->ID ,
+                                                            "referred_from"=>$_SERVER[ 'HTTP_REFERER' ] ,
+                                                            'ip_address'   =>$_SERVER[ 'REMOTE_ADDR' ] ,
+                                                            'landing_page' =>$landing_page ,
+                                                            'date'         =>current_time ( 'mysql' ) ) , array ( '%d' , '%s' , '%s' , '%s' , '%s' ) ) ;
+                                                    /*
+                                                     * save referal's id in session also
                                                  */
                                                 $_SESSION[ 'rt_aff_referal_id' ]=$wpdb->insert_id ;
                                         }
@@ -136,35 +136,60 @@ if ( !class_exists ( 'rtAffiliate' ) ) {
                                         exit ;
                                 }
                         }
+                        
                 }
                 public
                         function store_order_meta_referer_info ( $order_id , $detail ) {
                         
                         global $wpdb , $woocommerce ;
-                        $rt_ref_affiliate=null ;
+                        $rt_ref_affiliate='' ;
+                        $commision = '';
+                        $currentuserid = get_current_user_id();
+                        
                         if ( isset ( $_COOKIE[ 'rt_aff_username' ] ) )
                                 $rt_ref_affiliate .= $_COOKIE[ 'rt_aff_username' ] . ', ' ;
-                        if ( isset ( $_COOKIE[ 'rt_aff_user_id' ] ) ) {
-                                $rt_ref_affiliate .= $_COOKIE[ 'rt_aff_user_id' ] ;
-                                $order_items=( array ) maybe_unserialize ( get_post_meta ( $order_id , '_order_items' , true ) ) ;
+                        $affiliate_user =  $this->get_affiliate_user_for_commision();
+                        //get affilate user from cookie or meta 
+                        if ( $affiliate_user ) {
+                                $rt_ref_affiliate .= $affiliate_user ;
                                 $comment    = 'Order #' . $order_id;
+                                
+                                $sql_pay  = $wpdb -> prepare ( "SELECT affiliate_plan FROM " . $wpdb -> prefix . "rt_aff_payment_info where user_id = %d " , $currentuserid ) ;
+                                $rows_pay = $wpdb -> get_row ( $sql_pay ) ;
+                                
+                                // if One Time Plan
+                                if( $rows_pay->affiliate_plan == 2 ){
+                                    $commision = round ( $woocommerce->cart->total*(get_option ( 'rt_aff_plan_commision' , 50 )/100) , 2 );
+                                } else { // Recurring
+                                    $commision = round ( $woocommerce->cart->total*(get_option ( 'rt_aff_woo_commission' , 20 )/100) , 2 );
+                                }
+                                
                                 
                                 $result = $wpdb->insert (
                                         $wpdb->prefix . "rt_aff_transaction" , array (
                                         'txn_id'        =>$order_id ,
-                                        'user_id'       =>$_COOKIE[ 'rt_aff_user_id' ] ,
+                                        'user_id'       =>$affiliate_user ,
                                         'type'          =>'earning' ,
                                         'approved'      =>0 ,
-                                        'amount'        =>round ( $woocommerce->cart->total*(get_option ( 'rt_aff_woo_commission' , 20 )/100) , 2 ) ,
+                                        'amount'        => $commision ,
                                         'payment_method'=>$detail[ 'payment_method' ] ,
                                         'note'          =>$comment ,
                                         'date'          => get_post_field ( 'post_date_gmt' , $order_id ))
                                         , array ( '%d' , '%d' , '%s' , '%d' , '%s' , '%s' , '%s' , '%s' )
                                 ) ;
-                                
+                                setcookie('rt_aff_username', "", time() - 3600);
+                                setcookie('rt_aff_user_id', "", time() - 3600);
                         }
                         if ( $rt_ref_affiliate )
                                 update_post_meta ( $order_id , '_rt-ref-affiliate' , $rt_ref_affiliate ) ;
+                }
+                
+                function get_affiliate_user_for_commision(){
+                    if(isset ( $_COOKIE[ 'rt_aff_user_id' ] ) )
+                        return  $_COOKIE[ 'rt_aff_user_id' ] ;
+                    //User meta
+                    
+                    return false;
                 }
                 
         }
