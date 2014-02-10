@@ -144,7 +144,9 @@ if ( !class_exists ( 'rtAffiliate' ) ) {
                         global $wpdb , $woocommerce ;
                         $rt_ref_affiliate='' ;
                         $commision = '';
-                        $currentuserid = get_current_user_id();
+                        
+                        if( is_user_logged_in() )
+                            $currentuserid = get_current_user_id();
                         
                         if ( isset ( $_COOKIE[ 'rt_aff_username' ] ) )
                                 $rt_ref_affiliate .= $_COOKIE[ 'rt_aff_username' ] . ', ' ;
@@ -154,14 +156,17 @@ if ( !class_exists ( 'rtAffiliate' ) ) {
                                 $rt_ref_affiliate .= $affiliate_user ;
                                 $comment    = 'Order #' . $order_id;
                                 
-                                $sql_pay  = $wpdb -> prepare ( "SELECT affiliate_plan FROM " . $wpdb -> prefix . "rt_aff_payment_info where user_id = %d " , $currentuserid ) ;
+                                $sql_pay  = $wpdb -> prepare ( "SELECT affiliate_plan FROM " . $wpdb -> prefix . "rt_aff_payment_info where user_id = %d " , $affiliate_user ) ;
                                 $rows_pay = $wpdb -> get_row ( $sql_pay ) ;
                                 
-                                // if One Time Plan
+                                // if Recurring 
                                 if( $rows_pay->affiliate_plan == 2 ){
-                                    $commision = round ( $woocommerce->cart->total*(get_option ( 'rt_aff_plan_commision' , 50 )/100) , 2 );
-                                } else { // Recurring
-                                    $commision = round ( $woocommerce->cart->total*(get_option ( 'rt_aff_woo_commission' , 20 )/100) , 2 );
+                                    
+                                    update_user_meta($currentuserid, 'rt_aff_referred_by', $affiliate_user);
+                                
+                                    $commision = round ( $woocommerce->cart->total*(get_option ( 'rt_aff_plan_commision' , 20 )/100) , 2 );
+                                } else { // One Time Plan
+                                    $commision = round ( $woocommerce->cart->total*(get_option ( 'rt_aff_onetime_commission' , 50 )/100) , 2 );
                                 }
                                 
                                 
@@ -177,19 +182,32 @@ if ( !class_exists ( 'rtAffiliate' ) ) {
                                         'date'          => get_post_field ( 'post_date_gmt' , $order_id ))
                                         , array ( '%d' , '%d' , '%s' , '%d' , '%s' , '%s' , '%s' , '%s' )
                                 ) ;
-                                setcookie('rt_aff_username', "", time() - 3600);
-                                setcookie('rt_aff_user_id', "", time() - 3600);
+                                
+                                // Removing Cookie
+                                setcookie('rt_aff_username', "", time() - 3600, SITECOOKIEPATH);
+                                setcookie('rt_aff_user_id', "", time() - 3600, SITECOOKIEPATH);
+                                
+                                if ( $rt_ref_affiliate )
+                                    update_post_meta ( $order_id , '_rt-ref-affiliate' , $rt_ref_affiliate ) ;
                         }
-                        if ( $rt_ref_affiliate )
-                                update_post_meta ( $order_id , '_rt-ref-affiliate' , $rt_ref_affiliate ) ;
                 }
                 
                 function get_affiliate_user_for_commision(){
-                    if(isset ( $_COOKIE[ 'rt_aff_user_id' ] ) )
-                        return  $_COOKIE[ 'rt_aff_user_id' ] ;
-                    //User meta
                     
-                    return false;
+                    if( isset ( $_COOKIE[ 'rt_aff_user_id' ] ) ){                        
+                        return  $_COOKIE[ 'rt_aff_user_id' ] ;
+                    }else{
+                        // User meta
+                        if( is_user_logged_in() ){
+                            
+                            $referredid = get_user_meta(get_current_user_id(),'rt_aff_referred_by', true);
+                        
+                            if( $referredid != NULL )
+                                return $referredid;
+                            else                     
+                                return false;
+                        }
+                    }                    
                 }
                 
         }

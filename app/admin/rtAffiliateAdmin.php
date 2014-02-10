@@ -66,20 +66,24 @@ if (!class_exists('rtAffiliateAdmin')) {
         }
 
         public function menu() {
-            add_menu_page('Affiliate Admin', 'Affiliate Admin', 'manage_options', 'rt-affiliate-manage-payment', '', '');
+            //add_menu_page('Affiliate Admin', 'Affiliate Admin', 'manage_options', 'rt-affiliate-manage-payment', '', '');
 //            add_submenu_page('rt-affiliate-admin', 'Submission', 'Submission', 'manage_options', 'rt-affiliate-admin', 'rt_affiliate_admin_options_html');
 //            add_submenu_page('rt-affiliate-admin', 'Email Setting', 'Email Setting', 'manage_options', 'email_setting', 'rt_affiliate_options_email_setting');
-            add_submenu_page('rt-affiliate-manage-payment', 'Manage Payment', 'Manage Payment', 'manage_options', 'rt-affiliate-manage-payment', array($this, 'manage_payment'));
+            /*add_submenu_page('rt-affiliate-manage-payment', 'Manage Payment', 'Manage Payment', 'manage_options', 'rt-affiliate-manage-payment', array($this, 'manage_payment'));
             add_submenu_page('rt-affiliate-manage-payment', 'Manage Banners', 'Manage Banners', 'manage_options', 'rt-affiliate-manage-banners', array($this, 'manage_banners'));
             add_submenu_page('rt-affiliate-manage-payment', 'Settings', 'Settings', 'manage_options', 'rt-affiliate-manage-settings', array($this, 'manage_settings'));
-
+            */
 
             add_menu_page('Affiliate', 'Affiliate', 'read', 'rt-affiliate-stats', '', '');
             add_submenu_page('rt-affiliate-stats', 'Stats & History', 'Stats & History', 'read', 'rt-affiliate-stats', array($this, 'affiliate_stats'));
-            add_submenu_page('rt-affiliate-stats', 'Get Links & Banners', 'Get Links & Banners', 'read', 'rt-affiliate-banners', array($this, 'affiliate_banners'));
+            add_submenu_page('rt-affiliate-stats', 'Links & Banners', 'Links & Banners', 'read', 'rt-affiliate-banners', array($this, 'banners'));
             add_submenu_page('rt-affiliate-stats', 'Payment Info', 'Payment Info', 'read', 'rt-affiliate-payment-info', array($this, 'payment_info'));
             add_submenu_page('rt-affiliate-stats', 'My Setting', 'My Setting', 'read', 'rt-affiliate-payment-setting', array($this, 'payment_setting'));
             add_submenu_page('rt-affiliate-stats', 'Reports', 'Reports', 'read', 'rt-affiliate-payment-reports', array($this, 'payment_reports'));
+            add_submenu_page('rt-affiliate-stats', 'Manage Payment', 'Manage Payment', 'manage_options', 'rt-affiliate-manage-payment', array($this, 'manage_payment'));
+            //add_submenu_page('rt-affiliate-stats', 'Manage Banners', 'Manage Banners', 'manage_options', 'rt-affiliate-manage-banners', array($this, 'manage_banners'));
+            add_submenu_page('rt-affiliate-stats', 'Admin Settings', 'Admin Settings', 'manage_options', 'rt-affiliate-manage-settings', array($this, 'manage_settings'));
+
         }
         function payment_reports(){ ?>
             <div class="wrap">
@@ -147,11 +151,11 @@ if (!class_exists('rtAffiliateAdmin')) {
             wp_enqueue_style('rt-affiliate-admin', RT_AFFILIATE_URL . 'app/assets/css/admin.css');
         }
         function manage_settings(){ 
-            if( isset($_POST["rt_aff_woo_commission"])){
-                if( ! is_numeric($_POST["rt_aff_woo_commission"])){
-                    $_POST["rt_aff_woo_commission"]= 0;
+            if( isset($_POST["rt_aff_onetime_commission"])){
+                if( ! is_numeric($_POST["rt_aff_onetime_commission"])){
+                    $_POST["rt_aff_onetime_commission"]= 0;
                 }
-                update_site_option("rt_aff_woo_commission" , $_POST["rt_aff_woo_commission"]);
+                update_site_option("rt_aff_onetime_commission" , $_POST["rt_aff_onetime_commission"]);
             }
             if( isset($_POST["rt_aff_plan_commision"])){
                 if( ! is_numeric($_POST["rt_aff_plan_commision"])){
@@ -169,8 +173,8 @@ if (!class_exists('rtAffiliateAdmin')) {
                     <div class="tablenav">
                         <table class="form-table">
                             <tr valign="top">
-                                <th scope="row"><label for="rt_aff_woo_commission">WooCommerce Commission in (%)</label></th>
-                                <td ><input type="number" required id="rt_aff_woo_commission" name="rt_aff_woo_commission" value='<?php echo get_site_option('rt_aff_woo_commission',20) ?>' /></td>
+                                <th scope="row"><label for="rt_aff_onetime_commission">One time Commission in (%)</label></th>
+                                <td ><input type="number" required id="rt_aff_onetime_commission" name="rt_aff_onetime_commission" value='<?php echo get_site_option('rt_aff_onetime_commission',20) ?>' /></td>
                             </tr>
                             <tr valign="top">
                                 <th scope="row"><label for="rt_aff_plan_commision">Recurring Commission in (%)</label></th>
@@ -208,21 +212,54 @@ if (!class_exists('rtAffiliateAdmin')) {
                 ?></div><?php
         }
 
+        public function banners(){ 
+            
+            if(isset($_GET["action"])){
+                $current= $_REQUEST["action"];
+            }else{
+                $current = "affiliatebanner";
+            }?>
+            
+            <div class="wrap">
+                <div class="icon32" id="icon-options-general"></div>
+                <h2>Banners</h2>
+                <br/>
+                <ul class="subsubsub">
+                    <li><a href="?page=rt-affiliate-banners&action=affiliatebanner" class="<?php echo ($current =="affiliatebanner")? "current" : ""; ?>">Affiliate Banner</a> | </li>                                        
+                    <?php if( is_admin() ) {?>
+                        <li><a href="?page=rt-affiliate-banners&action=managebanner" class="<?php echo ($current =="managebanner")? "current" : ""; ?>">Manage Banner</a></li>
+                    <?php } ?>
+                </ul>
+                <br/><br/>
+                <?php
+                if (isset($_GET['action']) && ( $_GET['action'] == 'managebanner' ))
+                    $this->manage_banners();
+                else
+                    $this->affiliate_banners();
+            ?></div> <?php
+            
+        }
+        
         public function manage_banners() {
-            if ($_POST) {
-                update_option('rt_affiliate_banners', $_POST['banners']);
+            
+            if( is_admin() ){
+
+                if ($_POST) {
+                    update_option('rt_affiliate_banners', $_POST['banners']);
+                }
+                    ?>
+                <form action="" method="post">
+                    <table class="form-table">
+                        <tr valign="top">
+                            <th width="10%" scope="row"><label for="banners:">Add Banners: </label></th>
+                            <td width="90%"><textarea id="banners" name="banners" cols="80" rows="15"><?php echo get_option('rt_affiliate_banners') ?></textarea></td>
+                        </tr>
+                    </table>
+                    <div class="submit"><input type="submit" name="submit" value="save"></div>
+                </form>
+                <?php
+            
             }
-                ?>
-            <form action="" method="post">
-                <table class="form-table">
-                    <tr valign="top">
-                        <th width="10%" scope="row"><label for="banners:">Add Banners: </label></th>
-                        <td width="90%"><textarea id="banners" name="banners" cols="80" rows="15"><?php echo get_option('rt_affiliate_banners') ?></textarea></td>
-                    </tr>
-                </table>
-                <div class="submit"><input type="submit" name="submit" value="save"></div>
-            </form>
-            <?php
         }
 
         public function affiliate_stats() {
@@ -276,8 +313,7 @@ if (!class_exists('rtAffiliateAdmin')) {
             ?>
             <div class="wrap">
                 <div class="icon32" id="icon-options-general"></div>
-                <h2>Get Links & Banners</h2>
-                <br/>
+                <h4>Get Links & Banners</h4>
                 <h3>Notes</h3>
                 <ol>
                     <li>Below is list of banners/links with HTML code and direct link adjacent to them.</li>
@@ -346,13 +382,19 @@ if (!class_exists('rtAffiliateAdmin')) {
         
         public function payment_affiliateplan(){
 
-            global $wpdb;
-            $affiliate_plan = 0;
+            global $wpdb, $user_ID;
+            
             $currentuserid = get_current_user_id();
             
             if ( isset($_POST["my-affiliate-plan"]) ) {
                 
-                $result =  $wpdb -> update ( $wpdb -> prefix . "rt_aff_payment_info" , array ( 'affiliate_plan' => $_POST[ 'rt_aff_my_plan' ]   ) , array (  'user_id' => $currentuserid ) ,  array ( '%d' ,'%d' ) ) ;
+                $sql_pay  = $wpdb -> prepare ( "SELECT id FROM " . $wpdb -> prefix . "rt_aff_payment_info where user_id = %d " , $user_ID ) ;
+                $rows_pay = $wpdb -> get_row ( $sql_pay ) ;
+                if ( empty ( $rows_pay ) ) {
+                   $result = $wpdb -> insert ( $wpdb -> prefix . "rt_aff_payment_info" , array ( 'user_id'        => $user_ID ,                        
+                        'affiliate_plan' => $_POST[ 'rt_aff_my_plan' ]  ) , array ( '%d' , '%d' ) ) ;
+                }else
+                    $result =  $wpdb -> update ( $wpdb -> prefix . "rt_aff_payment_info" , array ( 'affiliate_plan' => $_POST[ 'rt_aff_my_plan' ]   ) , array (  'user_id' => $currentuserid ) ,  array ( '%d' ,'%d' ) ) ;
                 
                 //Message
                 if( $result == 1 ){
@@ -372,12 +414,18 @@ if (!class_exists('rtAffiliateAdmin')) {
                         <tr>
                             <td width="20%" class="label"><label id="rt_aff_my_plan" for="paypal_details">Affiliate Plan</label></td>
                             <td class="field">
-                                <input type="radio" <?php if ( $rows_pay->affiliate_plan == 1  ) echo ' checked="checked" '; ?> value="1" name="rt_aff_my_plan" id="rt_aff_my_plan" /><?php _e( '  One Time Plan', 'rtaffiliate' ); ?>
-                                <input type="radio" <?php if( $rows_pay->affiliate_plan == 2  ) echo ' checked="checked" '; ?> value="2" name="rt_aff_my_plan" id="rt_aff_my_plan" /><?php _e( '  Recurring', 'rtaffiliate' ); ?>
+                                <input type="radio" <?php if ( $rows_pay->affiliate_plan == 1  ) echo ' checked="checked" '; if ( $rows_pay->affiliate_plan != 0  ) echo ' disabled ';?> value="1" name="rt_aff_my_plan" id="rt_aff_my_plan" /><?php _e( '  One Time Plan', 'rtaffiliate' ); ?>
+                                <input type="radio" <?php if( $rows_pay->affiliate_plan == 2  ) echo ' checked="checked" '; if ( $rows_pay->affiliate_plan != 0  ) echo ' disabled '; ?>  value="2" name="rt_aff_my_plan" id="rt_aff_my_plan" /><?php _e( '  Recurring', 'rtaffiliate' ); ?>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td width="20%"></td>
+                            <td class="field">
+                                <p class="description">Please note that you will have only one chance to select your affiliate plan.</p>
                             </td>
                         </tr>
                     </table>
-                    <div class="submit"><input type="submit" class="button button-primary" value="Save" name="my-affiliate-plan"/></div>
+                    <div class="submit"><input type="submit" <?php if ( $rows_pay->affiliate_plan != 0  ) echo ' disabled '; ?> class="button button-primary" value="Save" name="my-affiliate-plan"/></div>
             </form><?php
         }
 
