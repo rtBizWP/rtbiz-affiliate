@@ -48,8 +48,17 @@ if ( !class_exists ( 'rtAffiliate' ) ) {
                         add_action ( 'init' , array ( $this , 'create_tables' ) ) ;
                         add_action ( 'init' , array ( $this , 'set_referer_cookie' ) ) ;
                         add_action ( 'woocommerce_checkout_update_order_meta' , array ( $this , 'store_order_meta_referer_info' ) , 1 , 2 ) ;
+                        add_action('wp_dashboard_setup',  array ( $this , 'my_custom_dashboard_widgets'));
                         global $rtAffiliateAdmin ;
                         $rtAffiliateAdmin=new rtAffiliateAdmin() ;
+                }
+                public function my_custom_dashboard_widgets() {
+                    wp_add_dashboard_widget('custom_help_widget', 'rtAffiliate: Monthly revenue', array ( $this , 'custom_dashboard_help') );
+                }
+
+                public function custom_dashboard_help() {                    
+                    $rtp = new rtAffiliateAdmin();
+                    $rtp->monthly_visit_report('540', '300');
                 }
                 public
                         function create_tables () {

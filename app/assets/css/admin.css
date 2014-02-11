@@ -28,3 +28,11 @@
 .ui-timepicker-rtl dl dd { margin: 0 65px 10px 10px; }
 
 .rtAff-delete-payment{ color :#D54E21}
+
+li#toplevel_page_rt-affiliate-stats .icon16.icon-generic:before, #adminmenu li#toplevel_page_rt-affiliate-stats .menu-icon-generic div.wp-menu-image:before{
+    background: url("../img/16X16-green.png") no-repeat scroll 0 0 rgba(0, 0, 0, 0);
+    content: "";
+    height: 16px;
+    margin-top: 8px;
+    width: 16px;
+}

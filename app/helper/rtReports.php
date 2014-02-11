@@ -16,7 +16,7 @@ if ( ! class_exists ( "rtReports" ) ) {
          * 
          * 
          * */
-        function draw_chart ( $title , $data , $type = "pie", $options = array() ) {
+        function draw_chart ( $title , $data , $type = "pie", $options = array(), $width= '1000', $height = '500' ) {
             $random     = rand ( 0 , 1000 ) ;
             if(!isset($options["title"]))
                 $options["title"] = $title;
@@ -30,7 +30,7 @@ if ( ! class_exists ( "rtReports" ) ) {
             ?>
                 <script type="text/javascript" src="https://www.google.com/jsapi"></script> 
             <?php } ?>
-            <div id="chart_div<?php echo $random ; ?>" style="width: 1000px; height: 500px;"></div>
+            <div id="chart_div<?php echo $random ; ?>" style="width: <?php echo $width.'px';  ?>; height: <?php echo $height.'px';  ?>;"></div>
             <div id="toolbar_div<?php echo $random ; ?>" >
             </div>
             <script type="text/javascript">

@@ -118,28 +118,39 @@ if (!class_exists('rtAffiliateAdmin')) {
             $reports->draw_chart("Domain",$graph_data,false);
         }
         
-        function monthly_visit_report(){
+        function monthly_visit_report( $width = '1000', $height = '500' ){
             global $wpdb;   
-            $sql = "SELECT date(`date`) as date,count(*) as count FROM  {$wpdb->prefix}rt_aff_users_referals where user_id = " . get_current_user_id () . " and  month(date) = month(now()) and year(date) =  year(now()) group by date(`date`) order by date(`date`)";
+            if( current_user_can('manage_options') ) {
+                $user_query = '';
+            } else {
+                $user_query = ' user_id = "' . get_current_user_id () . '" and ';
+            }
+                
+            $sql = "SELECT date(`date`) as date,count(*) as count FROM  {$wpdb->prefix}rt_aff_users_referals where " . $user_query . "  month(date) = month(now()) and year(date) =  year(now()) group by date(`date`) order by date(`date`)";
             $data = $wpdb->get_results($sql);
-            $today_date = date("d");
-            $k = 0;
-            $graph_data = array( array("x","Visits") );
+            $today_date = date("d");            
+            $k = 0; 
+            $graph_data = array( array("x","Visits" , "Revenues" ) );
             for($i = 1 ; $i <= $today_date; $i++ ){
                 $r_date = explode("-" , $data[$k]->date);
                 if(intval($r_date[2]) == $i ){
-                   $date_obj = date_create_from_format("Y-m-j", $data[$k]->date );
-                   $graph_data[] = array($date_obj->format("dS"), intval($data[$k]->count)); 
+                   $date_obj = date_create_from_format("Y-m-j", $data[$k]->date ); 
+                   
+                   $revsql = "SELECT sum(amount) as revenue FROM  {$wpdb->prefix}rt_aff_transaction where " . $user_query . " date(`date`)=date('". $data[$k]->date ."')";
+                   $revdata = $wpdb->get_results($revsql);
+
+                   $graph_data[] = array($date_obj->format("d"), intval($data[$k]->count), $revdata[0]->revenue  ); 
                    $k++;
                 }else{
                     $date_obj = date_create_from_format("Y-m-j", date("Y"). "-" . date("m") . "-" .  $i  );
-                    $graph_data[] = array($date_obj->format("dS"), intval(0)); 
+                    $graph_data[] = array($date_obj->format("d"), intval(0), 0 /* , $data[$k]->revenues */ ); 
                 }
             }
-            $reports = new rtReports();
             
-            $reports->draw_chart(date("M") . " " . date("Y"),$graph_data,'line',array("pointSize" => 5));
+            $reports = new rtReports();            
+            $reports->draw_chart(date("M") . " " . date("Y"),$graph_data,'line',array("pointSize" => 5) , $width, $height );
         }
+        
         public function ui($hook) {
             if ('toplevel_page_rt-affiliate-manage-payment' == $hook)
                 wp_enqueue_style('jquery-ui-css', 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css');
@@ -225,9 +236,9 @@ if (!class_exists('rtAffiliateAdmin')) {
                 <h2>Banners</h2>
                 <br/>
                 <ul class="subsubsub">
-                    <li><a href="?page=rt-affiliate-banners&action=affiliatebanner" class="<?php echo ($current =="affiliatebanner")? "current" : ""; ?>">Affiliate Banner</a> | </li>                                        
-                    <?php if( is_admin() ) {?>
-                        <li><a href="?page=rt-affiliate-banners&action=managebanner" class="<?php echo ($current =="managebanner")? "current" : ""; ?>">Manage Banner</a></li>
+                    <li><a href="?page=rt-affiliate-banners&action=affiliatebanner" class="<?php echo ($current =="affiliatebanner")? "current" : ""; ?>">Affiliate Banner</a></li>                                        
+                    <?php if( current_user_can( 'manage_options' ) ) {?>
+                        <li><a href="?page=rt-affiliate-banners&action=managebanner" class="<?php echo ($current =="managebanner")? "current" : ""; ?>"> | Manage Banner</a></li>
                     <?php } ?>
                 </ul>
                 <br/><br/>
@@ -242,7 +253,7 @@ if (!class_exists('rtAffiliateAdmin')) {
         
         public function manage_banners() {
             
-            if( is_admin() ){
+            if( current_user_can( 'manage_options' ) ){
 
                 if ($_POST) {
                     update_option('rt_affiliate_banners', $_POST['banners']);
