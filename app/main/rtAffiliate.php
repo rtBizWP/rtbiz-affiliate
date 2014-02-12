@@ -139,8 +139,39 @@ if ( !class_exists ( 'rtAffiliate' ) ) {
                                                      * save referal's id in session also
                                                  */
                                                 $_SESSION[ 'rt_aff_referal_id' ]=$wpdb->insert_id ;
+                                                
                                         }
-
+                                        /* Sending mail on click/visit if referal user has set option*/
+                                        $sql_pay  = $wpdb -> prepare ( "SELECT click_notify,frequently  FROM " . $wpdb -> prefix . "rt_aff_payment_info where user_id = %d " , $row->ID ) ;
+                                        $rows_pay = $wpdb -> get_row ( $sql_pay ) ; 
+                                        
+                                        if( $rows_pay->click_notify == 1 && $rows_pay->frequently == 1 ){
+                                            
+                                           $sql_user  = $wpdb -> prepare ( "SELECT user_login, user_email  FROM " . $wpdb -> prefix . "users where ID = %d " , $row->ID ) ;
+                                           $rows_user = $wpdb -> get_row ( $sql_user ) ;  
+                                            
+                                           if(!empty($rows_user->user_email)){
+                                                $to = $rows_user->user_email;
+                                                $subject = get_site_option('rt_aff_email_click_subject');
+                                                $message = get_site_option('rt_aff_email_click_message');
+                                                
+                                                $message = str_replace( '{username}' , $rows_user->user_login , $message );
+                                                
+                                                if( $_SERVER[ 'HTTP_REFERER' ] == '' ){
+                                                    $message = str_replace( 'from' , '' , $message );
+                                                    $message = str_replace( '{referred_link}' , '' , $message );
+                                                }
+                                                else
+                                                    $message = str_replace( '{referred_link}' , $_SERVER[ 'HTTP_REFERER' ] , $message );
+                                                
+                                                $message = str_replace( '{ip_address}' , $_SERVER[ 'REMOTE_ADDR' ] , $message );
+                                                $message = str_replace( '{date}' , current_time ( 'mysql' ) , $message );
+                                                
+                                                add_filter( 'wp_mail_content_type', array ( $this , 'set_content_type' )  );
+                                                wp_mail( $to, $subject, $message );
+                                                remove_filter( 'wp_mail_content_type', array ( $this , 'set_content_type' ) );
+                                            }                                                
+                                        }
                                         header ( "Location: " . $redirect_link ) ;
                                         exit ;
                                 }
@@ -153,7 +184,8 @@ if ( !class_exists ( 'rtAffiliate' ) ) {
                         global $wpdb , $woocommerce ;
                         $rt_ref_affiliate='' ;
                         $commision = '';
-                        
+                        $total_cart_amount = round($woocommerce->cart->total);
+                        $plan_type = 0;
                         if( is_user_logged_in() )
                             $currentuserid = get_current_user_id();
                         
@@ -165,16 +197,17 @@ if ( !class_exists ( 'rtAffiliate' ) ) {
                                 $rt_ref_affiliate .= $affiliate_user ;
                                 $comment    = 'Order #' . $order_id;
                                 
-                                $sql_pay  = $wpdb -> prepare ( "SELECT affiliate_plan FROM " . $wpdb -> prefix . "rt_aff_payment_info where user_id = %d " , $affiliate_user ) ;
+                                $sql_pay  = $wpdb -> prepare ( "SELECT affiliate_plan, buy_notify,frequently FROM " . $wpdb -> prefix . "rt_aff_payment_info where user_id = %d " , $affiliate_user ) ;
                                 $rows_pay = $wpdb -> get_row ( $sql_pay ) ;
                                 
                                 // if Recurring 
                                 if( $rows_pay->affiliate_plan == 2 ){
-                                    
+                                    $plan_type = 2;
                                     update_user_meta($currentuserid, 'rt_aff_referred_by', $affiliate_user);
                                 
                                     $commision = round ( $woocommerce->cart->total*(get_option ( 'rt_aff_plan_commision' , 20 )/100) , 2 );
                                 } else { // One Time Plan
+                                    $plan_type = 1;
                                     $commision = round ( $woocommerce->cart->total*(get_option ( 'rt_aff_onetime_commission' , 50 )/100) , 2 );
                                 }
                                 
@@ -190,7 +223,39 @@ if ( !class_exists ( 'rtAffiliate' ) ) {
                                         'note'          =>$comment ,
                                         'date'          => get_post_field ( 'post_date_gmt' , $order_id ))
                                         , array ( '%d' , '%d' , '%s' , '%d' , '%s' , '%s' , '%s' , '%s' )
-                                ) ;
+                                ) ;                                
+                        
+                                if( $rows_pay->buy_notify == 1 && $rows_pay->frequently == 1 ){
+
+                                   $sql_user  = $wpdb -> prepare ( "SELECT user_login, user_email  FROM " . $wpdb -> prefix . "users where ID = %d " , $affiliate_user ) ;
+                                   $rows_user = $wpdb -> get_row ( $sql_user ) ;  
+                                   
+                                   if(!empty($rows_user->user_email)){
+                                        $to = $rows_user->user_email;
+                                        $subject = get_site_option('rt_aff_email_buy_subject');
+                                        $message = get_site_option('rt_aff_email_buy_message');
+
+                                        $message = str_replace( '{username}' , $rows_user->user_login , $message );
+                                        $message = str_replace( '{currency}' , get_woocommerce_currency_symbol() , $message );                                        
+                                        $message = str_replace( '{total_cart_amount}' , $total_cart_amount , $message );
+                                        
+                                        if( $plan_type == 1 ){
+                                            $percent = get_option( 'rt_aff_onetime_commission');
+                                            $plan = '"One Time Plan ('. $percent  .'%)"';
+                                        }
+                                        else{
+                                            $percent = get_option( 'rt_aff_plan_commision');
+                                            $plan = '"Recurring Plan ('. $percent  .'%)"';
+                                        }                                            
+                                        
+                                        $message = str_replace( '{plan_type}' , $plan , $message );                                        
+                                        $message = str_replace( '{commision}' , $commision , $message );
+
+                                        add_filter( 'wp_mail_content_type', array ( $this , 'set_content_type' )  );
+                                        wp_mail( $to, $subject, $message );
+                                        remove_filter( 'wp_mail_content_type', array ( $this , 'set_content_type' ) );        
+                                    }                                                
+                                }
                                 
                                 // Removing Cookie
                                 setcookie('rt_aff_username', "", time() - 3600, SITECOOKIEPATH);
@@ -199,6 +264,10 @@ if ( !class_exists ( 'rtAffiliate' ) ) {
                                 if ( $rt_ref_affiliate )
                                     update_post_meta ( $order_id , '_rt-ref-affiliate' , $rt_ref_affiliate ) ;
                         }
+                }
+                
+                function set_content_type( $content_type ){
+                        return 'text/html';
                 }
                 
                 function get_affiliate_user_for_commision(){

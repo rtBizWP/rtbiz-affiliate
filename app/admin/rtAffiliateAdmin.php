@@ -161,7 +161,101 @@ if (!class_exists('rtAffiliateAdmin')) {
             }
             wp_enqueue_style('rt-affiliate-admin', RT_AFFILIATE_URL . 'app/assets/css/admin.css');
         }
-        function manage_settings(){ 
+        public function manage_settings(){
+            if(isset($_GET["action"])){
+                $current= $_REQUEST["action"];
+            }else{
+                $current = "commision";
+            }
+            ?>
+            <div class="wrap">
+                <div class="icon32" id="icon-options-general"></div>
+                <h2>Affiliate Settings</h2>
+                <br/>
+                <ul class="subsubsub">
+                    <li><a href="?page=rt-affiliate-manage-settings&action=commision" class="<?php echo ($current =="commision")? "current" : ""; ?>">Commission Settings</a> | </li>
+                    <li><a href="?page=rt-affiliate-manage-settings&action=email" class="<?php echo ($current =="email")? "current" : ""; ?>">Email Templates</a> </li>
+                </ul><br/>
+                <?php
+                if (isset($_GET['action']) && ( $_GET['action'] == 'email' ))
+                    $this->manage_email_templates();
+                else
+                    $this->manage_commision_settings();
+                ?></div><?php
+        }
+        
+        function manage_email_templates(){
+            
+            if( isset($_POST["rt_aff_email_click_subject"])){                                    
+                update_site_option("rt_aff_email_click_subject" , $_POST["rt_aff_email_click_subject"]);                
+            }
+            if( isset($_POST["rt_aff_email_click_message"])){                                    
+                update_site_option("rt_aff_email_click_message" , $_POST["rt_aff_email_click_message"]);                
+            }
+            if( isset($_POST["rt_aff_email_buy_subject"])){                                    
+                update_site_option("rt_aff_email_buy_subject" , $_POST["rt_aff_email_buy_subject"]);                
+            }
+            if( isset($_POST["rt_aff_email_buy_message"])){                                    
+                update_site_option("rt_aff_email_buy_message" , $_POST["rt_aff_email_buy_message"]);                
+            }
+            ?>
+            <div class="wrap myc">
+                <div class="icon32" id="icon-options-general"></div><br/>
+                <h3>When Someone Clicks </h3>
+                <br/>
+                <form method="post">
+                    <div class="tablenav">
+                        <table class="form-table">
+                            <tr valign="top">
+                                <?php $subject = 'New visitor has come'; ?>
+                                <th scope="row"><label for="rt_aff_email_click_subject">Subject</label></th>
+                                <td><input type="text" size="70" required id="rt_aff_email_click_subject" name="rt_aff_email_click_subject" value='<?php echo get_site_option('rt_aff_email_click_subject', $subject ); ?>' /></td>
+                            </tr>
+                            <tr valign="top">
+                                <th scope="row"><label for="rt_aff_email_click_message">Message</label></th>
+                                <td>
+                                    <?php                                        
+                                        $message = 'Hello {username}, <br> Someone has come from {referred_link} whose IP Address is {ip_address} on {date}.';
+                                        $editor_id = 'rt_aff_email_click_message';
+                                        $settings = array( 'textarea_rows' => 10 );
+                                        wp_editor( get_site_option( 'rt_aff_email_click_message' , $message ) , $editor_id, $settings );
+                                    ?>
+                                    <br/>
+                                    <p class="description">You can use <code> {username}, {referred_link}, {ip_address}, {date} </code>  keys in message part.</p>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th><h3>When Someone Buys </h3></th>
+                            </tr>
+                            <tr valign="top">
+                                <?php $buysubject = ' Visitor has bought from your link'; ?>
+                                <th scope="row"><label for="rt_aff_email_buy_subject">Subject</label></th>
+                                <td><input type="text" size="70" required id="rt_aff_email_buy_subject" name="rt_aff_email_buy_subject" value='<?php echo get_site_option('rt_aff_email_buy_subject', $buysubject ); ?>' /></td>
+                            </tr>
+                            <tr valign="top">
+                                <th scope="row"><label for="rt_aff_email_buy_message">Message</label></th>
+                                <td>
+                                    <?php                                        
+                                        $buymessage = 'Hello {username}, <br> Someone has bought products worth {currency} {total_cart_amount}. According to your {plan_type}, you will get commision {currency} {commision}.';
+                                        $buyeditor_id = 'rt_aff_email_buy_message';
+                                        $buysettings = array( 'textarea_rows' => 10 );
+                                        wp_editor( get_site_option( 'rt_aff_email_buy_message' , $buymessage ) , $buyeditor_id, $buysettings );
+                                    ?>
+                                    <br/>
+                                    <p class="description">You can use <code> {username}, {currency}, {total_cart_amount}, {plan_type}, {commision} </code>  keys in message part.</p>
+                                </td>
+                            </tr>                            
+                            <tr valign="top">
+                                <th scope="row"></th>
+                                <td ><input type="submit" class='button button-primary' value='Save' /></td>
+                            </tr>
+                        </table>
+                    </div>
+                </form>
+            </div><?php
+        }
+        
+        function manage_commision_settings(){ 
             if( isset($_POST["rt_aff_onetime_commission"])){
                 if( ! is_numeric($_POST["rt_aff_onetime_commission"])){
                     $_POST["rt_aff_onetime_commission"]= 0;
@@ -176,10 +270,9 @@ if (!class_exists('rtAffiliateAdmin')) {
             }
             ?>
             <div class="wrap">
-                <div class="icon32" id="icon-options-general"></div>
-                <h2>Affiliate Settings</h2>
+                <div class="icon32" id="icon-options-general"></div><br/>
+                <h3>Wocommerce</h3>
                 <br/>
-                <h3>WooCommerce</h3>
                 <form method="post">
                     <div class="tablenav">
                         <table class="form-table">
@@ -200,6 +293,7 @@ if (!class_exists('rtAffiliateAdmin')) {
                 </form>
             </div> <?php
         }
+        
         public function manage_payment() {
             if(isset($_GET["action"])){
                 $current= $_REQUEST["action"];
@@ -238,7 +332,7 @@ if (!class_exists('rtAffiliateAdmin')) {
                 <ul class="subsubsub">
                     <li><a href="?page=rt-affiliate-banners&action=affiliatebanner" class="<?php echo ($current =="affiliatebanner")? "current" : ""; ?>">Affiliate Banner</a></li>                                        
                     <?php if( current_user_can( 'manage_options' ) ) {?>
-                        <li><a href="?page=rt-affiliate-banners&action=managebanner" class="<?php echo ($current =="managebanner")? "current" : ""; ?>"> | Manage Banner</a></li>
+                        <li> | <a href="?page=rt-affiliate-banners&action=managebanner" class="<?php echo ($current =="managebanner")? "current" : ""; ?>">Manage Banner</a></li>
                     <?php } ?>
                 </ul>
                 <br/><br/>
@@ -369,7 +463,9 @@ if (!class_exists('rtAffiliateAdmin')) {
         }
         function payment_setting(){
             
-            if(isset($_GET["action"])){
+            if(isset($_GET["action"]) && $_GET['action'] == 'affiliateplan' ){
+                $current= $_REQUEST["action"];
+            }else if( isset($_GET["action"]) && $_GET['action'] == 'emailsetting' ){
                 $current= $_REQUEST["action"];
             }else{
                 $current = "paymentinfo";
@@ -377,15 +473,18 @@ if (!class_exists('rtAffiliateAdmin')) {
             
             <div class="wrap">
                 <div class="icon32" id="icon-options-general"></div>
-                <h2>Payment Info</h2>
+                <h2>My Settings</h2>
                 <br/>
                 <ul class="subsubsub">
                     <li><a href="?page=rt-affiliate-payment-setting&action=paymentinfo" class="<?php echo ($current =="paymentinfo")? "current" : ""; ?>">Payment Info</a> | </li>
-                    <li><a href="?page=rt-affiliate-payment-setting&action=affiliateplan" class="<?php echo ($current =="affiliateplan")? "current" : ""; ?>">My Affiliate Plan</a> </li>
+                    <li><a href="?page=rt-affiliate-payment-setting&action=affiliateplan" class="<?php echo ($current =="affiliateplan")? "current" : ""; ?>">My Affiliate Plan</a> | </li>
+                    <li><a href="?page=rt-affiliate-payment-setting&action=emailsetting" class="<?php echo ($current =="emailsetting")? "current" : ""; ?>">Email Settings</a> </li>
                 </ul>
                 <?php
                 if (isset($_GET['action']) && ( $_GET['action'] == 'affiliateplan' ))
                     $this->payment_affiliateplan();
+                else if (isset($_GET['action']) && ( $_GET['action'] == 'emailsetting' ))
+                    $this->payment_email_settings();
                 else
                     $this->my_payment_settings();
                 ?></div> <?php
@@ -423,7 +522,7 @@ if (!class_exists('rtAffiliateAdmin')) {
             <form method="post" action="<?php echo "?page=rt-affiliate-payment-setting&action=affiliateplan"; ?>" >
                     <table class="form-table" border="0">
                         <tr>
-                            <td width="20%" class="label"><label id="rt_aff_my_plan" for="paypal_details">Affiliate Plan</label></td>
+                            <td width="20%" class="label"><label id="rt_aff_my_plan_label" for="rt_aff_my_plan">Affiliate Plan</label></td>
                             <td class="field">
                                 <input type="radio" <?php if ( $rows_pay->affiliate_plan == 1  ) echo ' checked="checked" '; if ( $rows_pay->affiliate_plan != 0  ) echo ' disabled ';?> value="1" name="rt_aff_my_plan" id="rt_aff_my_plan" /><?php _e( '  One Time Plan', 'rtaffiliate' ); ?>
                                 <input type="radio" <?php if( $rows_pay->affiliate_plan == 2  ) echo ' checked="checked" '; if ( $rows_pay->affiliate_plan != 0  ) echo ' disabled '; ?>  value="2" name="rt_aff_my_plan" id="rt_aff_my_plan" /><?php _e( '  Recurring', 'rtaffiliate' ); ?>
@@ -440,6 +539,60 @@ if (!class_exists('rtAffiliateAdmin')) {
             </form><?php
         }
 
+        public function payment_email_settings(){
+            
+            global $wpdb, $user_ID;
+            
+            $currentuserid = get_current_user_id();
+            
+            if ( isset($_POST["my-email-settings"]) ) {
+                
+                $sql_pay  = $wpdb -> prepare ( "SELECT id FROM " . $wpdb -> prefix . "rt_aff_payment_info where user_id = %d " , $user_ID ) ;
+                $rows_pay = $wpdb -> get_row ( $sql_pay ) ;
+                if ( empty ( $rows_pay ) ) {
+                   $result = $wpdb -> insert ( $wpdb -> prefix . "rt_aff_payment_info" , array ( 'user_id'        => $user_ID ,                        
+                        'click_notify' => $_POST[ 'rt_aff_my_email_clicknotify' ] , 
+                        'buy_notify' => $_POST[ 'rt_aff_my_email_buynotify' ] , 
+                        'frequently' => $_POST[ 'rt_aff_email_frequency' ] ) , array ( '%d' , '%d' ,'%d' , '%d' ) ) ;
+                }else
+                    $result =  $wpdb -> update ( $wpdb -> prefix . "rt_aff_payment_info" , array ( 'click_notify' => $_POST[ 'rt_aff_my_email_clicknotify' ], 'buy_notify' => $_POST[ 'rt_aff_my_email_buynotify' ], 'frequently' => $_POST[ 'rt_aff_email_frequency' ]   ) , array (  'user_id' => $currentuserid ) ,  array ( '%d' ,'%d' ,'%d' ,'%d' ) ) ;
+                
+                //Message
+                if( $result == 1 ){
+                    echo '<br><br><div class="updated settings-error" id="setting-error-settings_updated"> 
+                                <p><strong>Settings saved.</strong></p>
+                        </div>';
+                }
+                
+            }
+
+            $sql_pay  = $wpdb -> prepare ( "SELECT click_notify,buy_notify,frequently  FROM " . $wpdb -> prefix . "rt_aff_payment_info where user_id = %d " , $currentuserid ) ;
+            $rows_pay = $wpdb -> get_row ( $sql_pay ) ; 
+            
+            ?>
+            <form method="post" action="<?php echo "?page=rt-affiliate-payment-setting&action=emailsetting"; ?>" >
+                    <table class="form-table" border="0">
+                        <tr>
+                            <td width="20%" class="label"><label id="rt_aff_my_email_clicknotify_label" for="rt_aff_my_email_clicknotify">Notify When</label></td>
+                            <td class="field">
+                                <input type="checkbox" <?php if ( $rows_pay->click_notify == 1  ) echo ' checked="checked" '; ?> value="1" name="rt_aff_my_email_clicknotify" id="rt_aff_my_email_clicknotify" /><?php _e( '  Click my affiliated link', 'rtaffiliate' ); ?><br/><br/>
+                                <input type="checkbox" <?php if( $rows_pay->buy_notify == 1  ) echo ' checked="checked" '; ?>  value="1" name="rt_aff_my_email_buynotify" id="rt_aff_my_email_buynotify" /><?php _e( '  Buy products from my affiliated link', 'rtaffiliate' ); ?><br/><br/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td width="20%"><label id="rt_aff_email_frequency_label" for="rt_aff_email_frequency">Frequently</label></td>
+                            <td class="field">
+                                <input type="radio" <?php if ( $rows_pay->frequently == 1  ) echo ' checked="checked" '; ;?> value="1" name="rt_aff_email_frequency" id="rt_aff_email_frequency" /><?php _e( ' Immediately ', 'rtaffiliate' ); ?><br/><br/>
+                                <input type="radio" <?php if( $rows_pay->frequently == 2  ) echo ' checked="checked" '; ?>  value="2" name="rt_aff_email_frequency" id="rt_aff_email_frequency" /><?php _e( ' Daily ', 'rtaffiliate' ); ?><br/><br/>
+                                <input type="radio" <?php if( $rows_pay->frequently == 3  ) echo ' checked="checked" '; ?>  value="3" name="rt_aff_email_frequency" id="rt_aff_email_frequency" /><?php _e( ' Weekly ', 'rtaffiliate' ); ?><br/><br/>
+                                <input type="radio" <?php if( $rows_pay->frequently == 4  ) echo ' checked="checked" '; ?>  value="4" name="rt_aff_email_frequency" id="rt_aff_email_frequency" /><?php _e( ' Monthly ', 'rtaffiliate' ); ?>
+                            </td>
+                        </tr>
+                    </table>
+                    <div class="submit"><input type="submit" class="button button-primary" value="Save" name="my-email-settings"/></div>
+            </form><?php
+        }
+        
         public function my_payment_settings(){
             global $wpdb, $user_ID, $rt_affiliate;
 
@@ -520,6 +673,7 @@ if (!class_exists('rtAffiliateAdmin')) {
                     <div class="submit"><input type="submit" class="button button-primary" value="Save" name="pay-info-submit"/></div>
                 </form><?php
         }
+        
         public function payment_info() {
             global $user_ID, $rt_affiliate;
             ?>
