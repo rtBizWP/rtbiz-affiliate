@@ -74,7 +74,7 @@ if (!class_exists('rtAffiliateAdmin')) {
             add_submenu_page('rt-affiliate-manage-payment', 'Settings', 'Settings', 'manage_options', 'rt-affiliate-manage-settings', array($this, 'manage_settings'));
             */
 
-            add_menu_page('Affiliate', 'Affiliate', 'read', 'rt-affiliate-stats', '', '');
+            add_menu_page('Affiliate', 'Affiliate', 'read', 'rt-affiliate-stats', '', '','90.199');
             add_submenu_page('rt-affiliate-stats', 'Stats & History', 'Stats & History', 'read', 'rt-affiliate-stats', array($this, 'affiliate_stats'));
             add_submenu_page('rt-affiliate-stats', 'Links & Banners', 'Links & Banners', 'read', 'rt-affiliate-banners', array($this, 'banners'));
             add_submenu_page('rt-affiliate-stats', 'Payment Info', 'Payment Info', 'read', 'rt-affiliate-payment-info', array($this, 'payment_info'));
@@ -185,12 +185,18 @@ if (!class_exists('rtAffiliateAdmin')) {
         }
         
         function manage_email_templates(){
-            
+                        
             if( isset($_POST["rt_aff_email_click_subject"])){                                    
                 update_site_option("rt_aff_email_click_subject" , $_POST["rt_aff_email_click_subject"]);                
             }
             if( isset($_POST["rt_aff_email_click_message"])){                                    
                 update_site_option("rt_aff_email_click_message" , $_POST["rt_aff_email_click_message"]);                
+            }
+            if( isset($_POST["rt_aff_email_click_daily_subject"])){                                    
+                update_site_option("rt_aff_email_click_daily_subject" , $_POST["rt_aff_email_click_daily_subject"]);                
+            }
+            if( isset($_POST["rt_aff_email_click_daily_message"])){                                    
+                update_site_option("rt_aff_email_click_daily_message" , $_POST["rt_aff_email_click_daily_message"]);                
             }
             if( isset($_POST["rt_aff_email_buy_subject"])){                                    
                 update_site_option("rt_aff_email_buy_subject" , $_POST["rt_aff_email_buy_subject"]);                
@@ -198,10 +204,16 @@ if (!class_exists('rtAffiliateAdmin')) {
             if( isset($_POST["rt_aff_email_buy_message"])){                                    
                 update_site_option("rt_aff_email_buy_message" , $_POST["rt_aff_email_buy_message"]);                
             }
+            if( isset($_POST["rt_aff_email_buy_daily_subject"])){                                    
+                update_site_option("rt_aff_email_buy_daily_subject" , $_POST["rt_aff_email_buy_daily_subject"]);                
+            }
+            if( isset($_POST["rt_aff_email_buy_daily_message"])){                                    
+                update_site_option("rt_aff_email_buy_daily_message" , $_POST["rt_aff_email_buy_daily_message"]);                
+            }
             ?>
-            <div class="wrap myc">
+            <div class="wrap rt-aff-email-template">
                 <div class="icon32" id="icon-options-general"></div><br/>
-                <h3>When Someone Clicks </h3>
+                <h3>When Someone Clicks [ Frequency - Immediate ] </h3>
                 <br/>
                 <form method="post">
                     <div class="tablenav">
@@ -223,10 +235,55 @@ if (!class_exists('rtAffiliateAdmin')) {
                                     <br/>
                                     <p class="description">You can use <code> {username}, {referred_link}, {ip_address}, {date} </code>  keys in message part.</p>
                                 </td>
+                            </tr>                            
+                            <tr valign="top">
+                                <th scope="row"></th>
+                                <td ><input type="submit" class='button button-primary' value='Save' /></td>
                             </tr>
-                            <tr>
-                                <th><h3>When Someone Buys </h3></th>
+                        </table>
+                    </div>
+                </form>
+            </div>
+            <div class="wrap rt-aff-email-template">
+                <div class="icon32" id="icon-options-general"></div><br/>
+                <h3>When Someone Clicks [ Frequency - Daily ] </h3>
+                <br/>
+                <form method="post">
+                    <div class="tablenav">
+                        <table class="form-table">
+                            <tr valign="top">
+                                <?php $clickdailysubject = 'Your todays summary'; ?>
+                                <th scope="row"><label for="rt_aff_email_click_daily_subject">Subject</label></th>
+                                <td><input type="text" size="70" required id="rt_aff_email_click_daily_subject" name="rt_aff_email_click_daily_subject" value='<?php echo get_site_option('rt_aff_email_click_daily_subject', $clickdailysubject ); ?>' /></td>
                             </tr>
+                            <tr valign="top">
+                                <th scope="row"><label for="rt_aff_email_click_daily_message">Message</label></th>
+                                <td>
+                                    <?php                                        
+                                        $clickdailymessage = 'Hello {username}, <br> Below is your summary on {today} <br> {summary}';
+                                        $clickdailyeditor_id = 'rt_aff_email_click_daily_message';
+                                        $clickdailysettings = array( 'textarea_rows' => 10 );
+                                        wp_editor( get_site_option( 'rt_aff_email_click_daily_message' , $clickdailymessage ) , $clickdailyeditor_id, $clickdailysettings );
+                                    ?>
+                                    <br/>
+                                    <p class="description">You can use <code> {username}, {today}, {summary} </code>  keys in message part.</p>
+                                </td>
+                            </tr>                            
+                            <tr valign="top">
+                                <th scope="row"></th>
+                                <td ><input type="submit" class='button button-primary' value='Save' /></td>
+                            </tr>
+                        </table>
+                    </div>
+                </form>
+            </div>
+            <div class="wrap rt-aff-email-template">
+                <div class="icon32" id="icon-options-general"></div><br/>
+                <h3>When Someone Buys [ Frequency - Immediate ] </h3>
+                <br/>
+                <form method="post">
+                    <div class="tablenav">
+                        <table class="form-table">
                             <tr valign="top">
                                 <?php $buysubject = ' Visitor has bought from your link'; ?>
                                 <th scope="row"><label for="rt_aff_email_buy_subject">Subject</label></th>
@@ -252,7 +309,41 @@ if (!class_exists('rtAffiliateAdmin')) {
                         </table>
                     </div>
                 </form>
-            </div><?php
+            </div>
+            <div class="wrap rt-aff-email-template">
+                <div class="icon32" id="icon-options-general"></div><br/>
+                <h3>When Someone Buys [ Frequency - Daily ] </h3>
+                <br/>
+                <form method="post">
+                    <div class="tablenav">
+                        <table class="form-table">
+                            <tr valign="top">
+                                <?php $buydailysubject = ' Today few Visitors have bought from your link'; ?>
+                                <th scope="row"><label for="rt_aff_email_buy_daily_subject">Subject</label></th>
+                                <td><input type="text" size="70" required id="rt_aff_email_buy_daily_subject" name="rt_aff_email_buy_daily_subject" value='<?php echo get_site_option('rt_aff_email_buy_daily_subject', $buydailysubject ); ?>' /></td>
+                            </tr>
+                            <tr valign="top">
+                                <th scope="row"><label for="rt_aff_email_buy_daily_message">Message</label></th>
+                                <td>
+                                    <?php                                        
+                                        $buydailymessage = 'Hello {username}, <br> Below is your commision summary on {today} <br> {summary}.';
+                                        $buydailyeditor_id = 'rt_aff_email_buy_daily_message';
+                                        $buydailysettings = array( 'textarea_rows' => 10 );
+                                        wp_editor( get_site_option( 'rt_aff_email_buy_daily_message' , $buydailymessage ) , $buydailyeditor_id, $buydailysettings );
+                                    ?>
+                                    <br/>
+                                    <p class="description">You can use <code> {username}, {today}, {summary} </code>  keys in message part.</p>
+                                </td>
+                            </tr>                            
+                            <tr valign="top">
+                                <th scope="row"></th>
+                                <td ><input type="submit" class='button button-primary' value='Save' /></td>
+                            </tr>
+                        </table>
+                    </div>
+                </form>
+            </div>
+                <?php
         }
         
         function manage_commision_settings(){ 

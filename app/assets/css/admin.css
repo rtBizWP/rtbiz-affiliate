@@ -36,11 +36,9 @@ li#toplevel_page_rt-affiliate-stats .icon16.icon-generic:before, #adminmenu li#t
     margin-top: 8px;
     width: 16px;
 }
-.wrap.myc {
+.wrap.rt-aff-email-template {
     height: auto;
-    min-height: 1100px;
+    margin-bottom: 4rem;
+    min-height: 500px;
     overflow: visible;
-}
-#wp-rt_aff_email_click_message-wrap, #wp-rt_aff_email_buy_message-wrap {
-    width: 600px;
 }

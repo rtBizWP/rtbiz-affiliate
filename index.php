@@ -4,7 +4,7 @@
  *     Plugin Name:  rtAffiliate
  *     Plugin URI:   http://rtcamp.com
  *     Description:  rtAffiliate
- *     Version:      3.0.7.2
+ *     Version:      3.0.7.3
  *     Author:       rtCamp
  *     Author URI:   http://rtcamp.com
  *     Contributer:  $trik3r<faishal.saiyed@rtcamp.com>,Joshua Abenazer, Santosh Kamble

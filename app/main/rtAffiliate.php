@@ -34,6 +34,7 @@ if ( !class_exists ( 'rtAffiliate' ) ) {
                 var
                         $tables         =array (
                         'rt_aff_users_referals' ,
+                        'rt_aff_buy_summary' ,
                         'rt_aff_payment_info' ,
                         'rt_aff_transaction'
                         ) ;
@@ -49,14 +50,16 @@ if ( !class_exists ( 'rtAffiliate' ) ) {
                         add_action ( 'init' , array ( $this , 'set_referer_cookie' ) ) ;
                         add_action ( 'woocommerce_checkout_update_order_meta' , array ( $this , 'store_order_meta_referer_info' ) , 1 , 2 ) ;
                         add_action('wp_dashboard_setup',  array ( $this , 'my_custom_dashboard_widgets'));
+                        add_action( 'prefix_daily_event_hook', array ( $this , 'prefix_daily_send_mail_ofclick' )  );
+                        register_deactivation_hook(RT_AFFILIATE_PATH . 'index.php' , array ( $this , 'prefix_deactivation_cron' )   );
                         global $rtAffiliateAdmin ;
                         $rtAffiliateAdmin=new rtAffiliateAdmin() ;
                 }
                 public function my_custom_dashboard_widgets() {
-                    wp_add_dashboard_widget('custom_help_widget', 'rtAffiliate: Monthly revenue', array ( $this , 'custom_dashboard_help') );
+                    wp_add_dashboard_widget('custom_help_widget', 'rtAffiliate: Monthly revenue', array ( $this , 'custom_dashboard_rtaff_widget') );
                 }
 
-                public function custom_dashboard_help() {                    
+                public function custom_dashboard_rtaff_widget() {                    
                     $rtp = new rtAffiliateAdmin();
                     $rtp->monthly_visit_report('540', '300');
                 }
@@ -67,11 +70,88 @@ if ( !class_exists ( 'rtAffiliate' ) ) {
                         $payment_info  =$wpdb->prefix . 'rt_aff_payment_info' ;
                         $transactions  =$wpdb->prefix . 'rt_aff_transaction' ;
                         $rt_db_update  =new RTDBUpdate ( false , trailingslashit ( RT_AFFILIATE_PATH ) . 'index.php' , trailingslashit ( RT_AFFILIATE_PATH ) . 'app/schema/' ) ;
-                        $rt_db_update->do_upgrade () ;
+                        $rt_db_update->do_upgrade ();
+                        
+                        if ( ! wp_next_scheduled( 'prefix_daily_event_hook' ) ) {
+                           wp_schedule_event( time()  , 'daily', 'prefix_daily_event_hook' );
+                        }
                 }
+                function prefix_deactivation_cron(){
+                    wp_clear_scheduled_hook( 'prefix_daily_event_hook' );
+                }
+                function prefix_daily_send_mail_ofclick() {
+                        // do this daily
+                        global $wpdb;
+                        // Daily on buying
+                        $sql_pay  = $wpdb -> prepare ( "SELECT buy_notify,frequently FROM " . $wpdb -> prefix . "rt_aff_payment_info ",''  ) ;
+                        $rows_pay = $wpdb -> get_results ( $sql_pay ) ;
+                        
+                        foreach ($rows_pay as $buyer_notify_row ) {
+                                                
+                            if( $buyer_notify_row->buy_notify == 1 && $buyer_notify_row->frequently == 2 ){
+
+                                $sql_user_buy  = $wpdb -> prepare ( "SELECT user_id FROM " . $wpdb -> prefix . "rt_aff_buy_summary where date(`date`)= date(now()) group by user_id", '' ) ;
+                                $rows_user_buy = $wpdb -> get_results( $sql_user_buy ) ;  
+
+                                foreach ($rows_user_buy as $buyer_row) {                                        
+
+                                    $sql_user_buy_row  = $wpdb -> prepare ( "SELECT * FROM " . $wpdb -> prefix . "rt_aff_buy_summary where date(`date`)= date(now()) and user_id= %d" , $buyer_row->user_id ) ;
+                                    $rows_user_buy_row = $wpdb -> get_results( $sql_user_buy_row ) ;
+
+                                    $msg = '';
+                                    $total_user_amount = 0;
+                                    $total_user_commision = 0;
+                                    
+                                    $msg = "<table>
+                                                <tr>
+                                                    <th> Cart Amount</th>
+                                                    <th> Your Commission </th>
+                                                </tr>";
+                                    foreach($rows_user_buy_row as $user_buy){
+                                        $buyer_id = $user_buy->user_id;
+                                        $msg .= "<tr>
+                                                    <td>". $user_buy->cart_amount ."</td>
+                                                    <td>". $user_buy->commision ."</td>
+                                                </tr>";
+                                        $total_user_amount += $user_buy->cart_amount;
+                                        $total_user_commision += $user_buy->commision; 
+                                       
+                                      
+                                                                                
+                                    }                
+                                    $msg .= "   <tr>
+                                                    <td> Total Cart Amount: ". $total_user_amount . "</td>
+                                                    <td> Total Commission: ". $total_user_commision ."</td>                                                        
+                                                </tr>
+                                            </table>";
+                                    
+                                    $sql_user  = $wpdb -> prepare ( "SELECT user_login, user_email  FROM " . $wpdb -> prefix . "users where ID = %d " , $buyer_id ) ;
+                                    $rows_user = $wpdb -> get_row ( $sql_user ) ;  
+                                    
+                                    if(!empty($rows_user->user_email)){
+                                        $to = $rows_user->user_email;
+                                        $subject = get_site_option('rt_aff_email_buy_daily_subject');
+                                        $message = get_site_option('rt_aff_email_buy_daily_message');
+
+                                        $message = str_replace( '{username}' , $rows_user->user_login , $message );
+
+                                        $now = new DateTime();
+                                        $message = str_replace( '{today}' , $now->format('d-m-Y') , $message );
+
+                                        $message = str_replace( '{summary}' , $msg , $message );
+                                        
+                                        add_filter( 'wp_mail_content_type', array ( $this , 'set_content_type' )  );
+                                        wp_mail( $to, $subject, $message );
+                                        remove_filter( 'wp_mail_content_type', array ( $this , 'set_content_type' ) );        
+                                    }
+                                }
+                            }
+                        }
+                }
+                
                 public
                         function set_referer_cookie () {
-                        global $wpdb , $rt_aff_error ;
+                        global $wpdb  ;
 
                         if ( !isset ( $_SESSION ) ) {
                                 session_start () ;
@@ -178,6 +258,7 @@ if ( !class_exists ( 'rtAffiliate' ) ) {
                         }
                         
                 }
+                
                 public
                         function store_order_meta_referer_info ( $order_id , $detail ) {
                         
@@ -210,8 +291,7 @@ if ( !class_exists ( 'rtAffiliate' ) ) {
                                     $plan_type = 1;
                                     $commision = round ( $woocommerce->cart->total*(get_option ( 'rt_aff_onetime_commission' , 50 )/100) , 2 );
                                 }
-                                
-                                
+                                                               
                                 $result = $wpdb->insert (
                                         $wpdb->prefix . "rt_aff_transaction" , array (
                                         'txn_id'        =>$order_id ,
@@ -225,6 +305,17 @@ if ( !class_exists ( 'rtAffiliate' ) ) {
                                         , array ( '%d' , '%d' , '%s' , '%d' , '%s' , '%s' , '%s' , '%s' )
                                 ) ;                                
                         
+                                $result1 = $wpdb->insert (
+                                        $wpdb->prefix . "rt_aff_buy_summary" , array (
+                                        'user_id'       =>$affiliate_user ,
+                                        'cart_amount'      => $total_cart_amount ,
+                                        'commision'        => $commision ,
+                                        'date'          => get_post_field ( 'post_date_gmt' , $order_id ))
+                                        , array ( '%d' , '%d' , '%d' , '%s' )
+                                ) ;
+                                
+                                /*
+                                // Immediately on buying 
                                 if( $rows_pay->buy_notify == 1 && $rows_pay->frequently == 1 ){
 
                                    $sql_user  = $wpdb -> prepare ( "SELECT user_login, user_email  FROM " . $wpdb -> prefix . "users where ID = %d " , $affiliate_user ) ;
@@ -256,6 +347,69 @@ if ( !class_exists ( 'rtAffiliate' ) ) {
                                         remove_filter( 'wp_mail_content_type', array ( $this , 'set_content_type' ) );        
                                     }                                                
                                 }
+                                */
+                                
+                                /*
+                                // Daily on buying
+                                if( $rows_pay->buy_notify == 1 && $rows_pay->frequently == 2 ){
+
+                                    $sql_user_buy  = $wpdb -> prepare ( "SELECT user_id FROM " . $wpdb -> prefix . "rt_aff_buy_summary where date(`date`)= date(now()) group by user_id" ) ;
+                                    $rows_user_buy = $wpdb -> get_results( $sql_user_buy ) ;  
+                                                                            
+                                    foreach ($rows_user_buy as $buyer_row) {                                        
+                                        
+                                        $sql_user_buy_row  = $wpdb -> prepare ( "SELECT * FROM " . $wpdb -> prefix . "rt_aff_buy_summary where date(`date`)= date(now()) and user_id= %d" , $buyer_row->user_id ) ;
+                                        $rows_user_buy_row = $wpdb -> get_results( $sql_user_buy_row ) ;  
+                                        
+                                        
+                                        $msg = '';
+                                        $buyer_id = 0;
+                                        $total_user_amount = 0;
+                                        $total_user_commision = 0;
+                                        
+                                        $msg = "<table>
+                                                    <tr>
+                                                        <th> Cart Amount</th>
+                                                        <th> Your Commission </th>
+                                                    </tr>";
+                                        foreach($rows_user_buy_row as $user_buy){
+                                            $buyer_id = $user_buy->user_id;
+                                            $msg += "<tr>
+                                                        <td>". $user_buy->cart_amount ."</td>
+                                                        <td>". $user_buy->commision ."</td>
+                                                    </tr>";
+                                            $total_user_amount += $user_buy->cart_amount;
+                                            $total_user_commision += $user_buy->commision;                                            
+                                        }                
+                                        $msg += "   <tr>
+                                                        <td> Total Cart Amount:". $total_user_amount . " </td>
+                                                        <td> Total Commission:". $total_user_commision . " </td>
+                                                    </tr>
+                                                </table>";
+                                        
+                                        $sql_user  = $wpdb -> prepare ( "SELECT user_login, user_email  FROM " . $wpdb -> prefix . "users where ID = %d " , $buyer_id ) ;
+                                        $rows_user = $wpdb -> get_row ( $sql_user ) ;  
+
+                                        if(!empty($rows_user->user_email)){
+                                            $to = $rows_user->user_email;
+                                            $subject = get_site_option('rt_aff_email_buy_daily_subject');
+                                            $message = get_site_option('rt_aff_email_buy_daily_message');
+
+                                            $message = str_replace( '{username}' , $rows_user->user_login , $message );
+
+                                            $now = new DateTime();
+                                            $message = str_replace( '{today}' , $now->format('d-m-Y') , $message );
+                                            
+                                            $message = str_replace( '{summary}' , $msg , $message );
+
+                                            add_filter( 'wp_mail_content_type', array ( $this , 'set_content_type' )  );
+                                            wp_mail( $to, $subject, $message );
+                                            remove_filter( 'wp_mail_content_type', array ( $this , 'set_content_type' ) );        
+                                        }
+                                    }
+                                                                                   
+                                }
+                                */
                                 
                                 // Removing Cookie
                                 setcookie('rt_aff_username', "", time() - 3600, SITECOOKIEPATH);
