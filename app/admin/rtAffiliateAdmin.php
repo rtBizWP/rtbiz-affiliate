@@ -664,19 +664,19 @@ if (!class_exists('rtAffiliateAdmin')) {
             <form method="post" action="<?php echo "?page=rt-affiliate-payment-setting&action=emailsetting"; ?>" >
                     <table class="form-table" border="0">
                         <tr>
-                            <td width="20%" class="label"><label id="rt_aff_my_email_clicknotify_label" for="rt_aff_my_email_clicknotify">Notify When</label></td>
+                            <td width="20%"><label>Notify When</label></td>
                             <td class="field">
-                                <input type="checkbox" <?php if ( $rows_pay->click_notify == 1  ) echo ' checked="checked" '; ?> value="1" name="rt_aff_my_email_clicknotify" id="rt_aff_my_email_clicknotify" /><?php _e( '  Click my affiliated link', 'rtaffiliate' ); ?><br/><br/>
-                                <input type="checkbox" <?php if( $rows_pay->buy_notify == 1  ) echo ' checked="checked" '; ?>  value="1" name="rt_aff_my_email_buynotify" id="rt_aff_my_email_buynotify" /><?php _e( '  Buy products from my affiliated link', 'rtaffiliate' ); ?><br/><br/>
+                                <input type="checkbox" <?php if ( $rows_pay->click_notify == 1  ) echo ' checked="checked" '; ?> value="1" name="rt_aff_my_email_clicknotify" id="rt_aff_my_email_clicknotify" /><label for="rt_aff_my_email_clicknotify"><?php _e( '  Click my affiliated link', 'rtaffiliate' ); ?></label><br/><br/>
+                                <input type="checkbox" <?php if( $rows_pay->buy_notify == 1  ) echo ' checked="checked" '; ?>  value="1" name="rt_aff_my_email_buynotify" id="rt_aff_my_email_buynotify" /><label for="rt_aff_my_email_buynotify"><?php _e( '  Buy products from my affiliated link', 'rtaffiliate' ); ?></label><br/><br/>
                             </td>
                         </tr>
                         <tr>
-                            <td width="20%"><label id="rt_aff_email_frequency_label" for="rt_aff_email_frequency">Frequently</label></td>
+                            <td width="20%"><label>Frequently</label></td>
                             <td class="field">
-                                <input type="radio" <?php if ( $rows_pay->frequently == 1  ) echo ' checked="checked" '; ;?> value="1" name="rt_aff_email_frequency" id="rt_aff_email_frequency" /><?php _e( ' Immediately ', 'rtaffiliate' ); ?><br/><br/>
-                                <input type="radio" <?php if( $rows_pay->frequently == 2  ) echo ' checked="checked" '; ?>  value="2" name="rt_aff_email_frequency" id="rt_aff_email_frequency" /><?php _e( ' Daily ', 'rtaffiliate' ); ?><br/><br/>
-                                <input type="radio" <?php if( $rows_pay->frequently == 3  ) echo ' checked="checked" '; ?>  value="3" name="rt_aff_email_frequency" id="rt_aff_email_frequency" /><?php _e( ' Weekly ', 'rtaffiliate' ); ?><br/><br/>
-                                <input type="radio" <?php if( $rows_pay->frequently == 4  ) echo ' checked="checked" '; ?>  value="4" name="rt_aff_email_frequency" id="rt_aff_email_frequency" /><?php _e( ' Monthly ', 'rtaffiliate' ); ?>
+                                <label><input type="radio" <?php if ( $rows_pay->frequently == 1  ) echo ' checked="checked" '; ;?> value="1" name="rt_aff_email_frequency" id="rt_aff_email_frequency" /><?php _e( ' Immediately ', 'rtaffiliate' ); ?></label><br/><br/>
+                                <label><input type="radio" <?php if( $rows_pay->frequently == 2  ) echo ' checked="checked" '; ?>  value="2" name="rt_aff_email_frequency" id="rt_aff_email_frequency" /><?php _e( ' Daily ', 'rtaffiliate' ); ?></label><br/><br/>
+                                <label><input type="radio" <?php if( $rows_pay->frequently == 3  ) echo ' checked="checked" '; ?>  value="3" name="rt_aff_email_frequency" id="rt_aff_email_frequency" /><?php _e( ' Weekly ', 'rtaffiliate' ); ?></label><br/><br/>
+                                <label><input type="radio" <?php if( $rows_pay->frequently == 4  ) echo ' checked="checked" '; ?>  value="4" name="rt_aff_email_frequency" id="rt_aff_email_frequency" /><?php _e( ' Monthly ', 'rtaffiliate' ); ?></label>
                             </td>
                         </tr>
                     </table>
