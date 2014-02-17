@@ -134,27 +134,27 @@ if ( !class_exists ( 'rtAffiliate' ) ) {
                                     $total_user_amount = 0;
                                     $total_user_commision = 0;
                                     
-                                    $msg = '<table style="border: 1px solid rgb(0, 0, 0);margin-top: 20px;">
+                                    $msg = '<table style="border: 1px solid grey;margin-top: 20px;" cellspacing=0 cellpadding=5 >
                                                 <tbody>
                                                     <tr>
-                                                        <th style="padding: 0 20px;"> Serial No</th>
-                                                        <th style="padding: 0 20px;"> Cart Amount</th>
-                                                        <th style="padding: 0 20px;"> Your Commission </th>
+                                                        <th style="padding: 5px 20px;color: grey;font-size: 15px;"> Serial No</th>
+                                                        <th style="padding: 5px 20px;color: grey;font-size: 15px;"> Cart Amount</th>
+                                                        <th style="padding: 5px 20px;color: grey;font-size: 15px;"> Your Commission </th>
                                                     </tr>';
                                     foreach($rows_user_buy_row as $user_buy){
                                             $buyer_id = $user_buy->user_id;
                                             $msg .= '<tr>
-                                                        <td style="border: 1px solid rgb(255, 0, 0); text-align: center;">'. $serial_no++ .'</td>
-                                                        <td style="border: 1px solid rgb(255, 0, 0); text-align: center;">'. $user_buy->cart_amount .'</td>
-                                                        <td style="border: 1px solid rgb(255, 0, 0); text-align: center;">'. $user_buy->commision .'</td>
+                                                        <td style="border: 1px solid lightgrey; text-align: center;">'. $serial_no++ .'</td>
+                                                        <td style="border: 1px solid lightgrey; text-align: center;">'. $user_buy->cart_amount .'</td>
+                                                        <td style="border: 1px solid lightgrey; text-align: center;">'. $user_buy->commision .'</td>
                                                     </tr>';
                                             $total_user_amount += $user_buy->cart_amount;
                                             $total_user_commision += $user_buy->commision;                                                                                
                                     }                
                                         $msg .= '   <tr>
-                                                        <td style="border: 1px solid rgb(255, 0, 0); text-align: center;"> Total </td>
-                                                        <td style="border: 1px solid rgb(255, 0, 0); text-align: center;"> Cart Amount: '. $total_user_amount . '</td>
-                                                        <td style="border: 1px solid rgb(255, 0, 0); text-align: center;"> Commission: '. $total_user_commision .'</td>                                                        
+                                                        <td style="border: 1px solid lightgrey; text-align: center;"> Total </td>
+                                                        <td style="border: 1px solid lightgrey; text-align: center;"> Cart Amount: '. $total_user_amount . '</td>
+                                                        <td style="border: 1px solid lightgrey; text-align: center;"> Commission: '. $total_user_commision .'</td>                                                        
                                                     </tr>
                                                 </tbody>
                                             </table>';
@@ -196,21 +196,21 @@ if ( !class_exists ( 'rtAffiliate' ) ) {
                                     $msgclick = '';
                                     $serial_no = 1;
                                     
-                                    $msgclick = '<table style="border: 1px solid rgb(0, 0, 0);margin-top: 20px;">
+                                    $msgclick = '<table style="border: 1px solid grey;margin-top: 20px;" cellspacing=0 cellpadding=5 >
                                                     <tbody>
                                                         <tr>
-                                                            <th style="padding: 0 20px;"> Serial No</th>
-                                                            <th style="padding: 0 20px;"> Came From</th>
-                                                            <th style="padding: 0 20px;"> IP Address </th>
-                                                            <th style="padding: 0 20px;"> Date & Time </th>
+                                                            <th style="padding: 5px 20px;color: grey;font-size: 15px;"> Serial No</th>
+                                                            <th style="padding: 5px 20px;color: grey;font-size: 15px;"> Came From</th>
+                                                            <th style="padding: 5px 20px;color: grey;font-size: 15px;"> IP Address </th>
+                                                            <th style="padding: 5px 20px;color: grey;font-size: 15px;"> Date & Time </th>
                                                         </tr>';
                                     foreach($rows_user_click_row as $user_click){
                                         $buyer_id = $user_click->user_id;
                                         $msgclick .= '  <tr>
-                                                            <td style="border: 1px solid rgb(255, 0, 0); text-align: center;">'. $serial_no++ .'</td>
-                                                            <td style="border: 1px solid rgb(255, 0, 0); text-align: center;">'. $user_click->referred_from .'</td>
-                                                            <td style="border: 1px solid rgb(255, 0, 0); text-align: center;">'. $user_click->ip_address .'</td>
-                                                            <td style="border: 1px solid rgb(255, 0, 0); text-align: center;">'. $user_click->date .'</td>
+                                                            <td style="border: 1px solid lightgrey; text-align: center;">'. $serial_no++ .'</td>
+                                                            <td style="border: 1px solid lightgrey; text-align: center;">'. $user_click->referred_from .'</td>
+                                                            <td style="border: 1px solid lightgrey; text-align: center;">'. $user_click->ip_address .'</td>
+                                                            <td style="border: 1px solid lightgrey; text-align: center;">'. $user_click->date .'</td>
                                                         </tr>';                                                                               
                                     }                
                                     $msgclick .= '  </tbody>
@@ -267,27 +267,27 @@ if ( !class_exists ( 'rtAffiliate' ) ) {
                                     $total_user_amount = 0;
                                     $total_user_commision = 0;
                                     
-                                    $msg = '<table style="border: 1px solid rgb(0, 0, 0);margin-top: 20px;">
+                                    $msg = '<table style="border: 1px solid grey;margin-top: 20px;" cellspacing=0 cellpadding=5 >
                                                 <tbody>
                                                     <tr>
-                                                        <th style="padding: 0 20px;"> Serial No</th>
-                                                        <th style="padding: 0 20px;"> Cart Amount</th>
-                                                        <th style="padding: 0 20px;"> Your Commission </th>
+                                                        <th style="padding: 5px 20px;color: grey;font-size: 15px;"> Serial No</th>
+                                                        <th style="padding: 5px 20px;color: grey;font-size: 15px;"> Cart Amount</th>
+                                                        <th style="padding: 5px 20px;color: grey;font-size: 15px;"> Your Commission </th>
                                                     </tr>';
                                     foreach($rows_user_buy_row as $user_buy){
                                             $buyer_id = $user_buy->user_id;
                                             $msg .= '<tr>
-                                                        <td style="border: 1px solid rgb(255, 0, 0); text-align: center;">'. $serial_no++ .'</td>
-                                                        <td style="border: 1px solid rgb(255, 0, 0); text-align: center;">'. $user_buy->cart_amount .'</td>
-                                                        <td style="border: 1px solid rgb(255, 0, 0); text-align: center;">'. $user_buy->commision .'</td>
+                                                        <td style="border: 1px solid lightgrey; text-align: center;">'. $serial_no++ .'</td>
+                                                        <td style="border: 1px solid lightgrey; text-align: center;">'. $user_buy->cart_amount .'</td>
+                                                        <td style="border: 1px solid lightgrey; text-align: center;">'. $user_buy->commision .'</td>
                                                     </tr>';
                                             $total_user_amount += $user_buy->cart_amount;
                                             $total_user_commision += $user_buy->commision;                                                                                
                                     }                
                                         $msg .= '   <tr>
-                                                        <td style="border: 1px solid rgb(255, 0, 0); text-align: center;"> Total </td>
-                                                        <td style="border: 1px solid rgb(255, 0, 0); text-align: center;"> Cart Amount: '. $total_user_amount . '</td>
-                                                        <td style="border: 1px solid rgb(255, 0, 0); text-align: center;"> Commission: '. $total_user_commision .'</td>                                                        
+                                                        <td style="border: 1px solid lightgrey; text-align: center;"> Total </td>
+                                                        <td style="border: 1px solid lightgrey; text-align: center;"> Cart Amount: '. $total_user_amount . '</td>
+                                                        <td style="border: 1px solid lightgrey; text-align: center;"> Commission: '. $total_user_commision .'</td>                                                        
                                                     </tr>
                                                 </tbody>
                                             </table>';
@@ -329,21 +329,21 @@ if ( !class_exists ( 'rtAffiliate' ) ) {
                                     $msgclick = '';
                                     $serial_no = 1;
                                     
-                                    $msgclick = '<table style="border: 1px solid rgb(0, 0, 0);margin-top: 20px;">
+                                    $msgclick = '<table style="border: 1px solid grey;margin-top: 20px;" cellspacing=0 cellpadding=5 >
                                                     <tbody>
                                                         <tr>
-                                                            <th style="padding: 0 20px;"> Serial No</th>
-                                                            <th style="padding: 0 20px;"> Came From</th>
-                                                            <th style="padding: 0 20px;"> IP Address </th>
-                                                            <th style="padding: 0 20px;"> Date & Time </th>
+                                                            <th style="padding: 5px 20px;color: grey;font-size: 15px;"> Serial No</th>
+                                                            <th style="padding: 5px 20px;color: grey;font-size: 15px;"> Came From</th>
+                                                            <th style="padding: 5px 20px;color: grey;font-size: 15px;"> IP Address </th>
+                                                            <th style="padding: 5px 20px;color: grey;font-size: 15px;"> Date & Time </th>
                                                         </tr>';
                                     foreach($rows_user_click_row as $user_click){
                                         $buyer_id = $user_click->user_id;
                                         $msgclick .= '  <tr>
-                                                            <td style="border: 1px solid rgb(255, 0, 0); text-align: center;">'. $serial_no++ .'</td>
-                                                            <td style="border: 1px solid rgb(255, 0, 0); text-align: center;">'. $user_click->referred_from .'</td>
-                                                            <td style="border: 1px solid rgb(255, 0, 0); text-align: center;">'. $user_click->ip_address .'</td>
-                                                            <td style="border: 1px solid rgb(255, 0, 0); text-align: center;">'. $user_click->date .'</td>
+                                                            <td style="border: 1px solid lightgrey; text-align: center;">'. $serial_no++ .'</td>
+                                                            <td style="border: 1px solid lightgrey; text-align: center;">'. $user_click->referred_from .'</td>
+                                                            <td style="border: 1px solid lightgrey; text-align: center;">'. $user_click->ip_address .'</td>
+                                                            <td style="border: 1px solid lightgrey; text-align: center;">'. $user_click->date .'</td>
                                                         </tr>';                                                                               
                                     }                
                                     $msgclick .= '  </tbody>
@@ -401,27 +401,27 @@ if ( !class_exists ( 'rtAffiliate' ) ) {
                                     $total_user_amount = 0;
                                     $total_user_commision = 0;
                                     
-                                    $msg = '<table style="border: 1px solid rgb(0, 0, 0);margin-top: 20px;">
+                                    $msg = '<table style="border: 1px solid grey;margin-top: 20px;" cellspacing=0 cellpadding=5 >
                                                 <tbody>
                                                     <tr>
-                                                        <th style="padding: 0 20px;"> Serial No</th>
-                                                        <th style="padding: 0 20px;"> Cart Amount</th>
-                                                        <th style="padding: 0 20px;"> Your Commission </th>
+                                                        <th style="padding: 5px 20px;color: grey;font-size: 15px;"> Serial No</th>
+                                                        <th style="padding: 5px 20px;color: grey;font-size: 15px;"> Cart Amount</th>
+                                                        <th style="padding: 5px 20px;color: grey;font-size: 15px;"> Your Commission </th>
                                                     </tr>';
                                     foreach($rows_user_buy_row as $user_buy){
                                             $buyer_id = $user_buy->user_id;
                                             $msg .= '<tr>
-                                                        <td style="border: 1px solid rgb(255, 0, 0); text-align: center;">'. $serial_no++ .'</td>
-                                                        <td style="border: 1px solid rgb(255, 0, 0); text-align: center;">'. $user_buy->cart_amount .'</td>
-                                                        <td style="border: 1px solid rgb(255, 0, 0); text-align: center;">'. $user_buy->commision .'</td>
+                                                        <td style="border: 1px solid lightgrey; text-align: center;">'. $serial_no++ .'</td>
+                                                        <td style="border: 1px solid lightgrey; text-align: center;">'. $user_buy->cart_amount .'</td>
+                                                        <td style="border: 1px solid lightgrey; text-align: center;">'. $user_buy->commision .'</td>
                                                     </tr>';
                                             $total_user_amount += $user_buy->cart_amount;
                                             $total_user_commision += $user_buy->commision;                                                                                
                                     }                
                                         $msg .= '   <tr>
-                                                        <td style="border: 1px solid rgb(255, 0, 0); text-align: center;"> Total </td>
-                                                        <td style="border: 1px solid rgb(255, 0, 0); text-align: center;"> Cart Amount: '. $total_user_amount . '</td>
-                                                        <td style="border: 1px solid rgb(255, 0, 0); text-align: center;"> Commission: '. $total_user_commision .'</td>                                                        
+                                                        <td style="border: 1px solid lightgrey; text-align: center;"> Total </td>
+                                                        <td style="border: 1px solid lightgrey; text-align: center;"> Cart Amount: '. $total_user_amount . '</td>
+                                                        <td style="border: 1px solid lightgrey; text-align: center;"> Commission: '. $total_user_commision .'</td>                                                        
                                                     </tr>
                                                 </tbody>
                                             </table>';
@@ -463,21 +463,21 @@ if ( !class_exists ( 'rtAffiliate' ) ) {
                                     $msgclick = '';
                                     $serial_no = 1;
                                     
-                                    $msgclick = '<table style="border: 1px solid rgb(0, 0, 0);margin-top: 20px;">
+                                    $msgclick = '<table style="border: 1px solid grey;margin-top: 20px;" cellspacing=0 cellpadding=5 >
                                                     <tbody>
                                                         <tr>
-                                                            <th style="padding: 0 20px;"> Serial No</th>
-                                                            <th style="padding: 0 20px;"> Came From</th>
-                                                            <th style="padding: 0 20px;"> IP Address </th>
-                                                            <th style="padding: 0 20px;"> Date & Time </th>
+                                                            <th style="padding: 5px 20px;color: grey;font-size: 15px;"> Serial No</th>
+                                                            <th style="padding: 5px 20px;color: grey;font-size: 15px;"> Came From</th>
+                                                            <th style="padding: 5px 20px;color: grey;font-size: 15px;"> IP Address </th>
+                                                            <th style="padding: 5px 20px;color: grey;font-size: 15px;"> Date & Time </th>
                                                         </tr>';
                                     foreach($rows_user_click_row as $user_click){
                                         $buyer_id = $user_click->user_id;
                                         $msgclick .= '  <tr>
-                                                            <td style="border: 1px solid rgb(255, 0, 0); text-align: center;">'. $serial_no++ .'</td>
-                                                            <td style="border: 1px solid rgb(255, 0, 0); text-align: center;">'. $user_click->referred_from .'</td>
-                                                            <td style="border: 1px solid rgb(255, 0, 0); text-align: center;">'. $user_click->ip_address .'</td>
-                                                            <td style="border: 1px solid rgb(255, 0, 0); text-align: center;">'. $user_click->date .'</td>
+                                                            <td style="border: 1px solid lightgrey; text-align: center;">'. $serial_no++ .'</td>
+                                                            <td style="border: 1px solid lightgrey; text-align: center;">'. $user_click->referred_from .'</td>
+                                                            <td style="border: 1px solid lightgrey; text-align: center;">'. $user_click->ip_address .'</td>
+                                                            <td style="border: 1px solid lightgrey; text-align: center;">'. $user_click->date .'</td>
                                                         </tr>';                                                                               
                                     }                
                                     $msgclick .= '  </tbody>
