@@ -1,0 +1,8 @@
+CREATE TABLE %s (
+    id int NOT NULL AUTO_INCREMENT,
+    `user_id` INT NULL ,
+    `cart_amount` INT NULL ,    
+    `commision` INT NULL ,
+    `date` DATETIME NULL,
+    PRIMARY KEY  (id)
+);

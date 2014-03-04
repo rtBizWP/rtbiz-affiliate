@@ -13,7 +13,7 @@ if (!class_exists('RTMediaSupport')) {
 	var $curr_sub_tab;
         public function __construct($init = true) {
 
-            if( !is_admin () ) {
+            if( !current_user_can( 'manage_options' ) ) {
                 return;
             }
 

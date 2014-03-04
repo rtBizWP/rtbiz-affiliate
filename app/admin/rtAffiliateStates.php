@@ -17,7 +17,7 @@ class rtAffiliateStates extends WP_List_Table {
         $cond1 = " 1=1 ";
             $cond2 = "";
             //DATE_FORMAT('1900-10-04 22:23:00','%D %y %a %d %m %b %j');
-
+        if(isset($_POST['time_duration'])){
             switch ($_POST['time_duration']) {
                 case 'today':
                     $cond1 = " DATE_FORMAT(`date`, '%D %y %a') = DATE_FORMAT(now() , '%D %y %a')";
@@ -52,6 +52,7 @@ class rtAffiliateStates extends WP_List_Table {
                     $cond2 = " DATE_FORMAT(`date_update`, '%y') = DATE_FORMAT(DATE_SUB(now(), INTERVAL 1 year ), '%y')";
                     break;
             }
+        }
         $user_id =get_current_user_id ();
         if(current_user_can('manage_options') && isset($_GET["user_id"])){
             $user_id = $_GET["user_id"];
