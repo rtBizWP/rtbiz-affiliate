@@ -49,11 +49,7 @@ if ( ! class_exists( 'rtAffiliate' ) ) {
 		}
 
 		public function create_tables() {
-			global $wpdb;
-			$users_referals = $wpdb->prefix . 'rt_aff_users_referals';
-			$payment_info   = $wpdb->prefix . 'rt_aff_payment_info';
-			$transactions   = $wpdb->prefix . 'rt_aff_transaction';
-			$rt_db_update   = new RTDBUpdate ( false, trailingslashit( RT_AFFILIATE_PATH ) . 'index.php', trailingslashit( RT_AFFILIATE_PATH ) . 'app/schema/' );
+			$rt_db_update   = new RT_DB_Update( trailingslashit( RT_AFFILIATE_PATH ) . 'index.php', trailingslashit( RT_AFFILIATE_PATH ) . 'app/schema/', false );
 			$rt_db_update->do_upgrade();
 
 			/*wp_clear_scheduled_hook( 'rt_aff_daily_send_mail_event_hook' );
@@ -781,4 +777,3 @@ if ( ! class_exists( 'rtAffiliate' ) ) {
 
 	}
 }
-?>
