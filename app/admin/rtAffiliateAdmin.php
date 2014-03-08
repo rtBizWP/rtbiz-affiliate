@@ -661,7 +661,7 @@ if ( ! class_exists( 'rtAffiliateAdmin' ) ) {
 			<div class="wrap">
 				<div class="icon32" id="icon-options-general"></div>
 				<h2>My Settings</h2>
-				<br/>
+
 				<ul class="subsubsub">
 					<li><a href="?page=rt-affiliate-payment-setting&action=paymentinfo"
 						   class="<?php echo ( $current == "paymentinfo" ) ? "current" : ""; ?>">Payment Info</a> |
@@ -674,6 +674,8 @@ if ( ! class_exists( 'rtAffiliateAdmin' ) ) {
 						   class="<?php echo ( $current == "emailsetting" ) ? "current" : ""; ?>">Email Settings</a>
 					</li>
 				</ul>
+				<br/><br/>
+
 				<?php
 				if ( isset( $_GET[ 'action' ] ) && ( $_GET[ 'action' ] == 'affiliateplan' ) ) {
 					$this->payment_affiliateplan();
@@ -699,10 +701,10 @@ if ( ! class_exists( 'rtAffiliateAdmin' ) ) {
 				$rows_pay = $wpdb->get_row( $sql_pay );
 				if ( empty ( $rows_pay ) ) {
 					$result = $wpdb->insert( $wpdb->prefix . "rt_aff_payment_info", array(
-						'user_id' => $user_ID, 'affiliate_plan' => $_POST[ 'rt_aff_my_plan' ]
+						'user_id' => $user_ID, 'affiliate_plan' => isset( $_POST[ 'rt_aff_my_plan' ] )? $_POST[ 'rt_aff_my_plan' ] : '1'
 					), array( '%d', '%d' ) );
 				} else {
-					$result = $wpdb->update( $wpdb->prefix . "rt_aff_payment_info", array( 'affiliate_plan' => $_POST[ 'rt_aff_my_plan' ] ), array( 'user_id' => $currentuserid ), array( '%d', '%d' ) );
+					$result = $wpdb->update( $wpdb->prefix . "rt_aff_payment_info", array( 'affiliate_plan' => isset( $_POST[ 'rt_aff_my_plan' ] )? $_POST[ 'rt_aff_my_plan' ] : '1' ), array( 'user_id' => $currentuserid ), array( '%d', '%d' ) );
 				}
 
 				//Message
@@ -724,17 +726,17 @@ if ( ! class_exists( 'rtAffiliateAdmin' ) ) {
 					<td width="20%" class="label"><label id="rt_aff_my_plan_label" for="rt_aff_my_plan">Affiliate
 							Plan</label></td>
 					<td class="field">
-						<input type="radio" <?php if ( $rows_pay->affiliate_plan == 1 ) {
+						<input type="radio" <?php if ( $rows_pay === null  || ( $rows_pay  && $rows_pay->affiliate_plan == 1 ) ) {
 							echo ' checked="checked" ';
 						}
-						if ( $rows_pay->affiliate_plan != 0 ) {
+						if ( $rows_pay  && $rows_pay->affiliate_plan != 0 ) {
 							echo ' disabled ';
 						} ?> value="1" name="rt_aff_my_plan"
 							   id="rt_aff_my_plan"/><?php _e( '  One Time Plan', 'rtaffiliate' ); ?>
-						<input type="radio" <?php if ( $rows_pay->affiliate_plan == 2 ) {
+						<input type="radio" <?php if ( $rows_pay && $rows_pay->affiliate_plan == 2 ) {
 							echo ' checked="checked" ';
 						}
-						if ( $rows_pay->affiliate_plan != 0 ) {
+						if ( $rows_pay  &&  $rows_pay->affiliate_plan != 0 ) {
 							echo ' disabled ';
 						} ?>  value="2" name="rt_aff_my_plan"
 							   id="rt_aff_my_plan"/><?php _e( '  Recurring', 'rtaffiliate' ); ?>
@@ -748,7 +750,7 @@ if ( ! class_exists( 'rtAffiliateAdmin' ) ) {
 					</td>
 				</tr>
 			</table>
-			<div class="submit"><input type="submit" <?php if ( $rows_pay->affiliate_plan != 0 ) {
+			<div class="submit"><input type="submit" <?php if ( $rows_pay  && $rows_pay->affiliate_plan != 0 ) {
 					echo ' disabled ';
 				} ?>
 									   class="button button-primary" value="Save" name="my-affiliate-plan"/></div>
@@ -767,10 +769,10 @@ if ( ! class_exists( 'rtAffiliateAdmin' ) ) {
 				$rows_pay = $wpdb->get_row( $sql_pay );
 				if ( empty ( $rows_pay ) ) {
 					$result = $wpdb->insert( $wpdb->prefix . "rt_aff_payment_info", array(
-						'user_id' => $user_ID, 'click_notify' => $_POST[ 'rt_aff_my_email_clicknotify' ], 'buy_notify' => $_POST[ 'rt_aff_my_email_buynotify' ], 'frequently' => $_POST[ 'rt_aff_email_frequency' ]
+						'user_id' => $user_ID, 'click_notify' => isset($_POST[ 'rt_aff_my_email_clicknotify' ]) ? $_POST[ 'rt_aff_my_email_clicknotify' ] : 0, 'buy_notify' => isset($_POST[ 'rt_aff_my_email_buynotify' ])?$_POST[ 'rt_aff_my_email_buynotify' ]:0, 'frequently' => isset($_POST[ 'rt_aff_email_frequency' ])?$_POST[ 'rt_aff_email_frequency' ]:0
 					), array( '%d', '%d', '%d', '%d' ) );
 				} else {
-					$result = $wpdb->update( $wpdb->prefix . "rt_aff_payment_info", array( 'click_notify' => $_POST[ 'rt_aff_my_email_clicknotify' ], 'buy_notify' => $_POST[ 'rt_aff_my_email_buynotify' ], 'frequently' => $_POST[ 'rt_aff_email_frequency' ] ), array( 'user_id' => $currentuserid ), array( '%d', '%d', '%d', '%d' ) );
+					$result = $wpdb->update( $wpdb->prefix . "rt_aff_payment_info", array('click_notify' => isset($_POST[ 'rt_aff_my_email_clicknotify' ]) ? $_POST[ 'rt_aff_my_email_clicknotify' ] : 0, 'buy_notify' => isset($_POST[ 'rt_aff_my_email_buynotify' ])?$_POST[ 'rt_aff_my_email_buynotify' ]:0, 'frequently' => isset($_POST[ 'rt_aff_email_frequency' ])?$_POST[ 'rt_aff_email_frequency' ]:0), array( 'user_id' => $currentuserid ), array( '%d', '%d', '%d', '%d' ) );
 				}
 
 				//Message
@@ -791,12 +793,12 @@ if ( ! class_exists( 'rtAffiliateAdmin' ) ) {
 				<tr>
 					<td width="20%"><label>Notify When</label></td>
 					<td class="field">
-						<input type="checkbox" <?php if ( $rows_pay->click_notify == 1 ) {
+						<input type="checkbox" <?php if ( $rows_pay && $rows_pay->click_notify == 1 ) {
 							echo ' checked="checked" ';
 						} ?>
 							   value="1" name="rt_aff_my_email_clicknotify" id="rt_aff_my_email_clicknotify"/><label
 							for="rt_aff_my_email_clicknotify"><?php _e( '  Click my affiliated link', 'rtaffiliate' ); ?></label><br/><br/>
-						<input type="checkbox" <?php if ( $rows_pay->buy_notify == 1 ) {
+						<input type="checkbox" <?php if ( $rows_pay &&  $rows_pay->buy_notify == 1 ) {
 							echo ' checked="checked" ';
 						} ?>
 							   value="1" name="rt_aff_my_email_buynotify" id="rt_aff_my_email_buynotify"/><label
@@ -807,25 +809,25 @@ if ( ! class_exists( 'rtAffiliateAdmin' ) ) {
 					<td width="20%"><label>Frequently</label></td>
 					<td class="field">
 						<label><input
-								type="radio" <?php if ( $rows_pay->frequently == 1 ) {
+								type="radio" <?php if ( $rows_pay && $rows_pay->frequently == 1 ) {
 								echo ' checked="checked" ';
 							}; ?>
 								value="1" name="rt_aff_email_frequency"
 								id="rt_aff_email_frequency"/><?php _e( ' Immediately ', 'rtaffiliate' ); ?></label><br/><br/>
 						<label><input
-								type="radio" <?php if ( $rows_pay->frequently == 2 ) {
+								type="radio" <?php if ( $rows_pay && $rows_pay->frequently == 2 ) {
 								echo ' checked="checked" ';
 							} ?>
 								value="2" name="rt_aff_email_frequency"
 								id="rt_aff_email_frequency"/><?php _e( ' Daily ', 'rtaffiliate' ); ?></label><br/><br/>
 						<label><input
-								type="radio" <?php if ( $rows_pay->frequently == 3 ) {
+								type="radio" <?php if ( $rows_pay && $rows_pay->frequently == 3 ) {
 								echo ' checked="checked" ';
 							} ?>
 								value="3" name="rt_aff_email_frequency"
 								id="rt_aff_email_frequency"/><?php _e( ' Weekly ', 'rtaffiliate' ); ?></label><br/><br/>
 						<label><input
-								type="radio" <?php if ( $rows_pay->frequently == 4 ) {
+								type="radio" <?php if ( $rows_pay && $rows_pay->frequently == 4 ) {
 								echo ' checked="checked" ';
 							} ?>
 								value="4" name="rt_aff_email_frequency"
@@ -844,7 +846,6 @@ if ( ! class_exists( 'rtAffiliateAdmin' ) ) {
 			if ( isset( $_POST[ "pay-info-submit" ] ) ) {
 				$sql_pay  = $wpdb->prepare( "SELECT id FROM " . $wpdb->prefix . "rt_aff_payment_info where user_id = %d ", $user_ID );
 				$rows_pay = $wpdb->get_row( $sql_pay );
-				$type_col = $_POST[ 'paypal_detail' ];
 				if ( empty ( $rows_pay ) ) {
 					$result = $wpdb->insert( $wpdb->prefix . "rt_aff_payment_info", array(
 						'user_id' => $user_ID, 'payment_method' => $_POST[ "payment_method" ], 'payment_details' => $_POST[ 'payment_details' ], 'min_payout' => $_POST[ 'min_payout' ]
