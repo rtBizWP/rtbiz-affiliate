@@ -60,6 +60,7 @@ spl_autoload_register ( 'rt_affiliate_autoloader' ) ;
  */
 add_action( 'plugin_loaded', 'load_rt_affiliate' );
 function load_rt_affiliate() {
-	global $rt_affiliate;
-	$rt_affiliate = new rtAffiliate();
+
 }
+global $rt_affiliate;
+$rt_affiliate = new rtAffiliate();
