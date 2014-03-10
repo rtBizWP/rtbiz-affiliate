@@ -41,7 +41,7 @@ if ( ! class_exists( 'rtAffiliate' ) ) {
 		}
 
 		public function my_custom_dashboard_widgets() {
-			wp_add_dashboard_widget( 'custom_help_widget', 'rtAffiliate: Monthly revenue', array( $this, 'custom_dashboard_rtaff_widget' ) );
+			wp_add_dashboard_widget( 'custom_help_widget', 'Affiliate States', array( $this, 'custom_dashboard_rtaff_widget' ) );
 		}
 
 		public function custom_dashboard_rtaff_widget() {

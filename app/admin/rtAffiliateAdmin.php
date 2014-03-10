@@ -135,9 +135,15 @@ if ( ! class_exists( 'rtAffiliateAdmin' ) ) {
 		<?php
 		}
 
-		function domain_visit_report() {
+		function domain_visit_report( $width = '1000', $height = '500' ) {
 			global $wpdb;
-			$sql        = "SELECT domain_name as `key`, `count` as `count` FROM {$wpdb->prefix}rt_aff_users_domain where user_id = " . get_current_user_id() . " ";
+			if ( current_user_can( 'manage_options' ) ) {
+				$user_query = '';
+			} else {
+				$user_query = ' and user_id = "' . get_current_user_id() . '" ';
+			}
+
+			$sql        = "SELECT domain_name as `key`, `count` as `count` FROM {$wpdb->prefix}rt_aff_users_domain where 1=1 " . $user_query ;
 			$data       = $wpdb->get_results( $sql );
 			$graph_data = array( array( "key", "val" ) );
 			foreach ( $data as $row ) {
@@ -145,7 +151,7 @@ if ( ! class_exists( 'rtAffiliateAdmin' ) ) {
 			}
 			$reports = new RT_Aff_Reports();
 
-			$reports->draw_chart( "Domain", $graph_data, false );
+			$reports->draw_chart( "Domain", $graph_data, "pie", array(),$width, $height );
 		}
 
 		function monthly_visit_report( $width = '1000', $height = '500' ) {
@@ -153,10 +159,10 @@ if ( ! class_exists( 'rtAffiliateAdmin' ) ) {
 			if ( current_user_can( 'manage_options' ) ) {
 				$user_query = '';
 			} else {
-				$user_query = ' user_id = "' . get_current_user_id() . '" and ';
+				$user_query = ' and user_id = "' . get_current_user_id() . '" ';
 			}
 
-			$sql        = "SELECT date(`date`) as date,count(*) as count FROM  {$wpdb->prefix}rt_aff_users_referals where " . $user_query . "  month(date) = month(now()) and year(date) =  year(now()) group by date(`date`) order by date(`date`)";
+			$sql        = "SELECT date(`date`) as date,count(*) as count FROM  {$wpdb->prefix}rt_aff_users_referals where 1=1 " . $user_query . " and  month(date) = month(now()) and year(date) =  year(now()) group by date(`date`) order by date(`date`)";
 			$data       = $wpdb->get_results( $sql );
 			$today_date = date( "d" );
 			$k          = 0;
