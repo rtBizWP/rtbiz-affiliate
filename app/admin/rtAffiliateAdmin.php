@@ -173,7 +173,7 @@ if ( ! class_exists( 'rtAffiliateAdmin' ) ) {
 					$revsql  = "SELECT sum(amount) as revenue FROM  {$wpdb->prefix}rt_aff_transaction where " . $user_query . " date(`date`)=date('" . $data[ $k ]->date . "')";
 					$revdata = $wpdb->get_results( $revsql );
 
-					$graph_data[ ] = array( $date_obj->format( "d" ), intval( $data[ $k ]->count ), $revdata[ 0 ]->revenue );
+					$graph_data[ ] = array( $date_obj->format( "d" ), intval( $data[ $k ]->count ), intval( $revdata[ 0 ]->revenue ) );
 					$k ++;
 				} else {
 					$date_obj      = date_create_from_format( "Y-m-j", date( "Y" ) . "-" . date( "m" ) . "-" . $i );
