@@ -7,7 +7,16 @@
 if ( ! class_exists( 'rtAffiliateAdmin' ) ) {
 
 	class rtAffiliateAdmin {
-
+		public static $default_mail = array(
+			'rt_aff_email_click_message' => 'Hello {username}, <br> Someone has come from {referred_link} whose IP Address is {ip_address} on {date}.',
+			'rt_aff_email_click_daily_message' => 'Hello {username}, <br> Below is your summary on {today} <br> {summary}',
+			'rt_aff_email_buy_message' => 'Hello {username}, <br> Someone has bought products worth {currency} {total_cart_amount}. According to your {plan_type}, you will get commision {currency} {commision}.',
+			'rt_aff_email_buy_daily_message' => 'Hello {username}, <br> Below is your commision summary on {today} <br> {summary}.',
+			'rt_aff_email_click_subject' => 'New visitor has come',
+			'rt_aff_email_click_daily_subject' => 'Your todays summary',
+			'rt_aff_email_buy_subject' => 'Visitor has bought from your link',
+			'rt_aff_email_buy_daily_subject' => ' Today few Visitors have bought from your link',
+		);
 		public function __construct() {
 			add_action( 'admin_enqueue_scripts', array( $this, 'ui' ) );
 			add_action( 'admin_menu', array( $this, 'menu' ), 12 );
@@ -19,8 +28,15 @@ if ( ! class_exists( 'rtAffiliateAdmin' ) ) {
 			add_action( 'admin_init', array( $this, 'order_referer_info' ), 1 );
 			add_action( 'admin_init', array( $this, 'payment_history_delete_check' ), 1 );
 			add_action( 'admin_bar_menu', array( $this, 'admin_nav' ), 1 );
-		}
 
+			$this->set_default_option();
+
+		}
+		function set_default_option(){
+			foreach( self::$default_mail as $option_name=>$option_value ){
+				add_filter( 'default_site_option_' . $option_name, create_function('', 'return "' . $option_value . '";') );
+			}
+		}
 		function payment_history_delete_check() {
 			if ( isset( $_REQUEST[ "page" ] ) && $_REQUEST[ "page" ] == 'rt-affiliate-manage-payment' ) {
 				global $wpdb;
@@ -146,8 +162,12 @@ if ( ! class_exists( 'rtAffiliateAdmin' ) ) {
 			$k          = 0;
 			$graph_data = array( array( "x", "Visits", "Revenues" ) );
 			for ( $i = 1; $i <= $today_date; $i ++ ) {
-				$r_date = explode( "-", $data[ $k ]->date );
-				if ( intval( $r_date[ 2 ] ) == $i ) {
+				if( ! isset( $data[ $k ] ) ) {
+					$r_date = false;
+				} else {
+					$r_date = explode( "-", $data[ $k ]->date );
+				}
+				if ( $r_date && intval( $r_date[ 2 ] ) == $i ) {
 					$date_obj = date_create_from_format( "Y-m-j", $data[ $k ]->date );
 
 					$revsql  = "SELECT sum(amount) as revenue FROM  {$wpdb->prefix}rt_aff_transaction where " . $user_query . " date(`date`)=date('" . $data[ $k ]->date . "')";
@@ -253,10 +273,9 @@ if ( ! class_exists( 'rtAffiliateAdmin' ) ) {
 								<th scope="row"><label for="rt_aff_email_click_message">Message</label></th>
 								<td>
 									<?php
-									$message = 'Hello {username}, <br> Someone has come from {referred_link} whose IP Address is {ip_address} on {date}.';
 									$editor_id = 'rt_aff_email_click_message';
 									$settings = array( 'textarea_rows' => 10 );
-									wp_editor( get_site_option( 'rt_aff_email_click_message', $message ), $editor_id, $settings );
+									wp_editor( get_site_option( 'rt_aff_email_click_message' ), $editor_id, $settings );
 									?>
 									<br/>
 
@@ -294,10 +313,9 @@ if ( ! class_exists( 'rtAffiliateAdmin' ) ) {
 								<th scope="row"><label for="rt_aff_email_click_daily_message">Message</label></th>
 								<td>
 									<?php
-									$clickdailymessage = 'Hello {username}, <br> Below is your summary on {today} <br> {summary}';
 									$clickdailyeditor_id = 'rt_aff_email_click_daily_message';
 									$clickdailysettings = array( 'textarea_rows' => 10 );
-									wp_editor( get_site_option( 'rt_aff_email_click_daily_message', $clickdailymessage ), $clickdailyeditor_id, $clickdailysettings );
+									wp_editor( get_site_option( 'rt_aff_email_click_daily_message' ), $clickdailyeditor_id, $clickdailysettings );
 									?>
 									<br/>
 
@@ -335,10 +353,9 @@ if ( ! class_exists( 'rtAffiliateAdmin' ) ) {
 								<th scope="row"><label for="rt_aff_email_buy_message">Message</label></th>
 								<td>
 									<?php
-									$buymessage = 'Hello {username}, <br> Someone has bought products worth {currency} {total_cart_amount}. According to your {plan_type}, you will get commision {currency} {commision}.';
 									$buyeditor_id = 'rt_aff_email_buy_message';
 									$buysettings = array( 'textarea_rows' => 10 );
-									wp_editor( get_site_option( 'rt_aff_email_buy_message', $buymessage ), $buyeditor_id, $buysettings );
+									wp_editor( get_site_option( 'rt_aff_email_buy_message' ), $buyeditor_id, $buysettings );
 									?>
 									<br/>
 
@@ -377,10 +394,9 @@ if ( ! class_exists( 'rtAffiliateAdmin' ) ) {
 								<th scope="row"><label for="rt_aff_email_buy_daily_message">Message</label></th>
 								<td>
 									<?php
-									$buydailymessage = 'Hello {username}, <br> Below is your commision summary on {today} <br> {summary}.';
 									$buydailyeditor_id = 'rt_aff_email_buy_daily_message';
 									$buydailysettings = array( 'textarea_rows' => 10 );
-									wp_editor( get_site_option( 'rt_aff_email_buy_daily_message', $buydailymessage ), $buydailyeditor_id, $buydailysettings );
+									wp_editor( get_site_option( 'rt_aff_email_buy_daily_message' ), $buydailyeditor_id, $buydailysettings );
 									?>
 									<br/>
 
@@ -1250,44 +1266,44 @@ if ( ! class_exists( 'rtAffiliateAdmin' ) ) {
 
 			switch ( $_POST[ 'time_duration' ] ) {
 				case 'today':
-					$cond1 = " DATE_FORMAT(`date`, '%D %y %a') = DATE_FORMAT(now() , '%D %y %a')";
-					$cond2 = " DATE_FORMAT(`date_update`, '%D %y %a') = DATE_FORMAT(now() , '%D %y %a')";
+					$cond1 = " AND DATE_FORMAT(`date`, '%D %y %a') = DATE_FORMAT(now() , '%D %y %a')";
+					$cond2 = " AND DATE_FORMAT(`date_update`, '%D %y %a') = DATE_FORMAT(now() , '%D %y %a')";
 					break;
 				case 'yesterday':
-					$cond1 = " DATE_FORMAT(`date`, '%Y/%m/%d') = DATE_FORMAT(DATE_SUB(now(), INTERVAL 1 day ), '%Y/%m/%d')";
-					$cond2 = " DATE_FORMAT(`date_update`, '%D %y %a') = DATE_FORMAT(DATE_SUB(now(), INTERVAL 1 day ), '%D %y %a')";
+					$cond1 = " AND DATE_FORMAT(`date`, '%Y/%m/%d') = DATE_FORMAT(DATE_SUB(now(), INTERVAL 1 day ), '%Y/%m/%d')";
+					$cond2 = " AND DATE_FORMAT(`date_update`, '%D %y %a') = DATE_FORMAT(DATE_SUB(now(), INTERVAL 1 day ), '%D %y %a')";
 					break;
 				case 'this_week':
-					$cond1 = " YEARWEEK(`date`) = YEARWEEK(CURRENT_DATE)";
-					$cond2 = " YEARWEEK(`date_update`) = YEARWEEK(CURRENT_DATE)";
+					$cond1 = " AND YEARWEEK(`date`) = YEARWEEK(CURRENT_DATE)";
+					$cond2 = " AND YEARWEEK(`date_update`) = YEARWEEK(CURRENT_DATE)";
 					break;
 				case 'last_week':
-					$cond1 = " YEARWEEK(`date`) = YEARWEEK(CURRENT_DATE- INTERVAL 7 DAY)";
-					$cond2 = " YEARWEEK(`date_update`) = YEARWEEK(CURRENT_DATE- INTERVAL 7 DAY)";
+					$cond1 = " AND YEARWEEK(`date`) = YEARWEEK(CURRENT_DATE- INTERVAL 7 DAY)";
+					$cond2 = " AND YEARWEEK(`date_update`) = YEARWEEK(CURRENT_DATE- INTERVAL 7 DAY)";
 					break;
 				case 'this_month':
-					$cond1 = " DATE_FORMAT(`date`, '%y %m') = DATE_FORMAT(now(), '%y %m')";
-					$cond2 = " DATE_FORMAT(`date_update`, '%y %m') = DATE_FORMAT(now(), '%y %m')";
+					$cond1 = " AND DATE_FORMAT(`date`, '%y %m') = DATE_FORMAT(now(), '%y %m')";
+					$cond2 = " AND DATE_FORMAT(`date_update`, '%y %m') = DATE_FORMAT(now(), '%y %m')";
 					break;
 				case 'last_month':
-					$cond1 = " DATE_FORMAT(`date`, '%y %m') = DATE_FORMAT(DATE_SUB(now(), INTERVAL 1 month ), '%y %m')";
-					$cond2 = " DATE_FORMAT(`date_update`, '%y %m') = DATE_FORMAT(DATE_SUB(now(), INTERVAL 1 month ), '%y %m')";
+					$cond1 = " AND DATE_FORMAT(`date`, '%y %m') = DATE_FORMAT(DATE_SUB(now(), INTERVAL 1 month ), '%y %m')";
+					$cond2 = " AND DATE_FORMAT(`date_update`, '%y %m') = DATE_FORMAT(DATE_SUB(now(), INTERVAL 1 month ), '%y %m')";
 					break;
 				case 'this_year':
-					$cond1 = " DATE_FORMAT(`date`, '%y') = DATE_FORMAT(now(), '%y')";
-					$cond2 = " DATE_FORMAT(`date_update`, '%y') = DATE_FORMAT(now(), '%y')";
+					$cond1 = " AND DATE_FORMAT(`date`, '%y') = DATE_FORMAT(now(), '%y')";
+					$cond2 = " AND DATE_FORMAT(`date_update`, '%y') = DATE_FORMAT(now(), '%y')";
 					break;
 				case 'last_year':
-					$cond1 = " DATE_FORMAT(`date`, '%y') = DATE_FORMAT(DATE_SUB(now(), INTERVAL 1 year ), '%y')";
-					$cond2 = " DATE_FORMAT(`date_update`, '%y') = DATE_FORMAT(DATE_SUB(now(), INTERVAL 1 year ), '%y')";
+					$cond1 = " AND DATE_FORMAT(`date`, '%y') = DATE_FORMAT(DATE_SUB(now(), INTERVAL 1 year ), '%y')";
+					$cond2 = " AND DATE_FORMAT(`date_update`, '%y') = DATE_FORMAT(DATE_SUB(now(), INTERVAL 1 year ), '%y')";
 					break;
 			}
 
 			$admin_cond     = '';
 			$admin_ref_cond = '';
 			if ( ! current_user_can( 'manage_options' ) ) {
-				$admin_cond     = " user_id = $user_ID AND ";
-				$admin_ref_cond = " referred_by = $user_ID AND";
+				$admin_cond     = " AND user_id = $user_ID ";
+				$admin_ref_cond = " AND referred_by = $user_ID ";
 			}
 
 			$sql_clicks  = "SELECT count(id) as cnt FROM " . $wpdb->prefix . "rt_aff_users_referals WHERE $admin_cond" . $cond1;

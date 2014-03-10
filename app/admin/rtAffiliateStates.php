@@ -19,46 +19,46 @@ class rtAffiliateStates extends WP_List_Table {
 		if ( isset( $_POST[ 'time_duration' ] ) ) {
 			switch ( $_POST[ 'time_duration' ] ) {
 				case 'today':
-					$cond1 = " DATE_FORMAT(`date`, '%D %y %a') = DATE_FORMAT(now() , '%D %y %a')";
-					$cond2 = " DATE_FORMAT(`date_update`, '%D %y %a') = DATE_FORMAT(now() , '%D %y %a')";
+					$cond1 = " AND DATE_FORMAT(`date`, '%D %y %a') = DATE_FORMAT(now() , '%D %y %a')";
+					$cond2 = " AND DATE_FORMAT(`date_update`, '%D %y %a') = DATE_FORMAT(now() , '%D %y %a')";
 					break;
 				case 'yesterday':
-					$cond1 = " DATE_FORMAT(`date`, '%D %y %a') = DATE_FORMAT(DATE_SUB(now(), INTERVAL 1 day ), '%D %y %a')";
-					$cond2 = " DATE_FORMAT(`date_update`, '%D %y %a') = DATE_FORMAT(DATE_SUB(now(), INTERVAL 1 day ), '%D %y %a')";
+					$cond1 = " AND DATE_FORMAT(`date`, '%D %y %a') = DATE_FORMAT(DATE_SUB(now(), INTERVAL 1 day ), '%D %y %a')";
+					$cond2 = " AND DATE_FORMAT(`date_update`, '%D %y %a') = DATE_FORMAT(DATE_SUB(now(), INTERVAL 1 day ), '%D %y %a')";
 					break;
 				case 'this_week':
-					$cond1 = " YEARWEEK(`date`) = YEARWEEK(CURRENT_DATE)";
-					$cond2 = " YEARWEEK(`date_update`) = YEARWEEK(CURRENT_DATE)";
+					$cond1 = " AND YEARWEEK(`date`) = YEARWEEK(CURRENT_DATE)";
+					$cond2 = " AND YEARWEEK(`date_update`) = YEARWEEK(CURRENT_DATE)";
 					break;
 				case 'last_week':
-					$cond1 = " YEARWEEK(`date`) = YEARWEEK(CURRENT_DATE- INTERVAL 7 DAY)";
-					$cond2 = " YEARWEEK(`date_update`) = YEARWEEK(CURRENT_DATE- INTERVAL 7 DAY)";
+					$cond1 = " AND YEARWEEK(`date`) = YEARWEEK(CURRENT_DATE- INTERVAL 7 DAY)";
+					$cond2 = " AND YEARWEEK(`date_update`) = YEARWEEK(CURRENT_DATE- INTERVAL 7 DAY)";
 					break;
 				case 'this_month':
-					$cond1 = " DATE_FORMAT(`date`, '%y %m') = DATE_FORMAT(now(), '%y %m')";
-					$cond2 = " DATE_FORMAT(`date_update`, '%y %m') = DATE_FORMAT(now(), '%y %m')";
+					$cond1 = " AND DATE_FORMAT(`date`, '%y %m') = DATE_FORMAT(now(), '%y %m')";
+					$cond2 = " AND DATE_FORMAT(`date_update`, '%y %m') = DATE_FORMAT(now(), '%y %m')";
 					break;
 				case 'last_month':
-					$cond1 = " DATE_FORMAT(`date`, '%y %m') = DATE_FORMAT(DATE_SUB(now(), INTERVAL 1 month ), '%y %m')";
-					$cond2 = " DATE_FORMAT(`date_update`, '%y %m') = DATE_FORMAT(DATE_SUB(now(), INTERVAL 1 month ), '%y %m')";
+					$cond1 = " AND DATE_FORMAT(`date`, '%y %m') = DATE_FORMAT(DATE_SUB(now(), INTERVAL 1 month ), '%y %m')";
+					$cond2 = " AND DATE_FORMAT(`date_update`, '%y %m') = DATE_FORMAT(DATE_SUB(now(), INTERVAL 1 month ), '%y %m')";
 					break;
 				case 'this_year':
-					$cond1 = " DATE_FORMAT(`date`, '%y') = DATE_FORMAT(now(), '%y')";
-					$cond2 = " DATE_FORMAT(`date_update`, '%y') = DATE_FORMAT(now(), '%y')";
+					$cond1 = " AND DATE_FORMAT(`date`, '%y') = DATE_FORMAT(now(), '%y')";
+					$cond2 = " AND DATE_FORMAT(`date_update`, '%y') = DATE_FORMAT(now(), '%y')";
 					break;
 				case 'last_year':
-					$cond1 = " DATE_FORMAT(`date`, '%y') = DATE_FORMAT(DATE_SUB(now(), INTERVAL 1 year ), '%y')";
-					$cond2 = " DATE_FORMAT(`date_update`, '%y') = DATE_FORMAT(DATE_SUB(now(), INTERVAL 1 year ), '%y')";
+					$cond1 = " AND DATE_FORMAT(`date`, '%y') = DATE_FORMAT(DATE_SUB(now(), INTERVAL 1 year ), '%y')";
+					$cond2 = " AND DATE_FORMAT(`date_update`, '%y') = DATE_FORMAT(DATE_SUB(now(), INTERVAL 1 year ), '%y')";
 					break;
 			}
 		}
 		$user_id = get_current_user_id();
 		if ( current_user_can( 'manage_options' ) && isset( $_GET[ "user_id" ] ) ) {
 			$user_id    = $_GET[ "user_id" ];
-			$admin_cond = " user_id = $user_id AND ";
+			$admin_cond = " AND user_id = $user_id ";
 		} else {
 			if ( ! current_user_can( 'manage_options' ) ) {
-				$admin_cond = " user_id = $user_id AND ";
+				$admin_cond = " AND user_id = $user_id  ";
 			} else {
 				$admin_cond = "";
 			}
