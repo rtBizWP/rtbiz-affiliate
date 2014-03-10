@@ -143,7 +143,7 @@ if ( ! class_exists( 'rtAffiliateAdmin' ) ) {
 				$user_query = ' and user_id = "' . get_current_user_id() . '" ';
 			}
 
-			$sql        = "SELECT domain_name as `key`, `count` as `count` FROM {$wpdb->prefix}rt_aff_users_domain where 1=1 " . $user_query ;
+			$sql        = "SELECT domain_name as `key`, sum(`count`) as `count` FROM {$wpdb->prefix}rt_aff_users_domain where 1=1 " . $user_query . " group by domain_name" ;
 			$data       = $wpdb->get_results( $sql );
 			$graph_data = array( array( "key", "val" ) );
 			foreach ( $data as $row ) {
