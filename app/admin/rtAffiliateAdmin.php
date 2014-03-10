@@ -192,7 +192,7 @@ if ( ! class_exists( 'rtAffiliateAdmin' ) ) {
 			wp_register_script( 'jquery-ui-timepicker', RT_AFFILIATE_URL . 'app/assets/js/jquery-ui-timepicker-addon.js' );
 			wp_enqueue_script( 'jquery-ui-autocomplete' );
 			if ( in_array( $hook, array( 'toplevel_page_rt-affiliate-manage-payment', 'toplevel_page_rt-affiliate-stats' ) ) ) {
-				wp_enqueue_script( 'rt-affiliate-admin', RT_AFFILIATE_URL . 'app/assets/js/admin.js', array( 'jquery', 'jquery-ui-slider', 'jquery-ui-datepicker', 'jquery-ui-timepicker' ) );
+				wp_enqueue_script( 'rt-affiliate-admin', RT_AFFILIATE_URL . 'app/assets/js/admin.js?1.1', array( 'jquery', 'jquery-ui-slider', 'jquery-ui-datepicker', 'jquery-ui-timepicker' ) );
 			}
 			wp_enqueue_style( 'rt-affiliate-admin', RT_AFFILIATE_URL . 'app/assets/css/admin.css' );
 		}
@@ -720,7 +720,7 @@ if ( ! class_exists( 'rtAffiliateAdmin' ) ) {
 						'user_id' => $user_ID, 'affiliate_plan' => isset( $_POST[ 'rt_aff_my_plan' ] )? $_POST[ 'rt_aff_my_plan' ] : '1'
 					), array( '%d', '%d' ) );
 				} else {
-					$result = $wpdb->update( $wpdb->prefix . "rt_aff_payment_info", array( 'affiliate_plan' => isset( $_POST[ 'rt_aff_my_plan' ] )? $_POST[ 'rt_aff_my_plan' ] : '1' ), array( 'user_id' => $currentuserid ), array( '%d', '%d' ) );
+					$result = $wpdb->update( $wpdb->prefix . "rt_aff_payment_info", array( 'affiliate_plan' => isset( $_POST[ 'rt_aff_my_plan' ] )? $_POST[ 'rt_aff_my_plan' ] : '1' ), array( 'user_id' => $currentuserid ), array( '%d') , array( '%d') );
 				}
 
 				//Message
