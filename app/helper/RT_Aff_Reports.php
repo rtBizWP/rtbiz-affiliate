@@ -9,9 +9,9 @@
  *
  * @author faishal
  */
-if ( ! class_exists( "rtReports" ) ) {
+if ( ! class_exists( "RT_Aff_Reports" ) ) {
 
-	class rtReports {
+	class RT_Aff_Reports {
 		/**
 		 *
 		 *

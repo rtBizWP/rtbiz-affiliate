@@ -143,7 +143,7 @@ if ( ! class_exists( 'rtAffiliateAdmin' ) ) {
 			foreach ( $data as $row ) {
 				$graph_data[ ] = array( $row->key, intval( $row->count ) );
 			}
-			$reports = new rtReports();
+			$reports = new RT_Aff_Reports();
 
 			$reports->draw_chart( "Domain", $graph_data, false );
 		}
@@ -181,7 +181,7 @@ if ( ! class_exists( 'rtAffiliateAdmin' ) ) {
 				}
 			}
 
-			$reports = new rtReports();
+			$reports = new RT_Aff_Reports();
 			$reports->draw_chart( date( "M" ) . " " . date( "Y" ), $graph_data, 'line', array( "pointSize" => 5 ), $width, $height );
 		}
 
