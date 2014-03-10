@@ -38,8 +38,6 @@ if ( ! class_exists( 'rtAffiliate' ) ) {
 			global $rtAffiliateAdmin;
 			$rtAffiliateAdmin = new rtAffiliateAdmin();
 
-			add_action( 'init', array( $this, 'rt_aff_daily_send_mail' ) );
-
 		}
 
 		public function my_custom_dashboard_widgets() {
