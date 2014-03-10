@@ -256,11 +256,11 @@ if ( ! class_exists( 'rtAffiliate' ) ) {
 				/*
 				 * if user name found in users table
 				 */
-				if ( $row ) {
 
+				if ( $row ) {
 					$set_cookies_flag = true;
 					if ( isset ( $_SERVER[ 'HTTP_REFERER' ] ) ) {
-						$url_data    = parse_url( $landing_page );
+						$url_data    = parse_url(  $_SERVER[ 'HTTP_REFERER' ] );
 						$domain_name = $url_data[ "host" ];
 						$sql         = $wpdb->prepare( "SELECT * FROM  {$wpdb->prefix}rt_aff_users_domain WHERE domain_name = %s and user_id = %d", trim( $domain_name ), $row->ID );
 						$d_row       = $wpdb->get_row( $sql );
