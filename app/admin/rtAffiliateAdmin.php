@@ -868,10 +868,12 @@ if ( ! class_exists( 'rtAffiliateAdmin' ) ) {
 			if ( isset( $_POST[ "pay-info-submit" ] ) ) {
 				$sql_pay  = $wpdb->prepare( "SELECT id FROM " . $wpdb->prefix . "rt_aff_payment_info where user_id = %d ", $user_ID );
 				$rows_pay = $wpdb->get_row( $sql_pay );
-				if ( empty ( $rows_pay ) ) {
+
+				if ( $rows_pay === null ) {
 					$result = $wpdb->insert( $wpdb->prefix . "rt_aff_payment_info", array(
-						'user_id' => $user_ID, 'payment_method' => $_POST[ "payment_method" ], 'payment_details' => $_POST[ 'payment_details' ], 'min_payout' => $_POST[ 'min_payout' ]
+						'user_id' => $user_ID, 'payment_method' => $_POST[ "payment_method" ], 'payment_details' => $_POST[ 'payment_details' ], 'min_payout' => ( ! isset( $_POST[ 'min_payout' ] ) ? 0 : intval( $_POST[ 'min_payout' ] ) )
 					), array( '%d', '%s', '%s', '%s' ) );
+					var_dump($result);
 				} else {
 					$result = $wpdb->update( $wpdb->prefix . "rt_aff_payment_info", array(
 						'payment_details' => $_POST[ 'payment_details' ], 'min_payout' => $_POST[ 'min_payout' ], 'payment_method' => $_POST[ "payment_method" ]
@@ -951,6 +953,8 @@ if ( ! class_exists( 'rtAffiliateAdmin' ) ) {
 											 } else {
 												 if ( isset( $rows_pay->min_payout ) ) {
 													 echo $rows_pay->min_payout;
+												 }else {
+													 echo 0;
 												 }
 											 } ?>"/>
 					</td>
