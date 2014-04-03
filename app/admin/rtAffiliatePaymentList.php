@@ -202,7 +202,7 @@ class rtAffiliatePaymentList extends WP_List_Table {
 			$user_ids = $wpdb->get_results( $userid );
 			global $rtAffiliateAdmin;
 			foreach ( $user_ids as $uid ) {
-				$rtAffiliateAdmin->update_user_earning( $uid->user_id );
+				rtAffiliate::update_user_earning( $uid->user_id );
 			}
 		}
 	}

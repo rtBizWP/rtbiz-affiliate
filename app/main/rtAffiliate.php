@@ -446,5 +446,70 @@ if ( ! class_exists( 'rtAffiliate' ) ) {
 			}
 		}
 
+		public static function get_affiliate_link($userid = false){
+
+			if ( $userid === false ){
+				global $user_ID;
+				$username = get_userdata( $user_ID )->user_login;
+			} else {
+				$username = get_userdata( $userid )->user_login;
+			}
+
+			return add_query_arg( array( 'ref' => $username ), home_url() );
+		}
+		public static function update_user_earning( $user_id ) {
+			global $wpdb, $rt_affiliate;
+			$user_earning = array();
+			$admin_cond   = " AND user_id = $user_id";
+			foreach ( $rt_affiliate->currency_types as $currency ) {
+				$sql_balance_plus  = "SELECT SUM(amount) as plus FROM " . $wpdb->prefix . "rt_aff_transaction  WHERE  deleted is null and type = 'earning' " . $admin_cond . " AND currency='" . $currency . "' AND approved = 1";
+				$rows_balance_plus = $wpdb->get_row( $sql_balance_plus );
+
+				$sql_balance_minus  = "SELECT SUM(amount) as minus FROM " . $wpdb->prefix . "rt_aff_transaction  WHERE deleted is null and type = 'payout' " . $admin_cond . " AND currency='" . $currency . "' AND approved = 1";
+				$rows_balance_minus = $wpdb->get_row( $sql_balance_minus );
+				$balance            = $rows_balance_plus->plus - $rows_balance_minus->minus;
+
+				$cond1                  = " AND `date` < DATE_SUB(CURDATE(), INTERVAL 60 DAY )";
+				$sql_balance_available  = "SELECT SUM(amount) as avail FROM " . $wpdb->prefix . "rt_aff_transaction  WHERE deleted is null and  type = 'earning' " . $admin_cond . $cond1 . " AND currency='" . $currency . "' AND approved = 1";
+				$rows_balance_available = $wpdb->get_row( $sql_balance_available );
+
+				$cond2             = " AND `date` > DATE_SUB(CURDATE(), INTERVAL 60 DAY )";
+				$sql_balance_hold  = "SELECT SUM(amount) as hold FROM " . $wpdb->prefix . "rt_aff_transaction  WHERE deleted is null  and type = 'earning' " . $admin_cond . $cond2 . " AND currency='" . $currency . "' AND approved = 0";
+				$rows_balance_hold = $wpdb->get_row( $sql_balance_hold );
+
+				$earning                   = ( $rows_balance_plus->plus ) ? $rows_balance_plus->plus : '0';
+				$payout                    = ( $rows_balance_minus->minus ) ? $rows_balance_minus->minus : '0';
+				$available                 = ( $rows_balance_available->avail ) ? $rows_balance_available->avail - $payout : 0 - $payout;
+				$onhold                    = ( $rows_balance_hold->hold ) ? $rows_balance_hold->hold : 0;
+				$user_earning[ $currency ] = array( "earning" => $earning, "payout" => $payout, "available" => $available, "onhold" => $onhold );
+			}
+			update_user_meta( $user_id, 'rt_affiliate_earning', $user_earning );
+
+			return $user_earning;
+		}
+
+		public static function get_user_earning( $user_id ) {
+			$user_earning = get_user_meta( $user_id, 'rt_affiliate_earning', true );
+			if ( $user_earning ) {
+				return $user_earning;
+			} else {
+				return rtAffiliate::update_user_earning( $user_id );
+			}
+		}
+
+
 	}
+}
+
+
+function get_rt_affiliate_link($userid = false){
+
+	if ( $userid === false ){
+		global $user_ID;
+		$username = get_userdata( $user_ID )->user_login;
+	} else {
+		$username = get_userdata( $userid )->user_login;
+	}
+
+	return add_query_arg( array( 'ref' => $username ), trailingslashit( home_url() ) );
 }

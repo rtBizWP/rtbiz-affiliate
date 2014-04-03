@@ -47,7 +47,7 @@ if ( ! class_exists( 'rtAffiliateAdmin' ) ) {
 					$user_ids = $wpdb->get_results( $userid );
 					global $rtAffiliateAdmin;
 					foreach ( $user_ids as $uid ) {
-						var_dump( $rtAffiliateAdmin->update_user_earning( $uid->user_id ) );
+						rtAffiliate::update_user_earning( $uid->user_id );
 					}
 					if ( $_SERVER[ "HTTP_REFERER" ] ) {
 						wp_safe_redirect( $_SERVER[ "HTTP_REFERER" ] );
@@ -68,7 +68,7 @@ if ( ! class_exists( 'rtAffiliateAdmin' ) ) {
 			// Only add menu for logged in user
 			if ( is_user_logged_in() ) {
 				// Add secondary parent item for all BuddyPress components
-				$earning = $this->get_user_earning( get_current_user_id() );
+				$earning = rtAffiliate::get_user_earning( get_current_user_id() );
 				foreach ( $earning as $currency => $er ) {
 					if ( intval( $er[ "available" ] ) > 0 || strtolower( $currency ) == 'usd' ) {
 						$wp_admin_bar->add_menu( array(
@@ -983,7 +983,7 @@ if ( ! class_exists( 'rtAffiliateAdmin' ) ) {
 				<div id="aff-payment-summary">
 					<?php
 					//                  if (!current_user_can('manage_options')) {
-					$user_earnings = $this->get_user_earning( $user_ID );
+					$user_earnings = rtAffiliate::get_user_earning( $user_ID );
 					foreach ( $user_earnings as $currency => $u_earning ) {
 						?>
 						<table class="affiliate-payment-summary" width="25%" border="0" cellspacing="0" cellpadding="0">
@@ -1045,46 +1045,6 @@ if ( ! class_exists( 'rtAffiliateAdmin' ) ) {
 				?>
 			</div>
 		<?php
-		}
-
-		function update_user_earning( $user_id ) {
-			global $wpdb, $rt_affiliate;
-			$user_earning = array();
-			$admin_cond   = " AND user_id = $user_id";
-			foreach ( $rt_affiliate->currency_types as $currency ) {
-				$sql_balance_plus  = "SELECT SUM(amount) as plus FROM " . $wpdb->prefix . "rt_aff_transaction  WHERE  deleted is null and type = 'earning' " . $admin_cond . " AND currency='" . $currency . "' AND approved = 1";
-				$rows_balance_plus = $wpdb->get_row( $sql_balance_plus );
-
-				$sql_balance_minus  = "SELECT SUM(amount) as minus FROM " . $wpdb->prefix . "rt_aff_transaction  WHERE deleted is null and type = 'payout' " . $admin_cond . " AND currency='" . $currency . "' AND approved = 1";
-				$rows_balance_minus = $wpdb->get_row( $sql_balance_minus );
-				$balance            = $rows_balance_plus->plus - $rows_balance_minus->minus;
-
-				$cond1                  = " AND `date` < DATE_SUB(CURDATE(), INTERVAL 60 DAY )";
-				$sql_balance_available  = "SELECT SUM(amount) as avail FROM " . $wpdb->prefix . "rt_aff_transaction  WHERE deleted is null and  type = 'earning' " . $admin_cond . $cond1 . " AND currency='" . $currency . "' AND approved = 1";
-				$rows_balance_available = $wpdb->get_row( $sql_balance_available );
-
-				$cond2             = " AND `date` > DATE_SUB(CURDATE(), INTERVAL 60 DAY )";
-				$sql_balance_hold  = "SELECT SUM(amount) as hold FROM " . $wpdb->prefix . "rt_aff_transaction  WHERE deleted is null  and type = 'earning' " . $admin_cond . $cond2 . " AND currency='" . $currency . "' AND approved = 0";
-				$rows_balance_hold = $wpdb->get_row( $sql_balance_hold );
-
-				$earning                   = ( $rows_balance_plus->plus ) ? $rows_balance_plus->plus : '0';
-				$payout                    = ( $rows_balance_minus->minus ) ? $rows_balance_minus->minus : '0';
-				$available                 = ( $rows_balance_available->avail ) ? $rows_balance_available->avail - $payout : 0 - $payout;
-				$onhold                    = ( $rows_balance_hold->hold ) ? $rows_balance_hold->hold : 0;
-				$user_earning[ $currency ] = array( "earning" => $earning, "payout" => $payout, "available" => $available, "onhold" => $onhold );
-			}
-			update_user_meta( $user_id, 'rt_affiliate_earning', $user_earning );
-
-			return $user_earning;
-		}
-
-		function get_user_earning( $user_id ) {
-			$user_earning = get_user_meta( $user_id, 'rt_affiliate_earning', true );
-			if ( $user_earning ) {
-				return $user_earning;
-			} else {
-				return $this->update_user_earning( $user_id );
-			}
 		}
 
 		public function manage_payment_list() {
@@ -1152,12 +1112,12 @@ if ( ! class_exists( 'rtAffiliateAdmin' ) ) {
 				$method    = $row_tranx->payment_method;
 				$note      = $row_tranx->note;
 				$date      = date( 'Y-m-d H:i:s', strtotime( $row_tranx->date ) + ( get_site_option( 'gmt_offset' ) * 1 * 3600 ) );
-				$this->update_user_earning( $row_tranx->user_id );
+				rtAffiliate::update_user_earning( $row_tranx->user_id );
 
 			} else {
 				$currency = '';
 				if ( isset( $_POST[ 'user_id' ] ) ) {
-					$this->update_user_earning( $_POST[ 'user_id' ] );
+					rtAffiliate::update_user_earning( $_POST[ 'user_id' ] );
 				}
 			}
 
