@@ -58,7 +58,7 @@ spl_autoload_register ( 'rt_affiliate_autoloader' ) ;
 /**
  * Instantiate the rtAffiliate class.
  */
-add_action( 'plugin_loaded', 'load_rt_affiliate' );
+add_action( 'plugins_loaded', 'load_rt_affiliate' );
 function load_rt_affiliate() {
 
 }
