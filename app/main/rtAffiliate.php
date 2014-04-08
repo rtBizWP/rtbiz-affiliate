@@ -363,10 +363,10 @@ if ( ! class_exists( 'rtAffiliate' ) ) {
 					$plan_type = 2;
 					update_user_meta( $currentuserid, 'rt_aff_referred_by', $affiliate_user );
 
-					$commision = round( $woocommerce->cart->total * ( get_option( 'rt_aff_plan_commision', 20 ) / 100 ), 2 );
+					$commision = round( $woocommerce->cart->total * ( intval(get_option( 'rt_aff_plan_commision', 5 )) / 100 ), 2 );
 				} else { // One Time Plan
 					$plan_type = 1;
-					$commision = round( $woocommerce->cart->total * ( get_option( 'rt_aff_onetime_commission', 50 ) / 100 ), 2 );
+					$commision = round( $woocommerce->cart->total * ( intval( get_option( 'rt_aff_onetime_commission', 20 ))  / 100 ), 2 );
 				}
 
 				$result = $wpdb->insert( $wpdb->prefix . "rt_aff_transaction", array(
