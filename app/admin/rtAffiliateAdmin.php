@@ -1345,7 +1345,7 @@ if ( ! class_exists( 'rtAffiliateAdmin' ) ) {
 		public function referer_info( $post ) {
 			$referer = get_post_meta( $post->ID, '_rt-ref-affiliate', true );
 			if ( $referer ) {
-				$referer = explode( ',', $referer );
+				$referer = explode( ', ', $referer );
 				echo '<p>&nbsp;&nbsp;<a href="' . admin_url( 'user-edit.php?user_id=' . $referer[ 1 ], 'http' ) . '">' . $referer[ 0 ] . '</a></p>';
 			} else {
 				echo '<pre>&nbsp;&nbsp;This customer was not refered.</pre>';
