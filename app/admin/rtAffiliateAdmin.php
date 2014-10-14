@@ -1322,7 +1322,7 @@ if ( ! class_exists( 'rtAffiliateAdmin' ) ) {
 					add_meta_box( 'rt-affiliate-referer-info', __( 'Customer Referer Info' ), array( $this, 'referer_info' ), 'shop_order', 'side' );
 					break;
 				case 'edd':
-					add_action( 'edd_view_order_details_main_after', array( $this, 'edd_referer_info' ), 999 );
+					add_action( 'edd_view_order_details_main_after', array( $this, 'edd_referer_info' ), 700 );
 					break;
 			}
 		}
