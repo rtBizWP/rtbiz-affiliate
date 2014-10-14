@@ -90,7 +90,7 @@ if ( ! class_exists( 'rtAffiliateAdmin' ) ) {
 			add_submenu_page('rt-affiliate-manage-payment', 'Settings', 'Settings', 'manage_options', 'rt-affiliate-manage-settings', array($this, 'manage_settings'));
 			*/
 
-			add_menu_page( 'Affiliate', 'Affiliate', 'read', 'rt-affiliate-stats', '', '', '90.199' );
+			add_menu_page( 'Affiliate', 'Affiliate', 'read', 'rt-affiliate-stats', '', '', 39 );
 			add_submenu_page( 'rt-affiliate-stats', 'Stats & History', 'Stats & History', 'read', 'rt-affiliate-stats', array( $this, 'affiliate_stats' ) );
 			add_submenu_page( 'rt-affiliate-stats', 'Links & Banners', 'Links & Banners', 'read', 'rt-affiliate-banners', array( $this, 'banners' ) );
 			add_submenu_page( 'rt-affiliate-stats', 'Payment Info', 'Payment Info', 'read', 'rt-affiliate-payment-info', array( $this, 'payment_info' ) );
@@ -207,7 +207,7 @@ if ( ! class_exists( 'rtAffiliateAdmin' ) ) {
 			if ( isset( $_GET[ "action" ] ) ) {
 				$current = $_REQUEST[ "action" ];
 			} else {
-				$current = "commision";
+				$current = "store";
 			}
 			?>
 			<div class="wrap">
@@ -215,6 +215,9 @@ if ( ! class_exists( 'rtAffiliateAdmin' ) ) {
 			<h2>Affiliate Settings</h2>
 			<br/>
 			<ul class="subsubsub">
+				<li><a href="?page=rt-affiliate-manage-settings&action=store"
+					   class="<?php echo ( $current == "store" ) ? "current" : ""; ?>">Store Settings</a> |
+				</li>
 				<li><a href="?page=rt-affiliate-manage-settings&action=commision"
 					   class="<?php echo ( $current == "commision" ) ? "current" : ""; ?>">Commission Settings</a> |
 				</li>
@@ -224,8 +227,10 @@ if ( ! class_exists( 'rtAffiliateAdmin' ) ) {
 			<?php
 			if ( isset( $_GET[ 'action' ] ) && ( $_GET[ 'action' ] == 'email' ) ) {
 				$this->manage_email_templates();
-			} else {
+			} else if( isset( $_GET[ 'action' ] ) && ( $_GET[ 'action' ] == 'commision' ) ) {
 				$this->manage_commision_settings();
+			} else {
+				$this->manage_store_settings();
 			}
 			?></div><?php
 		}
@@ -421,6 +426,36 @@ if ( ! class_exists( 'rtAffiliateAdmin' ) ) {
 		<?php
 		}
 
+		function manage_store_settings() {
+			if( isset( $_POST[ 'rt_aff_store' ] ) ) {
+				update_site_option( 'rt_aff_store', $_POST[ 'rt_aff_store' ] );
+			}
+			$store = get_site_option( 'rt_aff_store' );
+			?>
+			<div class="wrap">
+				<div class="icon32" id="icon-options-general"></div>
+				<br/>
+				<form method="post">
+					<div class="tablenav">
+						<table class="form-table">
+							<tr valign="top">
+								<th scope="row">Store</th>
+								<td>
+									<label for="rt_aff_store_woocommerce"><input type="radio" id="rt_aff_store_woocommerce" name="rt_aff_store" value="woocommerce" <?php echo ( $store == 'woocommerce' ) ? 'checked="checked"' : ''; ?> /> WooCommerce</label>
+									<br />
+									<label for="rt_aff_store_edd"><input type="radio" id="rt_aff_store_edd" name="rt_aff_store" value="edd" <?php echo ( $store == 'edd' ) ? 'checked="checked"' : ''; ?> /> EasyDigitalDownloads</label>
+								</td>
+							</tr>
+							<tr valign="top">
+								<th scope="row"></th>
+								<td><input type="submit" class='button button-primary' value='Save'/></td>
+							</tr>
+						</table>
+					</div>
+				</form>
+			</div> <?php
+		}
+
 		function manage_commision_settings() {
 			if ( isset( $_POST[ "rt_aff_onetime_commission" ] ) ) {
 				if ( ! is_numeric( $_POST[ "rt_aff_onetime_commission" ] ) ) {
@@ -438,10 +473,6 @@ if ( ! class_exists( 'rtAffiliateAdmin' ) ) {
 			<div class="wrap">
 				<div class="icon32" id="icon-options-general"></div>
 				<br/>
-
-				<h3>Wocommerce</h3>
-				<br/>
-
 				<form method="post">
 					<div class="tablenav">
 						<table class="form-table">
@@ -1285,16 +1316,39 @@ if ( ! class_exists( 'rtAffiliateAdmin' ) ) {
 		}
 
 		public function order_referer_info( $post ) {
-			add_meta_box( 'rt-affiliate-referer-info', __( 'Customer Referer Info' ), array( $this, 'referer_info' ), 'shop_order', 'side' );
+			$store = get_site_option( 'rt_aff_store' );
+			switch( $store ) {
+				case 'woocommerce':
+					add_meta_box( 'rt-affiliate-referer-info', __( 'Customer Referer Info' ), array( $this, 'referer_info' ), 'shop_order', 'side' );
+					break;
+				case 'edd':
+					add_action( 'edd_view_order_details_main_after', array( $this, 'edd_referer_info' ), 999 );
+					break;
+			}
+		}
+
+		function edd_referer_info( $order_id ) {
+			?>
+			<div class="postbox-container">
+				<div id="normal-sortables" class="meta-box-sortables ui-sortable">
+					<div class="postbox">
+						<h3 class="hndle"><?php _e( 'Customer Referrer Info' ); ?></h3>
+						<div class="inside" style="margin: 0; padding: 0;">
+						<?php $this->referer_info( get_post( $order_id ) ); ?>
+						</div>
+					</div>
+				</div>
+			</div>
+			<?php
 		}
 
 		public function referer_info( $post ) {
 			$referer = get_post_meta( $post->ID, '_rt-ref-affiliate', true );
 			if ( $referer ) {
 				$referer = explode( ',', $referer );
-				echo '<p><a href="' . admin_url( 'user-edit.php?user_id=' . $referer[ 1 ], 'http' ) . '">' . $referer[ 0 ] . '</a></p>';
+				echo '<p>&nbsp;&nbsp;<a href="' . admin_url( 'user-edit.php?user_id=' . $referer[ 1 ], 'http' ) . '">' . $referer[ 0 ] . '</a></p>';
 			} else {
-				echo '<p>This customer was not refered.</p>';
+				echo '<pre>&nbsp;&nbsp;This customer was not refered.</pre>';
 			}
 		}
 

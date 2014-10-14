@@ -28,7 +28,6 @@ if ( ! class_exists( 'rtAffiliate' ) ) {
 			register_activation_hook( RT_AFFILIATE_PATH . 'index.php', array( $this, 'create_tables' ) );
 			add_action( 'init', array( $this, 'create_tables' ) );
 			add_action( 'init', array( $this, 'set_referer_cookie' ) );
-			add_action( 'woocommerce_checkout_update_order_meta', array( $this, 'store_order_meta_referer_info' ), 1, 2 );
 			add_action( 'wp_dashboard_setup', array( $this, 'my_custom_dashboard_widgets' ) );
 			add_action( 'rt_aff_daily_send_mail_event_hook', array( $this, 'rt_aff_daily_send_mail' ) );
 			add_action( 'rt_aff_weekly_send_mail_event_hook', array( $this, 'rt_aff_weekly_send_mail' ) );
@@ -38,6 +37,15 @@ if ( ! class_exists( 'rtAffiliate' ) ) {
 			global $rtAffiliateAdmin;
 			$rtAffiliateAdmin = new rtAffiliateAdmin();
 
+			$store = get_site_option( 'rt_aff_store' );
+			switch( $store ) {
+				case 'woocommerce':
+					add_action( 'woocommerce_checkout_update_order_meta', array( $this, 'wc_store_order_meta_referer_info' ), 1, 2 );
+					break;
+				case 'edd':
+					add_action( 'edd_insert_payment', array( $this, 'edd_store_order_meta_referer_info' ), 1, 2 );
+					break;
+			}
 		}
 
 		public function my_custom_dashboard_widgets() {
@@ -334,7 +342,7 @@ if ( ! class_exists( 'rtAffiliate' ) ) {
 
 		}
 
-		public function store_order_meta_referer_info( $order_id, $detail ) {
+		public function wc_store_order_meta_referer_info( $order_id, $detail ) {
 
 			global $wpdb, $woocommerce;
 			$rt_ref_affiliate  = '';
@@ -371,6 +379,98 @@ if ( ! class_exists( 'rtAffiliate' ) ) {
 
 				$result = $wpdb->insert( $wpdb->prefix . "rt_aff_transaction", array(
 						'txn_id' => $order_id, 'user_id' => $affiliate_user, 'type' => 'earning', 'approved' => 0, 'amount' => $commision, 'payment_method' => $detail[ 'payment_method' ], 'note' => $comment, 'date' => get_post_field( 'post_date_gmt', $order_id )
+					), array( '%d', '%d', '%s', '%d', '%s', '%s', '%s', '%s' ) );
+
+				$result1 = $wpdb->insert( $wpdb->prefix . "rt_aff_buy_summary", array(
+						'user_id' => $affiliate_user, 'cart_amount' => $total_cart_amount, 'commision' => $commision, 'date' => get_post_field( 'post_date_gmt', $order_id )
+					), array( '%d', '%d', '%d', '%s' ) );
+
+
+				// Immediately on buying
+				if ( $rows_pay && $rows_pay->buy_notify == 1 && $rows_pay->frequently == 1 ) {
+
+					$sql_user  = $wpdb->prepare( "SELECT user_login, user_email  FROM " . $wpdb->prefix . "users where ID = %d ", $affiliate_user );
+					$rows_user = $wpdb->get_row( $sql_user );
+
+					if ( ! empty( $rows_user->user_email ) ) {
+						$to      = $rows_user->user_email;
+						$subject = get_site_option( 'rt_aff_email_buy_subject' );
+						$message = get_site_option( 'rt_aff_email_buy_message' );
+
+						$message = str_replace( '{username}', $rows_user->user_login, $message );
+						$message = str_replace( '{currency}', get_woocommerce_currency_symbol(), $message );
+						$message = str_replace( '{total_cart_amount}', $total_cart_amount, $message );
+
+						if ( $plan_type == 1 ) {
+							$percent = get_option( 'rt_aff_onetime_commission' );
+							$plan    = '"One Time Plan (' . $percent . '%)"';
+						} else {
+							$percent = get_option( 'rt_aff_plan_commision' );
+							$plan    = '"Recurring Plan (' . $percent . '%)"';
+						}
+
+						$message = str_replace( '{plan_type}', $plan, $message );
+						$message = str_replace( '{commision}', $commision, $message );
+
+						add_filter( 'wp_mail_content_type', array( $this, 'set_content_type' ) );
+
+						$obj_email_template = new RT_Email_Template();
+						wp_mail( $to, $subject, $obj_email_template->get_header() . $message . $obj_email_template->get_footer() );
+
+						remove_filter( 'wp_mail_content_type', array( $this, 'set_content_type' ) );
+					}
+				}
+
+				// Removing Cookie
+				setcookie( 'rt_aff_username', "", time() - 3600, SITECOOKIEPATH );
+				setcookie( 'rt_aff_user_id', "", time() - 3600, SITECOOKIEPATH );
+
+				if ( $rt_ref_affiliate ) {
+					update_post_meta( $order_id, '_rt-ref-affiliate', $rt_ref_affiliate );
+				}
+			}
+		}
+
+		public function edd_store_order_meta_referer_info( $order_id, $detail ) {
+
+			global $wpdb;
+			$rt_ref_affiliate  = '';
+			$commision         = '';
+			$total_cart_amount = round( ( function_exists( 'edd_get_cart_total' ) ) ? edd_get_cart_total() : 0 );
+			$plan_type         = 0;
+			if ( is_user_logged_in() ) {
+				$currentuserid = get_current_user_id();
+			}
+
+			$gateway = ! empty( $detail['gateway'] ) ? $detail['gateway'] : '';
+			$gateway = empty( $gateway ) && isset( $_POST['edd-gateway'] ) ? $_POST['edd-gateway'] : $gateway;
+
+			if ( isset ( $_COOKIE[ 'rt_aff_username' ] ) ) {
+				$rt_ref_affiliate .= $_COOKIE[ 'rt_aff_username' ] . ', ';
+			}
+			$affiliate_user = $this->get_affiliate_user_for_commision();
+			//get affilate user from cookie or meta
+			if ( $affiliate_user ) {
+				$rt_ref_affiliate .= $affiliate_user;
+				$comment = 'Order #' . $order_id;
+
+				$sql_pay  = $wpdb->prepare( "SELECT affiliate_plan, buy_notify,frequently FROM " . $wpdb->prefix . "rt_aff_payment_info where user_id = %d ", $affiliate_user );
+				$rows_pay = $wpdb->get_row( $sql_pay );
+
+
+				// if Recurring
+				if ( $rows_pay && $rows_pay->affiliate_plan == 2 ) {
+					$plan_type = 2;
+					update_user_meta( $currentuserid, 'rt_aff_referred_by', $affiliate_user );
+
+					$commision = round( $total_cart_amount * ( intval(get_option( 'rt_aff_plan_commision', 5 )) / 100 ), 2 );
+				} else { // One Time Plan
+					$plan_type = 1;
+					$commision = round( $total_cart_amount * ( intval( get_option( 'rt_aff_onetime_commission', 20 ))  / 100 ), 2 );
+				}
+
+				$result = $wpdb->insert( $wpdb->prefix . "rt_aff_transaction", array(
+						'txn_id' => $order_id, 'user_id' => $affiliate_user, 'type' => 'earning', 'approved' => 0, 'amount' => $commision, 'payment_method' => $gateway, 'note' => $comment, 'date' => get_post_field( 'post_date_gmt', $order_id )
 					), array( '%d', '%d', '%s', '%d', '%s', '%s', '%s', '%s' ) );
 
 				$result1 = $wpdb->insert( $wpdb->prefix . "rt_aff_buy_summary", array(

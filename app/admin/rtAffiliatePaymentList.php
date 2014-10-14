@@ -79,7 +79,8 @@ class rtAffiliatePaymentList extends WP_List_Table {
 	}
 
 	function display() {
-		extract( $this->_args );
+		$args = $this->_args;
+		extract( $args );
 		$this->display_tablenav( 'top' ); ?>
 		<table class="<?php echo implode( ' ', $this->get_table_classes() ); ?>" cellspacing="0">
 			<thead>
@@ -147,8 +148,8 @@ class rtAffiliatePaymentList extends WP_List_Table {
 	}
 
 	function column_txn_id( $row ) {
-		if ( isset ( $row->txn_id ) && ! empty ( $row->txn_id ) && ( 'shop_order' == get_post_type( $row->txn_id ) ) ) {
-			$txn_id = '<a href="' . get_edit_post_link( $row->txn_id ) . '" target="_blank">WC-' . $row->txn_id . '</a>';
+		if ( isset ( $row->txn_id ) && ! empty ( $row->txn_id ) && ( 'shop_order' == get_post_type( $row->txn_id ) || 'edd_payment' == get_post_type( $row->txn_id ) ) ) {
+			$txn_id = '<a href="' . get_edit_post_link( $row->txn_id ) . '" target="_blank">#' . $row->txn_id . '</a>';
 		} else {
 			$txn_id = $row->txn_id;
 		}

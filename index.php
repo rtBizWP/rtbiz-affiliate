@@ -1,13 +1,13 @@
 <?php
 
 /*
- *     Plugin Name:  rtAffiliate
+ *     Plugin Name:  rtBiz Affiliate
  *     Plugin URI:   http://rtcamp.com
- *     Description:  rtAffiliate
+ *     Description:  rtBiz Affiliate
  *     Version:      3.0.8
  *     Author:       rtCamp
  *     Author URI:   http://rtcamp.com
- *     Contributer:  $trik3r<faishal.saiyed@rtcamp.com>,Joshua Abenazer, Santosh Kamble
+ *     Contributer:  $trik3r<faishal.saiyed@rtcamp.com>,Joshua Abenazer, Santosh Kamble, Udit Desai<udit.desai@rtcamp.com>
  */
 
 /**

@@ -126,7 +126,8 @@ class rtAffiliateStates extends WP_List_Table {
 	}
 
 	function display() {
-		extract( $this->_args );
+		$args = $this->_args;
+		extract( $args );
 		$this->display_tablenav( 'top' ); ?>
 		<table class="<?php echo implode( ' ', $this->get_table_classes() ); ?>" cellspacing="0">
 			<thead>
