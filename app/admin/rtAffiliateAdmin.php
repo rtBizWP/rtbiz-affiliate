@@ -124,10 +124,10 @@ if ( ! class_exists( 'rtAffiliateAdmin' ) ) {
 				<br/>
 				<br/> <?php
 				if ( ! isset( $_GET[ "type" ] ) ) {
-					$this->monthly_visit_report();
+					$this->monthly_visit_report( '1000', '500' );
 				} else {
 					if ( isset( $_GET[ "type" ] ) == "domain" ) {
-						$this->domain_visit_report();
+						$this->domain_visit_report( '1000', '500' );
 					}
 				}
 
@@ -135,7 +135,7 @@ if ( ! class_exists( 'rtAffiliateAdmin' ) ) {
 		<?php
 		}
 
-		function domain_visit_report( $width = '1000', $height = '500' ) {
+		function domain_visit_report( $width = '', $height = '' ) {
 			global $wpdb;
 			if ( current_user_can( 'manage_options' ) ) {
 				$user_query = '';
@@ -154,7 +154,7 @@ if ( ! class_exists( 'rtAffiliateAdmin' ) ) {
 			$reports->draw_chart( "Domain", $graph_data, "pie", array(),$width, $height );
 		}
 
-		function monthly_visit_report( $width = '1000', $height = '500' ) {
+		function monthly_visit_report( $width = '', $height = '' ) {
 			global $wpdb;
 			if ( current_user_can( 'manage_options' ) ) {
 				$user_query = '';

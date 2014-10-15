@@ -54,7 +54,7 @@ if ( ! class_exists( 'rtAffiliate' ) ) {
 
 		public function custom_dashboard_rtaff_widget() {
 			$rtp = new rtAffiliateAdmin();
-			$rtp->monthly_visit_report( '540', '300' );
+			$rtp->monthly_visit_report();
 		}
 
 		public function create_tables() {
