@@ -677,18 +677,19 @@ if ( ! class_exists( 'rtAffiliateAdmin' ) ) {
 					$banners_info = explode( "\n", $banners_info );
 
 					foreach ( $banners_info as $k => $v ) {
-						$banner = explode( ' ', $v );
-						$size   = explode( 'x', $banner[ 0 ] );
+						$banner = explode( ',', $v );
+						$title  = $banner[ 0 ];
+						$size   = explode( 'x', $banner[ 1 ] );
 						?>
 						<tr class="read">
 							<th><?php echo $k; ?></th>
-							<td><img src="<?php if ( isset( $banner[ 1 ] ) ) {
-									echo $banner[ 1 ];
+							<td><img src="<?php if ( isset( $banner[ 2 ] ) ) {
+									echo $banner[ 2 ];
 								} ?>"
-									 alt="Blogger to WordPress Migration"/></td>
-							<td><?php echo $banner[ 0 ]; ?></td>
+									 alt="<?php echo $title; ?>"/></td>
+							<td><?php echo $banner[ 2 ]; ?></td>
 							<td>
-								<textarea name="banner_code" cols="50" rows="5"><a href="<?php echo bloginfo( 'url' ) . '/?ref=' . $username; ?>" target="_blank" title="Blogger To WordPress Migration Service"><img src="<?php if ( isset( $banner[ 1 ] ) ) { echo trim( $banner[ 1 ] ); } ?>" alt="Bogger To WordPress Migration Service" width="<?php if ( isset( $size[ 0 ] ) ) { echo $size[ 0 ]; } ?>" height="<?php if ( isset( $size[ 1 ] ) ) { echo $size[ 1 ]; } ?>"/></a></textarea>
+								<textarea name="banner_code" cols="50" rows="5"><a href="<?php echo bloginfo( 'url' ) . '/?ref=' . $username; ?>" target="_blank" title="<?php echo $title; ?>"><img src="<?php if ( isset( $banner[ 2 ] ) ) { echo trim( $banner[ 2 ] ); } ?>" alt="<?php echo $title; ?>" width="<?php if ( isset( $size[ 0 ] ) ) { echo $size[ 0 ]; } ?>" height="<?php if ( isset( $size[ 1 ] ) ) { echo $size[ 1 ]; } ?>"/></a></textarea>
 							</td>
 						</tr>
 					<?php
