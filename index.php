@@ -48,7 +48,7 @@ function rt_affiliate_autoloader ( $class_name ) {
         }
 }
 
-include_once 'app/lib/wp-helpers.php';
+include_once 'app/lib/rt-lib.php';
 
 /**
  * Register the autoloader function into spl_autoload
