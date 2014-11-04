@@ -90,7 +90,7 @@ if ( ! class_exists( 'rtAffiliateAdmin' ) ) {
 			add_submenu_page('rt-affiliate-manage-payment', 'Settings', 'Settings', 'manage_options', 'rt-affiliate-manage-settings', array($this, 'manage_settings'));
 			*/
 
-			add_menu_page( 'Affiliate', 'Affiliate', 'read', 'rt-affiliate-stats', '', '', 39 );
+			add_menu_page( 'Affiliate', 'Affiliate', 'read', 'rt-affiliate-stats', '', RT_AFFILIATE_URL . 'app/assets/img/16X16-green.png', 39 );
 			add_submenu_page( 'rt-affiliate-stats', 'Stats & History', 'Stats & History', 'read', 'rt-affiliate-stats', array( $this, 'affiliate_stats' ) );
 			add_submenu_page( 'rt-affiliate-stats', 'Links & Banners', 'Links & Banners', 'read', 'rt-affiliate-banners', array( $this, 'banners' ) );
 			add_submenu_page( 'rt-affiliate-stats', 'Payment Info', 'Payment Info', 'read', 'rt-affiliate-payment-info', array( $this, 'payment_info' ) );
